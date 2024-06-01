@@ -1,35 +1,4 @@
-// import * as d3 from "d3";
-// export default function* orthPainter(cntx, obj) {
-//     // canvas宽度
-//     const width = obj.width || 500;
-//     // canvas高度
-//     const height = obj.height || 500;
-//     // 左上角
-//     const point = obj.point || [0, 0];
-//     const sphere = {type: 'Sphere'};
-//     // 正交投影
-//     const projection = d3.geoOrthographic();
-//     const path = d3.geoPath()
-//         .context(cntx)
-//         .projection(projection);
-//     // 10度划分的经纬网
-//     const graticule = d3.geoGraticule10();
-//
-//     cntx.strokeStyle = '#000';
-//     cntx.lineWidth = 1;
-//     cntx.save();
-//     while(true) {
-//         cntx.clearRect(0, 0, width, height);
-//
-//         cntx.lineWidth = 2;
-//         cntx.beginPath();
-//         path(sphere);
-//         cntx.stroke();
-//
-//         cntx.restore();
-//         yield;
-//     }
-// }
+import * as d3 from "d3";
 
 class CanvasOrth {
     constructor(options = {}) {
@@ -84,7 +53,7 @@ class CanvasOrth {
 
             for(let geo in this.geoList) {
                 this.context.beginPath();
-                this.context.fillStyle = geo.color;
+                this.context.fillStyle = geo.color || '#3c76b1';
                 path(geo.geoJson);
                 this.context.fill();
             }
@@ -113,5 +82,9 @@ class CanvasOrth {
         raf();
     }
 
+}
+
+export {
+    CanvasOrth,
 }
 

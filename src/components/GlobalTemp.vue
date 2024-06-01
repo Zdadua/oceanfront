@@ -5,25 +5,38 @@
   import { generateChart } from "../assets/js/test/testArea.js";
   import { rotate } from "../assets/js/test/testArea.js";
   import * as topojson from "topojson-client";
+  import { CanvasOrth } from '../assets/js/orthographic/cnvsOrth.js'
 
   onMounted(()=>{
 
     let canvas = document.getElementById("map-canvas");
     let context = canvas.getContext("2d");
     const topology = fetch('./src/assets/ocean.json').then((res) => res.json())
-        .then(data => {
-        const rotateGenerator = rotate(context, data);
-        let result = rotateGenerator.next();
-
-        function rotateAnimate() {
-          if(!result.done) {
-            result = rotateGenerator.next();
-          }
-
-          requestAnimationFrame(rotateAnimate);
+      .then(data => {
+        const options = {
+          geoList: [
+            {
+              geoJson: data,
+            }
+          ],
+          context: context,
         }
 
-        rotateAnimate();
+        const orthographic = new CanvasOrth(options);
+        orthographic.paint();
+
+        // const rotateGenerator = rotate(context, data);
+        // let result = rotateGenerator.next();
+        //
+        // function rotateAnimate() {
+        //   if(!result.done) {
+        //     result = rotateGenerator.next();
+        //   }
+        //
+        //   requestAnimationFrame(rotateAnimate);
+        // }
+        //
+        // rotateAnimate();
     })
 
   })
