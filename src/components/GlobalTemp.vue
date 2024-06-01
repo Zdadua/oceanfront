@@ -2,35 +2,28 @@
 
   import * as d3 from 'd3'
   import {onMounted} from "vue";
-  import { generateChart } from "../assets/js/testArea.js";
-  import { generateOrthographic, rotate } from "../assets/js/testArea.js";
+  import { generateChart } from "../assets/js/test/testArea.js";
+  import { rotate } from "../assets/js/test/testArea.js";
   import * as topojson from "topojson-client";
 
   onMounted(()=>{
 
-    // let container = document.getElementById('test-graphic')
-    // generateChart().then(snode => {
-    //   container.appendChild(snode);
-    // })
     let canvas = document.getElementById("map-canvas");
     let context = canvas.getContext("2d");
-    const topology = fetch('./src/assets/hello.json').then(res => {
-      const topology = res.json();
-      console.log(topology);
-      // const coast = topojson.feature(topology, topology.objects.coastline_50m);
+    const topology = fetch('./src/assets/ocean.json').then((res) => res.json())
+        .then(data => {
+        const rotateGenerator = rotate(context, data);
+        let result = rotateGenerator.next();
 
-      const rotateGenerator = rotate(context);
-      let result = rotateGenerator.next();
+        function rotateAnimate() {
+          if(!result.done) {
+            result = rotateGenerator.next();
+          }
 
-      function rotateAnimate() {
-        if(!result.done) {
-          result = rotateGenerator.next();
+          requestAnimationFrame(rotateAnimate);
         }
 
-        requestAnimationFrame(rotateAnimate);
-      }
-
-      rotateAnimate();
+        rotateAnimate();
     })
 
   })

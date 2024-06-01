@@ -71,45 +71,10 @@ export async function generateChart() {
     return svg.node();
 }
 
-// 使用canvas绘制
-export async function generateOrthographic(context) {
-    const canvas = context.canvas;
-    const width = context.width;
-    const height = context.height;
-
+export function* rotate(context, geoJson) {
+    const sphere = {type: 'Sphere'};
     let projection = d3.geoOrthographic()
-        .fitExtent([[4, 4], [800, 800]], {type: 'Sphere'})
-        .translate([500, 500])
-        .clipAngle(90)
-        .precision(1)
-        .rotate([45, 45])
-
-    let path = d3.geoPath()
-        .projection(projection)
-        .context(context)
-
-    context.beginPath();
-    context.strokeStyle = '#000000';
-    context.lineWidth = 0.8;
-    path(d3.geoGraticule10());
-    context.stroke();
-    context.save();
-    context.beginPath();
-    path({type: 'Sphere'});
-    context.lineWidth = 3;
-    context.stroke();
-}
-
-export function* rotate(context) {
-    const width = context.width;
-    const height = context.height;
-
-    let projection = d3.geoOrthographic()
-        .fitExtent([[4, 4], [800, 800]], {type: 'Sphere'})
-        .translate([500, 500])
-        .clipAngle(90)
-        .precision(1)
-        .rotate([45, 45])
+        .fitExtent([[4, 4], [996, 996]], sphere)
 
     let path = d3.geoPath()
         .projection(projection)
@@ -118,27 +83,28 @@ export function* rotate(context) {
     const graticule = d3.geoGraticule10();
 
     context.strokeStyle = '#000000';
-    context.beginPath();
-    path({type: 'Sphere'});
-    context.lineWidth = 3;
-    context.stroke();
 
     while(true) {
         context.lineWidth = 1;
-        projection.rotate([0.01 * performance.now(), -15])
+        projection.rotate([0.004 * performance.now(), -15])
         context.clearRect(0, 0, 1000, 1000);
         context.save();
+        context.beginPath();
+        projection.precision(0);
+        context.fillStyle = "#15bc63";
+        context.globalAlpha = 0.5;
+        path(geoJson);
+        context.fill();
         context.beginPath()
         context.lineWidth = 0.8;
+        projection.precision(1);
         path(graticule);
         context.stroke();
         context.beginPath();
-        path({type: 'Sphere'});
+        path(sphere);
         context.lineWidth = 2;
         context.stroke();
-        context.beginPath();
-        path(geoJson);
-        context.fill();
+
         context.restore();
 
         yield;
