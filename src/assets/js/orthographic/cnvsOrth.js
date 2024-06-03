@@ -33,7 +33,7 @@ class CanvasOrth {
 
         const sphere = {type: 'Sphere'};
         const projection = d3.geoOrthographic()
-            .fitExtent([this.point, [this.width, this.height]], sphere);
+            .fitExtent([this.point, [this.width, this.height]], sphere)
         const path = d3.geoPath()
             .context(this.context)
             .projection(projection);
@@ -51,10 +51,10 @@ class CanvasOrth {
             path(graticule);
             this.context.stroke();
 
-            for(let geo in this.geoList) {
+            for(let i in this.geoList) {
                 this.context.beginPath();
-                this.context.fillStyle = geo.color || '#3c76b1';
-                path(geo.geoJson);
+                this.context.fillStyle = this.geoList[i].color || '#3c76b1';
+                path(this.geoList[i].geoJson);
                 this.context.fill();
             }
 
@@ -68,12 +68,15 @@ class CanvasOrth {
         }
     }
 
+
     paint() {
         const generator = this.orthPainter();
         let result = generator.next();
+        let cnt = 0
 
         function raf() {
-            while(result.done) {
+            while(!result.done && cnt <= 100) {
+                console.log(cnt);
                 result = generator.next();
             }
             requestAnimationFrame(raf);

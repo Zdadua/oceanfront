@@ -1,9 +1,10 @@
 import * as d3 from "d3";
+import * as topojson from "topojson-client";
 
-class svgOrth {
+class SvgOrth {
     constructor(options = {}) {
-        this.height = options.height || window.innerHeight;
-        this.width = options.width || window.innerWidth;
+        this.id = options.id;
+        this.r = options.r || window.innerWidth;
         this.geoList = options.geoList || null;
         this.rotate = options.rotate || null;
         this.color = options.color || '#000';
@@ -15,21 +16,61 @@ class svgOrth {
     }
 
     *orthPainter() {
-        let svg = d3.create('svg')
-            .attr('width', this.width)
-            .attr('height', this.height)
+        let svg = d3.select('#' + this.id).append('svg')
+            .attr('width', 2 * this.r + this.point[0])
+            .attr('height', 2 * this.r + this.point[1])
 
+        const graticule = d3.geoGraticule10();
         const sphere = {type: 'Sphere'};
         const projection = d3.geoOrthographic()
-            .fitExtent([this.point, [this.width - this.point[0], this.height - this.point[1]]], sphere);
+            .fitExtent([this.point, [2 * this.r - this.point[0], 2 * this.r - this.point[1]]], sphere);
 
         let path = d3.geoPath()
             .projection(projection);
 
+        svg.append('circle')
+            .attr('cx', this.r + this.point[0])
+            .attr('cy', this.r + this.point[1])
+            .attr('r', this.r)
+            .style('stroke', 'black')
+            .style('fill', 'none')
+
         svg.append('path')
             .datum(this.geoList.ocean)
+            .style('fill', 'blue')
             .attr('d', path)
 
+        svg.append('path')
+            .datum(graticule)
+            .style('stroke', 'black')
+            .style('opacity', .3)
+            .style('fill', 'none')
+            .attr('d', path)
 
+        while(true){
+            projection.rotate([0.004 * performance.now(), -15]);
+
+            yield;
+        }
     }
+
+    paint() {
+        const generator = this.orthPainter();
+        let result = generator.next();
+        let cnt = 0;
+
+        function raf() {
+            while(!result.done) {
+                cnt++;
+                console.log(cnt);
+                result = generator.next();
+            }
+            requestAnimationFrame(raf);
+        }
+        raf();
+    }
+}
+
+export {
+    SvgOrth,
 }

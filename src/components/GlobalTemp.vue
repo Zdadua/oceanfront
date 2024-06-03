@@ -2,41 +2,25 @@
 
   import * as d3 from 'd3'
   import {onMounted} from "vue";
-  import { generateChart } from "../assets/js/test/testArea.js";
-  import { rotate } from "../assets/js/test/testArea.js";
   import * as topojson from "topojson-client";
   import { CanvasOrth } from '../assets/js/orthographic/cnvsOrth.js'
+  import { SvgOrth } from '../assets/js/orthographic/svgOrth.js'
 
   onMounted(()=>{
 
-    let canvas = document.getElementById("map-canvas");
-    let context = canvas.getContext("2d");
-    const topology = fetch('./src/assets/ocean.json').then((res) => res.json())
+    const topology = fetch('./src/assets/ocean.json').then(res => res.json())
       .then(data => {
         const options = {
-          geoList: [
-            {
-              geoJson: data,
-            }
-          ],
-          context: context,
+          id: 'map',
+          r: 500,
+          geoList: {
+            ocean: data,
+          }
         }
 
-        const orthographic = new CanvasOrth(options);
+        const orthographic = new SvgOrth(options);
         orthographic.paint();
 
-        // const rotateGenerator = rotate(context, data);
-        // let result = rotateGenerator.next();
-        //
-        // function rotateAnimate() {
-        //   if(!result.done) {
-        //     result = rotateGenerator.next();
-        //   }
-        //
-        //   requestAnimationFrame(rotateAnimate);
-        // }
-        //
-        // rotateAnimate();
     })
 
   })
@@ -47,7 +31,7 @@
 <template>
 
 <!--  <div id="test-graphic"></div>-->
-  <canvas id="map-canvas" width="1000" height="1000"></canvas>
+  <div id="map"></div>
 
 </template>
 
@@ -58,7 +42,7 @@
     height: 100%;
   }
 
-  #map-canvas {
+  #map {
     width: 1000px;
     height: 1000px;
   }
