@@ -48,7 +48,20 @@ class SvgOrth {
             .attr('d', path)
 
         while(true){
+            svg.selectAll('path').remove();
             projection.rotate([0.004 * performance.now(), -15]);
+
+            svg.append('path')
+                .datum(this.geoList.ocean)
+                .style('fill', 'blue')
+                .attr('d', path)
+
+            svg.append('path')
+                .datum(graticule)
+                .style('stroke', 'black')
+                .style('opacity', .3)
+                .style('fill', 'none')
+                .attr('d', path)
 
             yield;
         }
@@ -57,12 +70,9 @@ class SvgOrth {
     paint() {
         const generator = this.orthPainter();
         let result = generator.next();
-        let cnt = 0;
 
         function raf() {
-            while(!result.done) {
-                cnt++;
-                console.log(cnt);
+            if(!result.done) {
                 result = generator.next();
             }
             requestAnimationFrame(raf);
