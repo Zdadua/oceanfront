@@ -1,86 +1,69 @@
 import * as d3 from "d3";
-import * as topojson from "topojson-client";
+import { getOcean } from '../fetchData.js'
 
-class SvgOrth {
+class SvgOrthographic {
+
+    projection= d3.geoOrthographic();
+    sphere = {type: 'Sphere'}
+    size = 500
+    rotateConfig= {
+        auto: false,
+        speed: 0,
+        autoVector: [0, 0, 0],
+        angle: [0, 0, 0]
+    }
+
+    rotated = true
+
+    point= [0, 0]
+    path = d3.geoPath()
+    svg = null
+    graticule = d3.geoGraticule10()
+
     constructor(options = {}) {
-        this.id = options.id;
-        this.r = options.r || window.innerWidth;
-        this.geoList = options.geoList || null;
-        this.rotate = options.rotate || null;
-        this.color = options.color || '#000';
-        this.point = options.point || [0, 0];
+        if(options.svgId == null) {
+            throw new Error('No Container!');
+        }
+
+        this.svg = d3.select(`#${options.svgId}`);
+        this.size = options.size || this.size;
+        this.point = options.point || this.point;
     }
 
-    setOptions(options = {}) {
+    init() {
+        this.projection.fitExtent([this.point, [this.size - this.point[0], this.size - this.point[1]]], this.sphere);
+        this.path.projection(this.projection);
 
-    }
+        this.svg.append('path')
+            .datum(this.graticule)
+            .style('stroke', 'black')
+            .style('opacity', .4)
+            .style('fill', 'none')
+            .attr('d', this.path)
 
-    *orthPainter() {
-        let svg = d3.select('#' + this.id).append('svg')
-            .attr('width', 2 * this.r + this.point[0])
-            .attr('height', 2 * this.r + this.point[1])
-
-        const graticule = d3.geoGraticule10();
-        const sphere = {type: 'Sphere'};
-        const projection = d3.geoOrthographic()
-            .fitExtent([this.point, [2 * this.r - this.point[0], 2 * this.r - this.point[1]]], sphere);
-
-        let path = d3.geoPath()
-            .projection(projection);
-
-        svg.append('circle')
-            .attr('cx', this.r + this.point[0])
-            .attr('cy', this.r + this.point[1])
-            .attr('r', this.r)
+        this.svg.append('circle')
+            .attr('cx', this.size / 2 + this.point[0])
+            .attr('cy', this.size / 2 + this.point[1])
+            .attr('r', this.size / 2)
             .style('stroke', 'black')
             .style('fill', 'none')
-
-        svg.append('path')
-            .datum(this.geoList.ocean)
-            .style('fill', 'blue')
-            .attr('d', path)
-
-        svg.append('path')
-            .datum(graticule)
-            .style('stroke', 'black')
-            .style('opacity', .3)
-            .style('fill', 'none')
-            .attr('d', path)
-
-        while(true){
-            svg.selectAll('path').remove();
-            projection.rotate([0.004 * performance.now(), -15]);
-
-            svg.append('path')
-                .datum(this.geoList.ocean)
-                .style('fill', 'blue')
-                .attr('d', path)
-
-            svg.append('path')
-                .datum(graticule)
-                .style('stroke', 'black')
-                .style('opacity', .3)
-                .style('fill', 'none')
-                .attr('d', path)
-
-            yield;
-        }
     }
 
-    paint() {
-        const generator = this.orthPainter();
-        let result = generator.next();
+    setProjection() {
 
-        function raf() {
-            if(!result.done) {
-                result = generator.next();
-            }
-            requestAnimationFrame(raf);
-        }
-        raf();
     }
+
+    repaint() {
+
+    }
+
+    rotate(rotateOptions) {
+        this.rotated = false;
+        this.rotateConfig = Object.assign(this.rotateConfig, rotateOptions);
+    }
+
 }
 
 export {
-    SvgOrth,
+    SvgOrthographic,
 }

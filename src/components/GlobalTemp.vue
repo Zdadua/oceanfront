@@ -1,27 +1,23 @@
 <script setup>
 
-  import * as d3 from 'd3'
-  import {onMounted} from "vue";
-  import * as topojson from "topojson-client";
-  import { CanvasOrth } from '../assets/js/orthographic/cnvsOrth.js'
-  import { SvgOrth } from '../assets/js/orthographic/svgOrth.js'
+import {onMounted} from "vue";
+import {SvgOrthographic} from '../assets/js/orthographic/svgOrth.js';
+import { fetchData } from "../assets/js/fetchData.js";
 
-  onMounted(()=>{
+onMounted(()=>{
+  const url = {
+    ocean: './src/assets/ocean.json',
+    heatMap: './src/assets/wuhu.csv',
+  }
 
-    const topology = fetch('./src/assets/ocean.json').then(res => res.json())
-      .then(data => {
-        const options = {
-          id: 'map',
-          r: 500,
-          geoList: {
-            ocean: data,
-          }
-        }
+  const options = {
+    svgId: 'projection',
+    size: 1000,
+    point: [0, 0]
+  }
 
-        const orthographic = new SvgOrth(options);
-        orthographic.paint();
-
-    })
+  const orthographic = new SvgOrthographic(options);
+  orthographic.init();
 
   })
 
@@ -31,7 +27,9 @@
 <template>
 
 <!--  <div id="test-graphic"></div>-->
-  <div id="map"></div>
+  <div id="map">
+    <svg id="projection" width="1000" height="1000"></svg>
+  </div>
 
 </template>
 
