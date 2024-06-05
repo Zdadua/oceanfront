@@ -48,20 +48,23 @@ export async function fetchData(url) {
 export async function getOcean() {
     const response = await fetch(config.oceanPath)
     if(!response.ok) {
-        return response.json();
+        throw new Error('ocean.json not get!')
     }
+    return response.json();
 }
 
 async function getForeground() {
     const response = await fetch(config.foregroundPath)
     if(!response.ok) {
-        return response.json();
+        throw new Error('foreground.json not get!')
     }
+    return response.json();
 }
 
 async function getHeatMap() {
     const response = await fetch(config.heatMap)
     if(!response.ok) {
-        return response.json();
+        throw new Error('heatMap not get!')
     }
+    return response.json();
 }

@@ -5,10 +5,6 @@ import {SvgOrthographic} from '../assets/js/orthographic/svgOrth.js';
 import { fetchData } from "../assets/js/fetchData.js";
 
 onMounted(()=>{
-  const url = {
-    ocean: './src/assets/ocean.json',
-    heatMap: './src/assets/wuhu.csv',
-  }
 
   const options = {
     svgId: 'projection',

@@ -12,8 +12,11 @@ class SvgOrthographic {
         autoVector: [0, 0, 0],
         angle: [0, 0, 0]
     }
+    center = [180, 0]
+    ocean = null
 
     rotated = true
+    centered = true
 
     point= [0, 0]
     path = d3.geoPath()
@@ -34,27 +37,61 @@ class SvgOrthographic {
         this.projection.fitExtent([this.point, [this.size - this.point[0], this.size - this.point[1]]], this.sphere);
         this.path.projection(this.projection);
 
-        this.svg.append('path')
-            .datum(this.graticule)
-            .style('stroke', 'black')
-            .style('opacity', .4)
-            .style('fill', 'none')
-            .attr('d', this.path)
+        this.projection.rotate(this.center)
 
-        this.svg.append('circle')
-            .attr('cx', this.size / 2 + this.point[0])
-            .attr('cy', this.size / 2 + this.point[1])
-            .attr('r', this.size / 2)
-            .style('stroke', 'black')
-            .style('fill', 'none')
+        this.svg.on('click', event => {
+            let [x, y] = [event.clientX, event.clientY];
+            this.center = this.projection.invert([x, y]);
+
+            this.centered = false;
+            this.paint();
+        })
+
+        getOcean().then(res => {
+            this.ocean = res;
+
+            this.paint();
+        })
     }
 
     setProjection() {
 
     }
 
-    repaint() {
+    paint() {
+        this.svg.selectAll('path').remove();
 
+        if(!this.rotated) {
+            //TODO: 制作旋转过渡
+        }
+
+        if(!this.centered) {
+            this.centered = true;
+
+            let [a, b] = [this.point[0] + this.size / 2, this.point[1] + this.size / 2];
+            [a, b] = this.projection.invert([a, b]);
+            this.projection.rotate([a - this.center[0], b - this.center[1]]);
+        }
+
+        this.svg.append('circle')
+            .attr('cx', this.size / 2 + this.point[0])
+            .attr('cy', this.size / 2 + this.point[1])
+            .attr('r', this.size / 2)
+            .style('stroke', 'black')
+            .style('fill', '#6cc872')
+
+        this.svg.append('path')
+            .data(this.ocean.features)
+            .style('stroke', '#174151')
+            .style('fill', '#3786a5')
+            .attr('d', this.path)
+
+        this.svg.append('path')
+            .datum(this.graticule)
+            .style('stroke', 'black')
+            .style('opacity', .4)
+            .style('fill', 'none')
+            .attr('d', this.path)
     }
 
     rotate(rotateOptions) {
