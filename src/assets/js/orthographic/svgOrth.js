@@ -12,7 +12,7 @@ class SvgOrthographic {
         autoVector: [0, 0, 0],
         angle: [0, 0, 0]
     }
-    center = [180, 0]
+    center = [0, 0]
     ocean = null
 
     rotated = true
@@ -70,7 +70,8 @@ class SvgOrthographic {
 
             let [a, b] = [this.point[0] + this.size / 2, this.point[1] + this.size / 2];
             [a, b] = this.projection.invert([a, b]);
-            this.projection.rotate([a - this.center[0], b - this.center[1]]);
+            console.log(a + ' ' + b);
+            this.projection.rotate([-this.center[0], -this.center[1]]);
         }
 
         this.svg.append('circle')
@@ -78,12 +79,12 @@ class SvgOrthographic {
             .attr('cy', this.size / 2 + this.point[1])
             .attr('r', this.size / 2)
             .style('stroke', 'black')
-            .style('fill', '#6cc872')
+            .style('fill', '#556856')
 
         this.svg.append('path')
             .data(this.ocean.features)
             .style('stroke', '#174151')
-            .style('fill', '#3786a5')
+            .style('fill', '#75c4e3')
             .attr('d', this.path)
 
         this.svg.append('path')
@@ -92,6 +93,25 @@ class SvgOrthographic {
             .style('opacity', .4)
             .style('fill', 'none')
             .attr('d', this.path)
+
+        const drag = d3.drag()
+            .on("start drag end", this.dragMove.bind(this));
+
+        this.svg.call(drag);
+
+
+        d3.drag()
+    }
+
+    dragMove(event) {
+        const dx = event.dx;
+        const dy = event.dy;
+
+        this.projection.rotate([this.projection.rotate()[0] + dx / 10, this.projection.rotate()[1] - dy / 10]);
+
+        // 重绘地图
+        this.svg.selectAll("path")
+            .attr("d", this.path);
     }
 
     rotate(rotateOptions) {
