@@ -114,6 +114,11 @@ class SvgOrthographic {
             .attr("d", this.path);
     }
 
+    clickRotate(event) {
+        const [a, b] = this.projection.invert([event.clientX, event.clientY])
+
+    }
+
     rotate(rotateOptions) {
         this.rotated = false;
         this.rotateConfig = Object.assign(this.rotateConfig, rotateOptions);

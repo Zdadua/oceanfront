@@ -1,47 +1,26 @@
 import { config } from './myConfig.js'
 
-export async function fetchData(url) {
+export async function fetchHeatMap(url) {
 
-    const ocean = url.ocean || null;
-    const heatMap = url.heatMap || null;
-
-    const result = {
-        ocean: null,
-        heatMap: null,
+    if(url == null) {
+        throw new Error('url is null!');
     }
 
-    if(ocean != null) {
-        const oceanResponse = await fetch(ocean);
+    const heatResponse = await fetch(url);
 
-        if(!oceanResponse.ok) {
-            throw new Error(`http error: ${oceanResponse.status}`);
-        }
-        else {
-            result.ocean = await oceanResponse.json();
-        }
-
+    if(!heatResponse.ok) {
+        throw new Error(`http error: ${heatResponse.status}`);
     }
-
-    if(heatMap != null) {
-        const heatResponse = await fetch(heatMap);
-
-        if(!heatResponse.ok) {
-            throw new Error(`http error: ${heatResponse.status}`);
-        }
-        else {
-            const text = await heatResponse.text();
-            const rows = text.split('\r\n');
-            rows.splice(-1, 1);
-            result.heatMap = rows.map(row => {
-                return row.split(',').map(num => {
-                    return parseFloat(num) || 0;
-                });
-            })
-        }
-
+    else {
+        const text = await heatResponse.text();
+        const rows = text.split('\r\n');
+        rows.splice(-1, 1);
+        return rows.map(row => {
+            return row.split(',').map(num => {
+                return parseFloat(num) || 0;
+            });
+        })
     }
-
-    return result;
 }
 
 

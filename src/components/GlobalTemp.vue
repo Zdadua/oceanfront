@@ -2,7 +2,7 @@
 
 import {onMounted} from "vue";
 import {SvgOrthographic} from '../assets/js/orthographic/svgOrth.js';
-import { fetchData } from "../assets/js/fetchData.js";
+import { HeatMap } from "../assets/js/orthographic/heatMap.js";
 
 onMounted(()=>{
 
@@ -15,6 +15,10 @@ onMounted(()=>{
   const orthographic = new SvgOrthographic(options);
   orthographic.init();
 
+  const context = document.getElementById('canvas-map').getContext('2d')
+  const heatMap = new HeatMap(context, './src/assets/wuhu.csv');
+  heatMap.init();
+
   })
 
 
@@ -22,18 +26,20 @@ onMounted(()=>{
 
 <template>
 
-<!--  <div id="test-graphic"></div>-->
   <div id="map">
     <svg id="projection" width="1000" height="1000"></svg>
+  </div>
+  <div id="heat-map">
+    <canvas id="canvas-map" width="1440" height="1440"></canvas>
   </div>
 
 </template>
 
 <style lang="less" scoped>
 
-  #test-graphic {
-    width: 100%;
-    height: 100%;
+  #heat-map {
+    width: 1440px;
+    height: 1440px;
   }
 
   #map {
