@@ -27,28 +27,27 @@ class HeatMap {
 
         this.heatData = await fetchHeatMap(this.url);
 
-        const min = d3.min(this.heatData.flat());
-        const max = d3.max(this.heatData.flat());
+        const min = parseInt(d3.min(this.heatData.flat()));
+        const max = parseInt(d3.max(this.heatData.flat()));
 
-        console.log(min + ' ' + max)
+        let tmpCanvas = d3.create('canvas').attr('width', 1440).attr('height', 720);
+        let tmpCtx = tmpCanvas.node().getContext('2d');
 
         const colorScale = d3.scaleSequential(d3.interpolate('blue', 'red')).domain([min, max]);
-
+        let color;
         this.heatData.forEach((d, i) => {
-
-            for(let j = -360; j < 360; j++) {
-                let [x, y] = this.projection([ j / 4, -(360 - i) / 4])
-
-                const color = colorScale(d[(j + 1440) % 1440]);
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.arc(x, y, 1.5, 0, 2 * Math.PI);
-                // this.ctx.arc(j, 720 - i, 5, 0, 2 * Math.PI);
-                this.ctx.fill();
+            for(let j = 0; j < 1440; j++) {
+                color = colorScale(d[(j + 1440) % 1440]);
+                tmpCtx.fillStyle = color;
+                tmpCtx.beginPath();
+                tmpCtx.arc(j, 720 - i, 1.5, 0, 2 * Math.PI);
+                tmpCtx.fill();
             }
-
-
         })
+
+        
+
+        return tmpCtx.getImageData(0, 0, 1440, 720);
 
     }
 }
