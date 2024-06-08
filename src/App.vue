@@ -1,22 +1,26 @@
 <script setup>
 
-import GlobalTemp from "./components/GlobalTemp.vue";
+import TextCube from "./components/aboutUs/TextCube.vue";
 
 </script>
 
 <template>
 
-  <div id="main-cntnr">
-    <GlobalTemp/>
+  <div id="app-cntnr">
+    <TextCube/>
   </div>
 
 </template>
 
 <style scoped>
 
-  #main-cntnr {
-    width: 1000px;
-    height: 1000px;
-  }
+#app-cntnr {
+  width: 2000px;
+  height: 100vh;
+  background-color: antiquewhite;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
 
 </style>
