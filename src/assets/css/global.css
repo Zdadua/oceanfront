@@ -3,3 +3,24 @@ body {
     margin: 0;
     box-sizing: border-box;
 }
+
+@font-face {
+    font-family: 'UNSII';
+    src: url('../font/UNSII-2.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Freeman';
+    src: url('../font/Freeman-Regular.woff2') format('woff2');
+}
+
+input, button {
+    border: none;
+    outline-style: none;
+    background-color: transparent;
+}
+
+body {
+    overflow-y: hidden;
+    background-color: #1e1e1e;
+}

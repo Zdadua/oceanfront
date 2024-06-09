@@ -1,19 +1,18 @@
 <script setup>
 
-import GlobalTemp from "./components/GlobalTemp.vue";
+import TextCube from "./components/aboutUs/TextCube.vue";
 
 </script>
 
 <template>
 
   <div id="main-cntnr">
-    <GlobalTemp/>
+    <TextCube />
   </div>
 
 </template>
 
 <style scoped>
-
   #main-cntnr {
     width: 1000px;
     height: 1000px;
