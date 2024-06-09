@@ -1,21 +1,23 @@
 <script setup>
 
-import TextCube from "./components/aboutUs/TextCube.vue";
+import AboutUs from "./components/aboutUs/AboutUs.vue";
 
 </script>
 
 <template>
 
   <div id="main-cntnr">
-    <TextCube />
+
+    <AboutUs />
+
   </div>
 
 </template>
 
 <style scoped>
   #main-cntnr {
-    width: 1000px;
-    height: 1000px;
+    width: 100vw;
+    height: 100vh;
   }
 
 </style>

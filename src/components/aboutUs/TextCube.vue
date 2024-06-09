@@ -25,13 +25,13 @@
 
   let cube = ref(null);
   let mouseIn = ref(false);
-  let cubeClass = computed(() => mouseIn ? 'cube-active' : 'cube-not-active');
+  let cubeClass = computed(() => mouseIn.value ? 'cube-active' : 'cube-not-active');
 
   onMounted(() => {
     if(cube.value) {
       const rect = cube.value.getBoundingClientRect();
 
-
+      console.log(mouseIn.value)
     }
   })
 
@@ -57,16 +57,17 @@
     height: 100%;
     box-sizing: border-box;
     border-radius: 20px;
-    border: 3px solid #474747;
 
   }
 
   .cube-not-active {
-    box-shadow: 2px 2px 15px rgba(47, 66, 89, 0.8);
+    box-shadow: 0px 0px 5px rgba(60, 72, 96, 0.8);
+    transition: box-shadow 0.5s ease;
   }
 
   .cube-active {
-    box-shadow: 2px 2px 40px rgb(66, 202, 14);
+    box-shadow: 4px 4px 20px rgb(87, 145, 65);
+    transition: box-shadow 0.5s ease;
   }
 
   .default-container {
