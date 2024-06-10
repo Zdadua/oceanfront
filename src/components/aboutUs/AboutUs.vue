@@ -2,14 +2,17 @@
 
 import TextCube from "./TextCube.vue";
 
+
+
+
 </script>
 
 <template>
   <div id="about-us-container">
-    <div id="three-earth-container">
+    <div id="three-earth-container" class="sec-container">
 
     </div>
-    <div id="info-container">
+    <div id="info-container" class="sec-container">
       <div id="grid-container">
         <TextCube class="first" />
       </div>
@@ -25,10 +28,12 @@ import TextCube from "./TextCube.vue";
   height: 100vh;
 }
 
-#info-container {
+.sec-container {
   width: 100%;
   box-sizing: border-box;
+}
 
+#info-container{
   #grid-container {
     margin: 0 auto;
     display: grid;
@@ -42,7 +47,10 @@ import TextCube from "./TextCube.vue";
       grid-row: 1/3;
     }
   }
+}
 
+#three-earth-container {
+  height: 850px;
 }
 
 </style>

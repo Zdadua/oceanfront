@@ -61,13 +61,15 @@
   }
 
   .cube-not-active {
-    box-shadow: 0px 0px 5px rgba(60, 72, 96, 0.8);
-    transition: box-shadow 0.5s ease;
+    box-shadow: 0 0 5px rgba(60, 72, 96, 0.8);
+    transform: translate(0, 0);
+    transition: box-shadow 0.5s ease, transform 0.5s ease;
   }
 
   .cube-active {
     box-shadow: 4px 4px 20px rgb(87, 145, 65);
-    transition: box-shadow 0.5s ease;
+    transform: translate(-2px, -2px);
+    transition: box-shadow 0.5s ease, transform 0.5s ease;
   }
 
   .default-container {
