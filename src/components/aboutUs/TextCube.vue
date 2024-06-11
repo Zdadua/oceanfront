@@ -14,7 +14,7 @@
     backgroundImage: {
       type: String,
       required: false,
-      default: null,
+      default: 'none',
     },
     shadowColor: {
       type: String,
@@ -39,7 +39,8 @@
 
 <template>
   <!-- 不知道会不会冲突 -->
-  <div ref="cube" id="cube-container" :style="{'backgroundColor': props.backgroundColor}" :class="[cubeClass]" @mouseenter="mouseIn = true" @mouseleave="mouseIn = false">
+  <div ref="cube" id="cube-container" :style="{'backgroundColor': props.backgroundColor, 'backgroundImage': 'url(' + props.backgroundImage + ')' }" :class="[cubeClass]" @mouseenter="mouseIn = true" @mouseleave="mouseIn = false">
+
     <div id="cube-title">
       <slot name="cube-title"></slot>
     </div>

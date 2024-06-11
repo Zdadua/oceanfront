@@ -1,14 +1,13 @@
 <script setup>
 
-import AboutUs from "./components/aboutUs/AboutUs.vue";
-
+import CesiumEarth from "./components/earth/ThreeEarth.vue";
 </script>
 
 <template>
 
   <div id="main-cntnr">
 
-    <AboutUs />
+    <CesiumEarth />
 
   </div>
 
