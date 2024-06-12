@@ -1,15 +1,15 @@
 <script setup>
 
 import TextCube from "./TextCube.vue";
-import ThreeEarth from "./ThreeEarth.vue";
 import PicLib from "./PicLib.vue";
+import LogoIcon from "./LogoIcon.vue";
 
 </script>
 
 <template>
   <div id="about-us-container">
     <div id="three-earth-container" class="sec-container">
-      <ThreeEarth />
+      <LogoIcon />
     </div>
     <div id="info-container" class="sec-container">
       <div id="grid-container">
@@ -21,7 +21,7 @@ import PicLib from "./PicLib.vue";
     </div>
 
     <div id="pic-container" class="sec-container">
-      <PicLib />
+<!--      <PicLib />-->
     </div>
 
   </div>
