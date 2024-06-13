@@ -1,13 +1,17 @@
 <script setup>
 
-import AboutUs from "./components/aboutUs/AboutUs.vue";
+// import AboutUs from "./components/aboutUs/AboutUs.vue";
+// import ThreeEarth from "./components/earth/ThreeEarth.vue";
+import GlobalTemp from "./components/GlobalTemp.vue";
 
 </script>
 
 <template>
 
   <div id="main-cntnr">
-    <AboutUs />
+<!--    <AboutUs />-->
+<!--    <ThreeEarth />-->
+    <GlobalTemp />
   </div>
 
 </template>

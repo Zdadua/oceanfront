@@ -25,7 +25,14 @@ onMounted(()=>{
     // 获取tmpCanvas的2d上下文
     const tmpCtx = tmpCanvas.value.getContext('2d');
     // 将image绘制到tmpCanvas上
-    tmpCtx.putImageData(image, 0, 0)
+    tmpCtx.putImageData(image, 0, 0);
+
+    let a = document.createElement('a');
+    a.href = document.getElementById('tmp-canvas').toDataURL('image/jpg');
+    a.download = 'canvas.jpg';
+    a.textContent = 'download';
+    document.getElementById('tmp').appendChild(a);
+
   })
 
 })
@@ -38,11 +45,11 @@ onMounted(()=>{
     <svg id="projection" width="1000" height="1000"></svg>
   </div>
   <div id="heat-map">
-    <canvas ref="" id="canvas-map" width="1440" height="720"></canvas>
+    <canvas ref="" id="canvas-map" width="2880" height="1440"></canvas>
   </div>
 
-  <div>
-    <canvas ref="tmpCanvas" id="tmp-canvas" width="1440" height="720"></canvas>
+  <div id="tmp">
+    <canvas ref="tmpCanvas" id="tmp-canvas" width="2880" height="1440"></canvas>
   </div>
 
 </template>
@@ -50,8 +57,8 @@ onMounted(()=>{
 <style lang="less" scoped>
 
   #heat-map {
-    width: 1440px;
-    height: 1440px;
+    width: 2880px;
+    height: 2880px;
   }
 
   #map {
