@@ -1,12 +1,12 @@
 import { config } from './myConfig.js'
 
-export async function fetchHeatMap(url) {
-
+export async function fetchHeatMap(time) {
+    const url = config.heatMap;
     if(url == null) {
         throw new Error('url is null!');
     }
 
-    const heatResponse = await fetch(url);
+    const heatResponse = await fetch(url + '/sst' + '/' + time);
 
     if(!heatResponse.ok) {
         throw new Error(`http error: ${heatResponse.status}`);
@@ -17,7 +17,7 @@ export async function fetchHeatMap(url) {
         rows.splice(-1, 1);
         return rows.map(row => {
             return row.split(',').map(num => {
-                return parseFloat(num) || 0;
+                return parseFloat(num) || -100;
             });
         })
     }
