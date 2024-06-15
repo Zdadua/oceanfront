@@ -25,4 +25,4 @@ jobs:
       uses: actions/upload-artifact@v4.3.3
       with:
         name: my-vue-node-app
-        path: dist  # 假设你的打包输出目录是 dist
+        path: oceanfront/dist  # 假设你的打包输出目录是 dist
