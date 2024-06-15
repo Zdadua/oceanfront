@@ -21,6 +21,9 @@ jobs:
     - name: Build project
       run: npm run build  # 假设你的打包命令是 npm run build
 
+    - name: list files
+      run: tree
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.3.3
       with:
