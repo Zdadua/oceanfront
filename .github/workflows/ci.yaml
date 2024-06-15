@@ -13,7 +13,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4.0.2
       with:
-        node-version: '14'  # 根据你的项目需求设置 Node.js 版本
+        node-version: '20'  # 根据你的项目需求设置 Node.js 版本
 
     - name: Install dependencies
       run: npm install  # 安装依赖
@@ -25,4 +25,4 @@ jobs:
       uses: actions/upload-artifact@v4.3.3
       with:
         name: my-vue-node-app
-        path: ./  # 假设你的打包输出目录是 dist
+        path: ./dist  # 假设你的打包输出目录是 dist
