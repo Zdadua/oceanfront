@@ -5,7 +5,7 @@ import TwoDimensionMap from "../../components/2D/TwoDimensionMap.vue";
 
 const routes = [
     {
-        path: '/about',
+        path: '/',
         component: AboutUs,
     },
     {

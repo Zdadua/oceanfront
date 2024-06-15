@@ -3,11 +3,13 @@
 import TextCube from "./TextCube.vue";
 import PicLib from "./PicLib.vue";
 import LogoIcon from "./LogoIcon.vue";
+import GuideBar from "./GuideBar.vue";
 
 </script>
 
 <template>
   <div id="about-us-container">
+    <GuideBar />
     <div id="three-earth-container" class="sec-container">
       <LogoIcon />
     </div>
