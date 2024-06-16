@@ -6,12 +6,12 @@ body {
 
 @font-face {
     font-family: 'UNSII';
-    src: url('../font/UNSII-2.woff2') format('woff2');
+    src: url('../assets/font/UNSII-2.woff2') format('woff2');
 }
 
 @font-face {
     font-family: 'Freeman';
-    src: url('../font/Freeman-Regular.woff2') format('woff2');
+    src: url('../assets/font/Freeman-Regular.woff2') format('woff2');
 }
 
 input, button {

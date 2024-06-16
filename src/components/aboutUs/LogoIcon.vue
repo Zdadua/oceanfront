@@ -1,6 +1,6 @@
 <script setup>
 
-import { init } from '../../assets/js/aboutUs/initIcon.js'
+import { init } from '../../js/aboutUs/initIcon.js'
 import {computed, onMounted} from "vue";
 import {compute} from "three/nodes";
 import anime from "animejs/lib/anime.es.js";

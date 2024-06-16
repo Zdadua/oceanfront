@@ -1,8 +1,8 @@
 <script setup>
 
 import {onMounted, ref} from "vue";
-import {SvgOrthographic} from '../assets/js/orthographic/svgOrth.js';
-import { HeatMap } from "../assets/js/orthographic/heatMap.js";
+import {SvgOrthographic} from '../js/orthographic/svgOrth.js';
+import { HeatMap } from "../js/map/heatMap.js";
 
 const tmpCanvas = ref(null);
 const time = ref(null);

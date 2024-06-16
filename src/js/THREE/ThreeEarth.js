@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import vertexShader from '../../shaders/vertex.glsl'
-import fragmentShader from '../../shaders/fragment.glsl'
+import vertexShader from '../../assets/shaders/vertex.glsl'
+import fragmentShader from '../../assets/shaders/fragment.glsl'
 
 let scene;
 let camera;

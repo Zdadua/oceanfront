@@ -29,6 +29,8 @@ onMounted(() => {
   .see-sight {
     width: 100vw;
     height: 100vh;
+    background-color: white;
+    scale: .5;
   }
 
   #two-d-map-container {

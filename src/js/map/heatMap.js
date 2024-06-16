@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { fetchHeatMap } from "../fetchData.js";
+import { getHeatMap } from "../fetchData.js";
 
 class HeatMap {
 
@@ -21,7 +21,7 @@ class HeatMap {
     }
 
     async init() {
-        this.heatData = await fetchHeatMap(this.time);
+        this.heatData = await getHeatMap(this.time);
 
         const tmp = this.heatData.flat();
 
