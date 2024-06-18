@@ -1,9 +1,13 @@
 <script setup>
 
 import {onMounted, ref} from "vue";
+import { LineDrawer } from "../../js/map/lineDrawer.js";
+
+let grid = ref(null)
 
 onMounted(() => {
-
+  let drawer = new LineDrawer(grid.value);
+  drawer.init();
 })
 
 </script>
@@ -16,8 +20,7 @@ onMounted(() => {
       <canvas id="heat-map"></canvas>
     </div>
 <!--  绘制经纬度和轮廓线  -->
-    <div id="grid-container">
-      <svg id="grid"></svg>
+    <div ref="grid" id="grid-container">
     </div>
 <!--  粒子效果待定  -->
   </div>
@@ -30,7 +33,6 @@ onMounted(() => {
     width: 100vw;
     height: 100vh;
     background-color: white;
-    scale: .5;
   }
 
   #two-d-map-container {
@@ -42,6 +44,8 @@ onMounted(() => {
   }
 
   #grid-container {
+    width: 100%;
+    height: 100%;
     position: absolute;
   }
 
