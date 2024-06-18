@@ -1,13 +1,15 @@
 <script setup>
 
-import {onMounted, ref} from "vue";
-import { LineDrawer } from "../../js/map/lineDrawer.js";
+import {computed, onMounted, ref} from "vue";
+import { MapDrawer } from "../../js/map/MapDrawer.js";
 
-let grid = ref(null)
+let mapContainer = ref(null);
+let infoContainer = ref(null);
 
 onMounted(() => {
-  let drawer = new LineDrawer(grid.value);
+  let drawer = new MapDrawer(mapContainer.value, infoContainer.value);
   drawer.init();
+
 })
 
 </script>
@@ -15,14 +17,14 @@ onMounted(() => {
 <template>
 
   <div id="two-d-map-container" class="see-sight">
-<!--  绘制热力图作为底图  -->
-    <div id="heat-map-container">
-      <canvas id="heat-map"></canvas>
+    <div ref="mapContainer" id="map-container">
     </div>
-<!--  绘制经纬度和轮廓线  -->
-    <div ref="grid" id="grid-container">
+
+    <div ref="infoContainer" id="info-container">
+      <div id="info-text">Current Position:</div>
+      <div v-if="true" id="lon-lat"></div>
     </div>
-<!--  粒子效果待定  -->
+
   </div>
 
 </template>
@@ -39,14 +41,54 @@ onMounted(() => {
     position: relative;
   }
 
-  #heat-map-container {
-    position: absolute;
-  }
-
-  #grid-container {
+  #map-container {
     width: 100%;
     height: 100%;
+  }
+
+  #info-container {
+    box-sizing: border-box;
+    padding: 5px;
+    width: 200px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     position: absolute;
+    bottom: 10px;
+    left: -50px;
+    background-color: white;
+    border-radius: 10px;
+
+    #info-text {
+      width: 100%;
+      height: 30px;
+      line-height: 30px;
+      font-size: 1em;
+      margin-bottom: 10px;
+    }
+
+    #lon-lat {
+      max-width: 190px;
+      height: 30px;
+      align-content: center;
+      line-height: 30px;
+      font-size: .8em;
+      background-color: #e4e4e4;
+    }
+
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 40px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 10px 10px 0 10px;
+      border-color: #ffffff transparent transparent transparent;
+    }
+
   }
 
 </style>

@@ -18,3 +18,5 @@ const router = createRouter({
     routes,
 })
 ```
+## 内容为空的标签渲染后不见了
+- 为该标签加上v-if="true"即可；
