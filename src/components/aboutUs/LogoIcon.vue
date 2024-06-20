@@ -45,18 +45,17 @@ onMounted(() => {
 
   #grid-container {
     display: grid;
-    width: 1392px;
-    margin: 0 auto;
-    padding-top: 150px;
-    height: 700px;
-    grid-template-columns: repeat(56, 17px);
-    grid-template-rows: repeat(21, 17px);
-    grid-gap: 8px;
+    width: 1169px;
+    margin-top: 200px;
+    height: 500px;
+    grid-template-columns: repeat(56, 14px);
+    grid-template-rows: repeat(21, 14px);
+    grid-gap: 7px;
   }
 
   .small-cube {
-    width: 17px;
-    height: 17px;
+    width: 14px;
+    height: 14px;
   }
 
   .blue {

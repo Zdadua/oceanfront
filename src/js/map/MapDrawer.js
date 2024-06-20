@@ -5,6 +5,9 @@ import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import {toStringHDMS} from "ol/coordinate.js";
 import {XYZ} from "ol/source.js";
+import {GeoJSON} from "ol/format.js";
+import VectorSource from "ol/source/Vector.js";
+import VectorLayer from "ol/layer/Vector.js";
 
 class MapDrawer {
 
@@ -36,34 +39,52 @@ class MapDrawer {
 
         overlay.setPosition(undefined);
 
+        let vectorSource = new VectorSource({
+            format: new GeoJSON(),
+            url: './src/assets/geoJson/world.json',
+        });
+
+        let vectorLayer = new VectorLayer({
+            source: vectorSource
+        });
+
         let options = {
             target: this.element.id,
             layers: [
                 // new TileLayer({
-                //     source: new OSM(), // 后续可能使用自定义瓦片服务
+                //     source: new OSM(),
                 // }),
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        url: '../../assets/tiles/{z}/{x}_{y}.png',
+                        url: './src/assets/tilesC/{z}/{x}_{y}.png',
+
                     })
-                })
+                }),
+                new TileLayer({
+                    source: new XYZ({
+                        // 配置瓦片图层的URL模板和参数
+                        url: './src/assets/tiles/{z}/{x}_{y}.png',
+
+                    })
+                }),
             ],
             overlays: [overlay],
             view: new View({
                 center: fromLonLat([0, 0]),
+                minZoom: 2,
+                maxZoom: 5,
                 zoom: 2,
+
             }),
         };
         this.map = new Map(options);
 
-        console.log(this.infoElement.childNodes[1]);
-
         this.map.on('click', (event) => {
             let coordinate = event.coordinate;
             this.infoElement.childNodes[1].innerHTML = toStringHDMS(toLonLat(coordinate));
-            console.log(this.infoElement.innerHTML)
             overlay.setPosition(coordinate)
+
         })
     }
 

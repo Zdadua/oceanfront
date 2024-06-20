@@ -22,21 +22,9 @@
 
 #guide-bar-container {
   width: 100%;
-  height: 50px;
-  background-color: black;
-
-
-  &::after {
-    display: block;
-    position: absolute;
-    left: 50px;
-    right: 50px;
-    top: 50px;
-    content: "";
-    height: 1px;
-    box-shadow: 0 0 20px rgba(56, 149, 255, 0.5);
-    background-color: #76cfc4;
-  }
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.84);
+  box-shadow: 0 0 10px rgba(0, 111, 255, 0.5);
 
   #router-wrapper {
     display: flex;
@@ -50,7 +38,7 @@
       width: 75px;
       text-align: center;
       font-size: .9em;
-      line-height: 44px;
+      line-height: 34px;
       border-radius: 8px;
       background-color: transparent;
       transition: background-color .3s ease-in-out;

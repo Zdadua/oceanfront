@@ -9,11 +9,11 @@ import GuideBar from "./GuideBar.vue";
 
 <template>
   <div id="about-us-container">
-    <GuideBar />
-    <div id="three-earth-container" class="sec-container">
+    <GuideBar class="full-bleed" />
+    <div id="three-earth-container" class="sec-container mid-grid">
       <LogoIcon />
     </div>
-    <div id="info-container" class="sec-container">
+    <div id="info-container" class="sec-container full-bleed">
       <div id="grid-container">
         <TextCube class="first" background-image="./src/assets/svg/card01.svg" />
         <TextCube class="second" background-image="none" />
@@ -22,9 +22,9 @@ import GuideBar from "./GuideBar.vue";
       </div>
     </div>
 
-    <div id="pic-container" class="sec-container">
-<!--      <PicLib />-->
-    </div>
+<!--    <div id="pic-container" class="sec-container">-->
+<!--&lt;!&ndash;      <PicLib />&ndash;&gt;-->
+<!--    </div>-->
 
   </div>
 </template>
@@ -32,12 +32,24 @@ import GuideBar from "./GuideBar.vue";
 <style scoped lang="less">
 
 #about-us-container {
-  width: 100vw;
+  width: calc(100vw + 20px);
   height: 100vh;
+
+  display: grid;
+  grid-template-columns: 1fr 1200px 1fr;
+  grid-gap: 10px;
+}
+
+.full-bleed {
+  grid-column: 1/4;
+}
+
+.mid-grid {
+  place-self: center;
+  grid-column: 2;
 }
 
 .sec-container {
-  width: 100%;
   box-sizing: border-box;
 }
 
