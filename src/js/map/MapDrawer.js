@@ -57,14 +57,14 @@ class MapDrawer {
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        url: './src/assets/tilesC/{z}/{x}_{y}.png',
+                        url: './public/static/sst_tiles/{z}/{x}_{y}.png',
 
                     })
                 }),
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        url: './src/assets/tiles/{z}/{x}_{y}.png',
+                        url: './public/static/world_tiles/{z}/{x}_{y}.png',
 
                     })
                 }),

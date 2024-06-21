@@ -15,7 +15,7 @@ import GuideBar from "./GuideBar.vue";
     </div>
     <div id="info-container" class="sec-container full-bleed">
       <div id="grid-container">
-        <TextCube class="first" background-image="./src/assets/svg/card01.svg" />
+        <TextCube class="first" background-image="./public/static/svg/card01.svg" />
         <TextCube class="second" background-image="none" />
         <TextCube class="third" background-image="none" />
         <TextCube class="fourth" background-image="none" />
