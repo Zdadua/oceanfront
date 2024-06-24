@@ -2,6 +2,8 @@
 
 import {computed, onMounted, ref} from "vue";
 import { MapDrawer } from "../../js/map/MapDrawer.js";
+import SearchBar from "./SearchBar.vue";
+import TimeLine from "./TimeLine.vue";
 
 let mapContainer = ref(null);
 let infoContainer = ref(null);
@@ -20,6 +22,14 @@ onMounted(() => {
     <div ref="mapContainer" id="map-container">
     </div>
 
+    <div id="search-container" class="ui-control">
+      <SearchBar></SearchBar>
+    </div>
+
+    <div id="timeline-container" class="ui-control">
+      <TimeLine></TimeLine>
+    </div>
+
     <div ref="infoContainer" id="info-container">
       <div id="info-text">Current Position:</div>
       <div v-if="true" id="lon-lat"></div>
@@ -32,5 +42,21 @@ onMounted(() => {
 <style scoped>
 
 @import "../../styles/map/twoDimensionMap.css";
+
+.ui-control {
+  position: absolute;
+}
+
+#search-container {
+  top: 20px;
+  left: 200px;
+}
+
+#timeline-container {
+  width: 100%;
+  bottom: 0;
+  height: 80px;
+}
+
 
 </style>
