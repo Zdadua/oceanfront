@@ -1,15 +1,16 @@
 <script setup>
 
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import {useStore} from "vuex";
 
 
 
 const store = useStore();
-let clicked = computed(() => store.state.onUI);
+let clicked = computed(() => store.state['mapForTwo'].onUI);
+
 
 function clickSearch() {
-  store.commit('setOnUI', 1);
+  store.commit('mapForTwo/setOnUI', 1);
 }
 
 </script>

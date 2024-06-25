@@ -4,7 +4,7 @@ import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import {toStringHDMS} from "ol/coordinate.js";
 import {XYZ} from "ol/source.js";
-import {store} from "../../main.js";
+import store from "../../store/index.js";
 
 class MapDrawer {
 
@@ -64,30 +64,27 @@ class MapDrawer {
                 minZoom: 1,
                 maxZoom: 5,
                 zoom: 1,
-
             }),
+            controls: [],
         };
         this.map = new Map(options);
 
         this.map.on('click', (event) => {
-            if(store.state.onUI) {
-                store.commit('setOnUI', 0);
+            if(store.state['mapForTwo'].onUI) {
+                store.commit('mapForTwo/setOnUI', 0);
+
             }
             else {
                 let coordinate = event.coordinate;
+
+                store.commit('mapForTwo/updateInfo', toLonLat(coordinate));
+
                 this.infoElement.childNodes[1].innerHTML = toStringHDMS(toLonLat(coordinate));
-                overlay.setPosition(coordinate)
+                overlay.setPosition(coordinate);
             }
-
-
         })
     }
 
-
-
-    showDetail() {
-
-    }
 }
 
 export {

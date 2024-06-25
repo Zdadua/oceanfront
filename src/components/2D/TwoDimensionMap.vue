@@ -4,6 +4,7 @@ import {computed, onMounted, ref} from "vue";
 import { MapDrawer } from "../../js/map/MapDrawer.js";
 import SearchBar from "./SearchBar.vue";
 import TimeLine from "./TimeLine.vue";
+import InfoCube from "./InfoCube.vue";
 
 let mapContainer = ref(null);
 let infoContainer = ref(null);
@@ -28,6 +29,10 @@ onMounted(() => {
 
     <div id="timeline-container" class="ui-control">
       <TimeLine></TimeLine>
+    </div>
+
+    <div id="point-info-container" class="ui-control">
+      <InfoCube></InfoCube>
     </div>
 
     <div ref="infoContainer" id="info-container">
@@ -56,6 +61,11 @@ onMounted(() => {
   width: 100%;
   bottom: 0;
   height: 80px;
+}
+
+#point-info-container {
+  bottom: 10px;
+  right: 10px;
 }
 
 
