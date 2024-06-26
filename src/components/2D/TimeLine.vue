@@ -55,7 +55,7 @@ onMounted(() => {
       <span>{{ processOff(index) }}:00</span>
     </div>
 
-    <div id="cursor"></div>
+    <div id="cursor" v-show="true"></div>
 
   </div>
 </template>

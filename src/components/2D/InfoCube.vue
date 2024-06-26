@@ -4,6 +4,7 @@ import {useStore} from "vuex";
 import {computed, onMounted} from "vue";
 
 const store = useStore();
+let status = computed(() => store.state['mapForTwo'].clickMode);
 let lon = computed(() => store.state['mapForTwo'].lon);
 let lat = computed(() => store.state['mapForTwo'].lat);
 
@@ -14,7 +15,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="info-cube">
+  <div v-if="status % 2" id="info-cube">
     <span class="cube-text">
       经度:<span style="padding-left: 15px">{{ lon }}</span>
     </span>
@@ -36,7 +37,7 @@ onMounted(() => {
   background-color: rgba(0, 0, 0, .5);
   backdrop-filter: blur(5px);
   box-sizing: border-box;
-  padding: 10px;
+  padding: 25px 10px;
 
   display: flex;
   flex-direction: column;

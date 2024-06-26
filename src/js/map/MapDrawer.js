@@ -1,9 +1,8 @@
 import {Map, Overlay, View} from "ol";
 import {fromLonLat, toLonLat} from "ol/proj";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
-import {toStringHDMS} from "ol/coordinate.js";
-import {XYZ} from "ol/source.js";
+import {toStringHDMS} from "ol/coordinate";
+import {XYZ} from "ol/source";
 import store from "../../store/index.js";
 
 class MapDrawer {
@@ -46,14 +45,14 @@ class MapDrawer {
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        url: './public/static/sst_tiles/{z}/{x}_{y}.png',
+                        url: 'http://172.20.163.79:5000/tiles/sst_tiles/2024-01-01/{z}/{x}_{y}.png',
 
                     })
                 }),
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        url: './public/static/world_tiles/{z}/{x}_{y}.png',
+                        url: 'http://172.20.163.79:5000/tiles/world_tiles/{z}/{x}_{y}.png',
 
                     })
                 }),
@@ -72,16 +71,18 @@ class MapDrawer {
         this.map.on('click', (event) => {
             if(store.state['mapForTwo'].onUI) {
                 store.commit('mapForTwo/setOnUI', 0);
-
             }
-            else {
-                let coordinate = event.coordinate;
 
-                store.commit('mapForTwo/updateInfo', toLonLat(coordinate));
+            let coordinate = event.coordinate;
+            let [lon, lat] = toLonLat(coordinate);
+            lon = lon + (lon < 0 ? 180 : -180);
+            store.commit('mapForTwo/updateInfo', [lon, lat]);
 
-                this.infoElement.childNodes[1].innerHTML = toStringHDMS(toLonLat(coordinate));
+            if(!store.state['mapForTwo'].clickMode) {
+                this.infoElement.childNodes[1].innerHTML = toStringHDMS([lon, lat]);
                 overlay.setPosition(coordinate);
             }
+
         })
     }
 

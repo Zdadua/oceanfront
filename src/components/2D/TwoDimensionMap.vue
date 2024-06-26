@@ -1,10 +1,13 @@
 <script setup>
 
-import {computed, onMounted, ref} from "vue";
+import {computed, defineAsyncComponent, onMounted, ref} from "vue";
 import { MapDrawer } from "../../js/map/MapDrawer.js";
 import SearchBar from "./SearchBar.vue";
 import TimeLine from "./TimeLine.vue";
-import InfoCube from "./InfoCube.vue";
+import ToggleButton from "./ToggleButton.vue";
+import CalendarCom from "./CalendarCom.vue";
+
+const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
 
 let mapContainer = ref(null);
 let infoContainer = ref(null);
@@ -27,12 +30,21 @@ onMounted(() => {
       <SearchBar></SearchBar>
     </div>
 
+    <div id="info-cube-container" class="ui-control">
+      <InfoCube></InfoCube>
+    </div>
+
     <div id="timeline-container" class="ui-control">
       <TimeLine></TimeLine>
     </div>
 
-    <div id="point-info-container" class="ui-control">
-      <InfoCube></InfoCube>
+    <div id="calendar-container" class="ui-control">
+      <CalendarCom></CalendarCom>
+    </div>
+
+    <div id="controls-container" class="ui-control">
+      <ToggleButton :name="'clickMode'" :left-text="'Point'" :right-text="'Cube'" style="top: 0;"></ToggleButton>
+      <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'" style="top: 0;"></ToggleButton>
     </div>
 
     <div ref="infoContainer" id="info-container">
@@ -63,10 +75,20 @@ onMounted(() => {
   height: 80px;
 }
 
-#point-info-container {
-  bottom: 10px;
+#info-cube-container {
   right: 10px;
+  bottom: 10px;
 }
 
+#controls-container {
+  height: 200px;
+  left: 100px;
+  bottom: 100px;
+}
+
+#calendar-container {
+  bottom: 25px;
+  left: 40px;
+}
 
 </style>
