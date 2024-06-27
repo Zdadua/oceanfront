@@ -16,6 +16,7 @@ const state = () => ({
     showMode: 0,
     points: [],
     calendarTime: new Date(),
+    map: null,
 })
 
 const mutations = {
@@ -55,11 +56,29 @@ const mutations = {
         }
         else {
             state.clickMode -= 2;
+
+            for(let i = 0; i < state.points.length - 1; i++) {
+                state.map.removeOverlay(state.points[i]);
+            }
         }
     },
 
     changeTime(state, year, month, day) {
         state.calendarTime = new Date(year, month, day);
+    },
+    pushPoint(state, overlay) {
+        if(!state.showMode) {
+            state.points[0] = overlay;
+            state.map.getOverlays().forEach((item) => {
+                state.map.removeOverlay(item);
+            })
+        }
+        else {
+            state.points.push(overlay);
+        }
+
+        state.map.addOverlay(overlay);
+
     }
 
 }

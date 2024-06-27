@@ -13,6 +13,7 @@ let mapContainer = ref(null);
 let infoContainer = ref(null);
 
 onMounted(() => {
+
   let drawer = new MapDrawer(mapContainer.value, infoContainer.value);
   drawer.init();
 
@@ -47,10 +48,10 @@ onMounted(() => {
       <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'" style="top: 0;"></ToggleButton>
     </div>
 
-    <div ref="infoContainer" id="info-container">
-      <div id="info-text">Current Position:</div>
-      <div v-if="true" id="lon-lat"></div>
-    </div>
+<!--    <div ref="infoContainer" id="info-container">-->
+<!--      <div id="info-text">Current Position:</div>-->
+<!--      <div v-if="true" id="lon-lat"></div>-->
+<!--    </div>-->
 
   </div>
 

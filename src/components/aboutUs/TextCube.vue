@@ -4,8 +4,6 @@
   import {computed, onMounted, ref} from "vue";
 
   const props = defineProps({
-    title: String,
-    text: String,
     backgroundColor: {
       type: String,
       required: false,
@@ -40,13 +38,7 @@
 <template>
   <!-- 不知道会不会冲突 -->
   <div ref="cube" id="cube-container" :style="{'backgroundColor': props.backgroundColor, 'backgroundImage': 'url(' + props.backgroundImage + ')' }" :class="[cubeClass]" @mouseenter="mouseIn = true" @mouseleave="mouseIn = false">
-
-    <div id="cube-title">
-      <slot name="cube-title"></slot>
-    </div>
-    <div id="cube-text">
-      <slot name="cube-text"></slot>
-    </div>
+    <slot></slot>
   </div>
 
 </template>
@@ -54,6 +46,7 @@
 <style scoped lang="less">
 
   #cube-container {
+    position: relative;
     width: 100%;
     height: 100%;
     box-sizing: border-box;

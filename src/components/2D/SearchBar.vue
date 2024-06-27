@@ -1,6 +1,6 @@
 <script setup>
 
-import {computed} from "vue";
+import {computed, nextTick} from "vue";
 import {useStore} from "vuex";
 
 
@@ -11,6 +11,10 @@ let clicked = computed(() => store.state['mapForTwo'].onUI);
 
 function clickSearch() {
   store.commit('mapForTwo/setOnUI', 1);
+  nextTick(() => {
+    document.getElementById('lon').focus();
+  });
+
 }
 
 </script>
@@ -19,6 +23,12 @@ function clickSearch() {
   <div id="search-bar" :class="[!clicked ? 'bar-before-click' : 'bar-clicked']" @click="clickSearch">
     <span v-if="!clicked" id="search-text">搜索</span>
     <img id="search-img" alt="search" src="../../../public/static/svg/search.svg" width="20" height="20">
+    <div v-if="clicked" id="input-wrapper">
+      <span>经度:</span>
+      <input id="lon">
+      <span>维度:</span>
+      <input id="lat">
+    </div>
   </div>
 </template>
 
@@ -34,6 +44,33 @@ function clickSearch() {
     opacity: 1;
   }
 
+  #input-wrapper {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+
+    span {
+      padding-left: 15px;
+      width: 40px;
+      height: 30px;
+      line-height: 30px;
+      margin: 5px 0;
+    }
+
+    input {
+      box-sizing: border-box;
+      width: 150px;
+      height: 36px;
+      margin: 2px 0;
+
+      &:focus {
+        border: 1px solid #4fbeff;
+        border-radius: 2px;
+      }
+
+    }
+
+  }
 }
 
 .bar-before-click {
@@ -48,7 +85,7 @@ function clickSearch() {
 }
 
 .bar-clicked {
-  width: 400px;
+  width: 500px;
   border: 1px solid #4490ff;
 }
 

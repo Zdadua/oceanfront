@@ -15,7 +15,14 @@ import GuideBar from "./GuideBar.vue";
     </div>
     <div id="info-container" class="sec-container full-bleed">
       <div id="grid-container">
-        <TextCube class="first" background-image="./public/static/svg/card01.svg" />
+        <TextCube class="first" background-image="./public/static/svg/card01.svg">
+          <div class="title" style="top: 20px; right: 90px;">
+            设计理念
+          </div>
+          <div class="text">
+
+          </div>
+        </TextCube>
         <TextCube class="second" background-image="none" />
         <TextCube class="third" background-image="none" />
         <TextCube class="fourth" background-image="none" />
@@ -32,5 +39,11 @@ import GuideBar from "./GuideBar.vue";
 <style scoped lang="less">
 
 @import "../../styles/aboutUs/aboutUs.css";
+
+.title {
+  position: absolute;
+  font-size: 2.2em;
+  color: white;
+}
 
 </style>
