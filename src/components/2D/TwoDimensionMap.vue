@@ -6,11 +6,15 @@ import SearchBar from "./SearchBar.vue";
 import TimeLine from "./TimeLine.vue";
 import ToggleButton from "./ToggleButton.vue";
 import CalendarCom from "./CalendarCom.vue";
+import ColorScale from "./ColorScale.vue";
+import CommonControls from "./CommonControls.vue";
+import VirtualScroll from "./VirtualScroll.vue";
 
 const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
 
 let mapContainer = ref(null);
 let infoContainer = ref(null);
+
 
 onMounted(() => {
 
@@ -24,6 +28,10 @@ onMounted(() => {
 <template>
 
   <div id="two-d-map-container" class="see-sight">
+    <div class="ui-control" id="projection-name">
+      投影系: 墨卡托投影
+    </div>
+
     <div ref="mapContainer" id="map-container">
     </div>
 
@@ -41,6 +49,18 @@ onMounted(() => {
 
     <div id="calendar-container" class="ui-control">
       <CalendarCom></CalendarCom>
+    </div>
+
+    <div id="color-scale-container" class="ui-control">
+      <ColorScale></ColorScale>
+    </div>
+
+    <div id="common-controls-container" class="ui-control">
+      <CommonControls></CommonControls>
+    </div>
+
+    <div class="ui-control" style="bottom: 500px; left: 500px">
+      <VirtualScroll></VirtualScroll>
     </div>
 
     <div id="controls-container" class="ui-control">
@@ -90,6 +110,29 @@ onMounted(() => {
 #calendar-container {
   bottom: 25px;
   left: 40px;
+}
+
+#color-scale-container {
+  right: 30px;
+  bottom: 50px;
+}
+
+#common-controls-container {
+  right: 15px;
+  top: 50px;
+}
+
+#projection-name {
+  width: 200px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  color: white;
+  background-color: rgba(0, 0, 0, .5);
+  backdrop-filter: blur(5px);
+  top: 10px;
+  right: 10px;
+  border-radius: 10px;
 }
 
 </style>

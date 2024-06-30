@@ -8,4 +8,12 @@ export default defineConfig({
   base: './',
   assetsDir: 'static',
 
+  server: {
+    warmup: {
+      clientFiles: [
+        './src/components/aboutUs/TextCube.vue',
+      ],
+    }
+  }
+
 })

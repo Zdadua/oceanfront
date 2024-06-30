@@ -23,7 +23,9 @@ import GuideBar from "./GuideBar.vue";
 
           </div>
         </TextCube>
-        <TextCube class="second" background-image="none" />
+        <TextCube class="second" background-image="none">
+          
+        </TextCube>
         <TextCube class="third" background-image="none" />
         <TextCube class="fourth" background-image="none" />
       </div>

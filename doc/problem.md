@@ -31,3 +31,20 @@ const router = createRouter({
            └ moduleB.js
            ......
 ```
+
+## 预热常用资源
+为了防止因为中间文件的转换导致的瀑布，可以先预热常用的文件；
+```js
+// vite.config.js
+export default defineConfig({
+    server: {
+        warmup: {
+            clientFiles: [
+                './src/components/aboutUs/TextCube.vue',
+                //...
+            ],
+        }
+    }
+})
+
+```

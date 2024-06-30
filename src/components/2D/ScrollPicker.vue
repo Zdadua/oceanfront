@@ -14,14 +14,18 @@ onMounted(() => {
 
     const mouseMoveEvent = (e) => {
       let moveY = e.clientY - startY;
-      scroll.value.scrollBy(0, moveY);
+      scroll.value.scrollBy(0, moveY * 0.1);
     }
 
     const mouseUpEvent = (e) => {
-      scroll.value.removeEventListener('mousemove', mouseMoveEvent);
+      window.removeEventListener('mousemove', mouseMoveEvent);
     }
-    scroll.value.addEventListener('mousemove', mouseMoveEvent);
-    scroll.value.addEventListener('mouseup', mouseUpEvent);
+    window.addEventListener('mousemove', mouseMoveEvent);
+    window.addEventListener('mouseup', mouseUpEvent);
+  }
+
+  const wheelListener = (e) => {
+
   }
 
   scroll.value.addEventListener('mousedown', mouseDownEvent);
@@ -57,6 +61,7 @@ onMounted(() => {
 
   .scroll-wrapper {
     overflow-y: auto;
+    scrollbar-width: none;
     height: 90px;
     scroll-snap-type: y mandatory;
     div {
