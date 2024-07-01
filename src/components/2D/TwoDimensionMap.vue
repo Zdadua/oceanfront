@@ -1,6 +1,6 @@
 <script setup>
 
-import {computed, defineAsyncComponent, onMounted, ref} from "vue";
+import {computed, defineAsyncComponent, nextTick, onMounted, ref} from "vue";
 import { MapDrawer } from "../../js/map/MapDrawer.js";
 import SearchBar from "./SearchBar.vue";
 import TimeLine from "./TimeLine.vue";
@@ -12,14 +12,17 @@ import VirtualScroll from "./VirtualScroll.vue";
 
 const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
 
-let mapContainer = ref(null);
-let infoContainer = ref(null);
+let mapContainer = ref();
+let infoContainer = ref();
+let array = Array.from({length: 1000}, (_, i) => i);
 
 
 onMounted(() => {
 
-  let drawer = new MapDrawer(mapContainer.value, infoContainer.value);
-  drawer.init();
+  nextTick(() => {
+    let drawer = new MapDrawer(mapContainer.value, infoContainer.value);
+    drawer.init();
+  })
 
 })
 
@@ -44,7 +47,7 @@ onMounted(() => {
     </div>
 
     <div id="timeline-container" class="ui-control">
-      <TimeLine></TimeLine>
+<!--      <TimeLine></TimeLine>-->
     </div>
 
     <div id="calendar-container" class="ui-control">
@@ -60,7 +63,7 @@ onMounted(() => {
     </div>
 
     <div class="ui-control" style="bottom: 500px; left: 500px">
-      <VirtualScroll></VirtualScroll>
+      <VirtualScroll :items="array"></VirtualScroll>
     </div>
 
     <div id="controls-container" class="ui-control">

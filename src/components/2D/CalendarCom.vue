@@ -1,7 +1,7 @@
 <script setup>
 
 import {onMounted, ref} from "vue";
-import ScrollPicker from "./ScrollPicker.vue";
+import VirtualScroll from "./VirtualScroll.vue";
 
 function getDate() {
   const today = new Date();
@@ -12,12 +12,9 @@ function getDate() {
   return [year, month, date];
 }
 
-function calculateResistance(y) {
-  let maxResistance = 0.1; // 最大阻力
-  return 1 - (y / window.innerHeight) * maxResistance;
-}
+let year = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'];
+let month = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
-let yearPicker = ref(null);
 let dropped = ref(false);
 const weekday = ['一', '二', '三', '四', '五', '六', '日'];
 
@@ -34,11 +31,11 @@ onMounted(() => {
     <div v-if="dropped" id="drop-container">
       <div id="year-month-container">
         <div class="scroll-wrapper">
-          <ScrollPicker :items="['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024']"></ScrollPicker>
+          <VirtualScroll :items="year" :sight-width="70" :sight-height="94" :item-height="30"></VirtualScroll>
         </div>
         <span class="calendar-span">年</span>
         <div class="scroll-wrapper">
-          <ScrollPicker :items="['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']"></ScrollPicker>
+          <VirtualScroll :items="month" :sight-width="70" :sight-height="94" :item-height="30"></VirtualScroll>
         </div>
         <span class="calendar-span">月</span>
       </div>
@@ -98,7 +95,6 @@ onMounted(() => {
       .scroll-wrapper {
         width: 70px;
         height: 94px;
-        mask: linear-gradient(rgba(255, 255, 255, 0) 10%, rgba(255, 255, 255, 1) 30%, rgba(255, 255, 255, 1) 70%, rgba(255, 255, 255, 0) 90%);
         display: flex;
         flex-direction: column;
         justify-content: center;

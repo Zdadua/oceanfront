@@ -1,26 +1,67 @@
 <script setup>
 
-import {ref} from "vue";
+import {computed, onMounted, ref} from "vue";
+import {useStore} from "vuex";
 
-let array = Array.from({length: 10000}, (_, i) => i);
+let list = ref();
 
-let list = ref(null);
+let props = defineProps({
+  items: {
+    type: Array,
+    default: () => []
+  },
+  itemHeight: {
+    type: Number,
+    default: 30
+  },
+  sightHeight: {
+    type: Number,
+    default: 200
+  },
+  sightWidth: {
+    type: Number,
+    default: 100
+  }
+})
+
+let start = ref(0);
+let startOffset = ref(0);
+let end = ref(0);
+let store = useStore();
+
+let visibleCount = computed(() => Math.ceil(props.sightHeight / props.itemHeight) + 1);
+let listHeight = computed(() => props.items.length * props.itemHeight);
+let getTransform = computed(() => `translateY(${startOffset.value}px)`);
+let visibleData = computed(() => props.items.slice(start.value, Math.min(end.value, props.items.length)));
 
 
+const scrollEvent = (e) => {
+  let scrollTop = list.value.scrollTop;
+  start.value = Math.floor(scrollTop / props.itemHeight);
+  end.value = start.value + visibleCount.value;
+  startOffset.value = scrollTop - (scrollTop % props.itemHeight);
+}
 
+onMounted(() => {
+  if(list.value) {
+    end.value = start.value + visibleCount.value;
+  }
+
+})
 </script>
 
 <template>
 
-  <div ref="list" id="virtual-scroll-container">
-    <div class="virtual-scroll-phantom">
+  <div ref="list" id="virtual-scroll-container" @scroll="scrollEvent" :style="{'height': `${props.sightHeight}px`, 'width': `${props.sightWidth}px`}">
+    <div class="virtual-scroll-phantom" :style="{'height': `${listHeight}px`, 'width': `${props.sightWidth}px`}">
     </div>
 
-    <div class="see-sight">
-      <div v-for="item in array" class="see-sight-item">
+    <div class="see-sight"  :style="{'transform': getTransform, 'width': `${props.sightWidth}px`}">
+      <div v-for="item in visibleData" class="see-sight-item" :style="{'height': `${props.itemHeight}px`}">
         {{ item }}
       </div>
     </div>
+
 
   </div>
 
@@ -29,11 +70,11 @@ let list = ref(null);
 <style scoped>
 
 #virtual-scroll-container {
-  width: 200px;
-  height: 400px;
-  background-color: gray;
   position: relative;
-
+  overflow: auto;
+  scrollbar-width: none;
+  scroll-snap-type: y mandatory;
+  mask: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 30%, rgba(255, 255, 255, 1) 70%, rgba(255, 255, 255, 0) 100%);
 }
 
 .virtual-scroll-phantom {
@@ -43,19 +84,17 @@ let list = ref(null);
 }
 
 .see-sight-item {
-  height: 30px;
   line-height: 30px;
-  width: 200px;
+  width: 100%;
   text-align: center;
-  color: white;
-  background-color: #2a7fff;
-  scroll-snap-align: start;
+  color: black;
+
+  scroll-snap-align: center;
 }
 
 .see-sight {
-  scroll-snap-type: y mandatory;
   height: 100%;
-  overflow: auto;
+  position: absolute;
 }
 
 </style>

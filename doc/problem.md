@@ -46,5 +46,8 @@ export default defineConfig({
         }
     }
 })
-
 ```
+
+## 如何防止在dom元素未渲染时获取属性错误
+1. 在nextTick(() => {}) 在这里编写逻辑；
+2. 使用ref获取元素，并且使用if(domElement.value)进行判断
