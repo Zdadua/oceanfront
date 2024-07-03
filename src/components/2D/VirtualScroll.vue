@@ -1,6 +1,6 @@
 <script setup>
 
-import {computed, onMounted, ref} from "vue";
+import {computed, nextTick, onMounted, ref} from "vue";
 import {useStore} from "vuex";
 
 let list = ref();
@@ -26,6 +26,10 @@ let props = defineProps({
   name: {
     type: String,
     required: true
+  },
+  initPlace: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -136,6 +140,10 @@ onMounted(() => {
     end.value = start.value + visibleCount.value;
 
   }
+
+  nextTick(() => {
+    list.value.scrollTop = props.initPlace * props.itemHeight;
+  })
 
 })
 </script>

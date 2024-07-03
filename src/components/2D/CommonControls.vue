@@ -1,17 +1,50 @@
 <script setup>
 
+import {useStore} from "vuex";
+import {fromLonLat} from "ol/proj";
+import {easeOut} from "ol/easing.js";
+
+let store = useStore();
+
+function returnClick() {
+  let view = store.state['mapForTwo'].map.getView();
+  view.animate({
+    center: fromLonLat([-10, 25]),
+    duration: 800,
+    easing: easeOut
+  })
+}
+
+function zoomIn() {
+  let view = store.state['mapForTwo'].map.getView();
+  view.animate({
+    zoom: view.getZoom() + 1,
+    duration: 500,
+    easing: easeOut
+  })
+}
+
+function zoomOut() {
+  let view = store.state['mapForTwo'].map.getView();
+  view.animate({
+    zoom: view.getZoom() - 1,
+    duration: 500,
+    easing: easeOut
+  })
+}
+
 </script>
 
 <template>
 
   <div id="common-container">
-    <div id="zoom-in" class="common-controls">
+    <div id="zoom-in" class="common-controls" @click="zoomIn">
       +
     </div>
-    <div id="zoom-out" class="common-controls">
+    <div id="zoom-out" class="common-controls" @click="zoomOut">
       -
     </div>
-    <div id="return">
+    <div id="return" @click="returnClick">
       <img id="return-svg" alt="search" src="../../assets/svg/return.svg" width="20" height="20">
     </div>
 

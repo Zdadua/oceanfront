@@ -15,11 +15,12 @@ const state = () => ({
     clickMode: 0,
     showMode: 0,
     points: [],
-    calendarTime: new Date(),
+    dots: [],
+    dotIdx: 0,
     map: null,
-    year: 0,
-    month: 0,
-    day: 0,
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    day: 1,
 })
 
 const mutations = {
@@ -77,9 +78,30 @@ const mutations = {
         else {
             state.points.push(overlay);
         }
-
         state.map.addOverlay(overlay);
+    },
 
+    pushDot(state, dotFeature) {
+        let layers =  state.map.getLayers();
+        let source = null;
+
+
+        for(let i = 0; i < layers.length; i++) {
+            if(layers[i].get('name') === 'dotLayer') {
+                source = layers[i].getSource();
+                break;
+            }
+        }
+
+        if(!state.showMode) {
+            state.dots[0] = dotFeature;
+            state.dotIdx = 1;
+            // source.addFeature(dotFeature);
+        }
+        else {
+            state.dots[state.dotIdx++] = dotFeature;
+            // source.addFeature(dotFeature);
+        }
     },
 
     year(state, y) {

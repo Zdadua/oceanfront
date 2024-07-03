@@ -21,7 +21,7 @@ onMounted(() => {
     </span>
 
     <span class="cube-text">
-      维度:<span style="padding-left: 15px">{{ lat }}</span>
+      纬度:<span style="padding-left: 15px">{{ lat }}</span>
     </span>
 
   </div>

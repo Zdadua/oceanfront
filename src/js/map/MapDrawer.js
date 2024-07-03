@@ -1,10 +1,13 @@
-import {Map, Overlay, View} from "ol";
+import {Feature, Map, Overlay, View} from "ol";
 import {fromLonLat, toLonLat} from "ol/proj";
 import TileLayer from "ol/layer/Tile";
 import {toStringHDMS} from "ol/coordinate";
-import {XYZ} from "ol/source";
+import {Vector, XYZ} from "ol/source";
+import { Vector as VectorLayer } from "ol/layer";
 import store from "../../store/index.js";
 import "../../styles/map/twoDimensionMap.css";
+import {Point} from "ol/geom";
+import {Icon, Style} from "ol/style";
 
 
 
@@ -13,6 +16,15 @@ class MapDrawer {
     element = null;
     infoElement = null;
     map = null;
+    vectorSource = new Vector();
+    vectorLayer = new VectorLayer({
+        source: this.vectorSource
+    });
+    iconStyle = new Style({
+        image: new Icon({
+            src: './src/assets/svg/circleIcon.svg'
+        })
+    })
 
     constructor(element) {
         this.infoElement = document.createElement('div');
@@ -30,6 +42,7 @@ class MapDrawer {
     }
 
     initMap() {
+        this.vectorLayer.set('name', 'dotLayer');
 
         let options = {
             target: this.element.id,
@@ -40,19 +53,20 @@ class MapDrawer {
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        // url: 'http://172.20.163.79:5000/tiles/sst_tiles/2024-01-01/{z}/{x}_{y}.png',
-                        url: '../../../public/static/sst_tiles/{z}/{x}_{y}.png',
+                        url: 'http://172.20.163.79:5000/tiles/sst_tiles/2024-01-01/{z}/{x}_{y}.png',
+                        // url: '../../../public/static/sst_tiles/{z}/{x}_{y}.png',
 
                     })
                 }),
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        // url: 'http://172.20.163.79:5000/tiles/world_tiles/{z}/{x}_{y}.png',
-                        url: '../../../public/static/world_tiles/{z}/{x}_{y}.png',
+                        url: 'http://172.20.163.79:5000/tiles/world_tiles/{z}/{x}_{y}.png',
+                        // url: '../../../public/static/world_tiles/{z}/{x}_{y}.png',
 
                     })
                 }),
+                this.vectorLayer
             ],
             overlays: [],
             view: new View({
@@ -60,6 +74,7 @@ class MapDrawer {
                 minZoom: 1,
                 maxZoom: 5,
                 zoom: 1,
+
             }),
             controls: [],
         };
@@ -74,7 +89,7 @@ class MapDrawer {
             else {
                 let coordinate = event.coordinate;
                 let [lon, lat] = toLonLat(coordinate);
-                lon = lon + (lon < 0 ? 180 : -180);
+                // lon = lon + (lon < 0 ? 180 : -180);
                 store.commit('mapForTwo/updateInfo', [lon, lat]);
 
                 let cloneDom = this.infoElement.cloneNode(true);
@@ -88,22 +103,17 @@ class MapDrawer {
                     },
                     stopEvent: false,
                 })
-
-                // if(!store.state['mapForTwo'].clickMode && !store.state['mapForTwo'].showMode) {
-                //     this.map.getOverlays().forEach((overlay) => {
-                //         this.map.removeOverlay(overlay);
-                //     })
-                //
-                //     this.map.addOverlay(overlay);
-                //     overlay.setPosition(coordinate);
-                // }
-                // else if(store.state['mapForTwo'].showMode) {
-                //     this.map.addOverlay(overlay);
-                //     overlay.setPosition(coordinate);
-                // }
-
                 overlay.setPosition(coordinate);
+
+                let dotFeature = new Feature({
+                    geometry: new Point(event.coordinate)
+                })
+                dotFeature.setStyle(this.iconStyle);
+
+                console.log(this.map.getLayers());
+
                 store.commit('mapForTwo/pushPoint', overlay);
+                store.commit('mapForTwo/pushDot', dotFeature);
             }
 
         })

@@ -13,6 +13,10 @@ function getDate() {
   return [year, month, date];
 }
 
+function getDaysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
 let year = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'];
 let month = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
@@ -22,6 +26,32 @@ const weekday = ['一', '二', '三', '四', '五', '六', '日'];
 let store = useStore();
 let y = computed(() => store.state['mapForTwo'].year);
 let m = computed(() => store.state['mapForTwo'].month);
+let d = computed(() => store.state['mapForTwo'].day);
+let yearPlace = year.indexOf(y.value.toString())
+let monthPlace = month.indexOf(m.value.toString())
+
+let grid = computed(() => {
+  let tmpDate = new Date(y.value, m.value - 1, 1);
+  let weekday = tmpDate.getDay() - 1;
+  let days = getDaysInMonth(y.value, m.value);
+  let beforeDays = getDaysInMonth(y.value, m.value - 1);
+
+  let res = [];
+
+  for (let i = weekday - 1; i >= 0; i--) {
+    res.push(beforeDays - i);
+  }
+
+  for(let i = 1; i <= days; i++) {
+    res.push(i);
+  }
+
+  for(let i = 1; i <= 35 - days - weekday; i++) {
+    res.push(i);
+  }
+
+  return res;
+})
 
 onMounted(() => {
 })
@@ -31,15 +61,15 @@ onMounted(() => {
 
 <template>
   <div id="calendar-com-container">
-    <div id="calendar-text" @click="dropped = !dropped">{{ y }}年{{ m }}月</div>
+    <div id="calendar-text" @click="dropped = !dropped">{{ y }}年{{ m }}月{{ d }}日</div>
     <div v-if="dropped" id="drop-container">
       <div id="year-month-container">
         <div class="scroll-wrapper">
-          <VirtualScroll :name="'year'" :items="year" :sight-width="70" :sight-height="94" :item-height="30"></VirtualScroll>
+          <VirtualScroll :name="'year'" :items="year" :sight-width="70" :sight-height="94" :item-height="30" :init-place="yearPlace"></VirtualScroll>
         </div>
         <span class="calendar-span">年</span>
         <div class="scroll-wrapper">
-          <VirtualScroll :name="'month'" :items="month" :sight-width="70" :sight-height="94" :item-height="30"></VirtualScroll>
+          <VirtualScroll :name="'month'" :items="month" :sight-width="70" :sight-height="94" :item-height="30" :init-place="monthPlace"></VirtualScroll>
         </div>
         <span class="calendar-span">月</span>
       </div>
@@ -47,7 +77,9 @@ onMounted(() => {
         <div class="weekday" v-for="day in weekday">{{ day }}</div>
       </div>
       <div id="grid-container">
-
+        <div v-for="day in grid" class="day-items">
+          {{ day }}
+        </div>
       </div>
     </div>
 
@@ -114,6 +146,16 @@ onMounted(() => {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       grid-template-rows: repeat(5, 1fr);
+
+      .day-items {
+        height: 100%;
+        width: 100%;
+        align-self: center;
+        font-size: .9em;
+        color: black;
+        text-align: center;
+        line-height: 34px;
+      }
     }
 
     #weekday-container {
@@ -129,7 +171,10 @@ onMounted(() => {
         text-align: center;
       }
     }
+  }
 
+  .day-chosen {
+    background-color: #2a7fff;
   }
 
 }

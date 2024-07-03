@@ -10,11 +10,12 @@ let clicked = computed(() => store.state['mapForTwo'].onUI);
 
 
 function clickSearch() {
-  store.commit('mapForTwo/setOnUI', 1);
-  nextTick(() => {
-    document.getElementById('lon').focus();
-  });
-
+  if(!store.state['mapForTwo'].onUI) {
+    store.commit('mapForTwo/setOnUI', 1);
+    nextTick(() => {
+      document.getElementById('lon').focus();
+    });
+  }
 }
 
 </script>
@@ -26,7 +27,7 @@ function clickSearch() {
     <div v-if="clicked" id="input-wrapper">
       <span>经度:</span>
       <input id="lon">
-      <span>维度:</span>
+      <span>纬度:</span>
       <input id="lat">
     </div>
   </div>
