@@ -113,8 +113,13 @@ const mutations = {
             state.dots[state.dotIdx++] = dotFeature;
         }
 
-        state.map.addOverlay(overlay);
-        source.addFeature(dotFeature);
+        console.log(state.clickMode);
+
+        if(!(state.clickMode % 2)){
+            state.map.addOverlay(overlay);
+            source.addFeature(dotFeature);
+        }
+
     },
 
 

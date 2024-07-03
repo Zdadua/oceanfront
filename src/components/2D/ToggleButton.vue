@@ -29,13 +29,13 @@ onMounted(() => {
 <template>
 
   <div id="toggle-button-container" :class="{'locked': status >= 2}">
-    <span class="toggle-text" :class="{'chosen': !(status % 2), 'not-chosen': status % 2}" style="width: 100px; left: -135px; text-align: right;">
+    <span class="toggle-text" :class="{'left-chosen': !(status % 2), 'not-chosen': status % 2}" style="width: 100px; left: -135px; text-align: right;">
       {{leftText}}
     </span>
     <div id="switch-container" @click="toggle">
       <div id="toggle" :class="{'right': status % 2, 'left': !(status % 2)}"></div>
     </div>
-    <span class="toggle-text" :class="{'chosen': status % 2, 'not-chosen': !(status % 2)}" style="width: 100px; left: 15px;">
+    <span class="toggle-text" :class="{'right-chosen': status % 2, 'not-chosen': !(status % 2)}" style="width: 100px; left: 15px;">
       {{rightText}}
     </span>
   </div>
@@ -101,12 +101,16 @@ onMounted(() => {
   transition: color .3s ease-in-out;
 }
 
-.chosen {
-  color: white;
+.left-chosen {
+  color: #f15d2e;
+}
+
+.right-chosen {
+  color: #3666ff;
 }
 
 .not-chosen {
-  color: black;
+  color: #6e6d6d;
 }
 
 
