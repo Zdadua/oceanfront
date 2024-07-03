@@ -110,10 +110,7 @@ class MapDrawer {
                 })
                 dotFeature.setStyle(this.iconStyle);
 
-                console.log(this.map.getLayers());
-
-                store.commit('mapForTwo/pushPoint', overlay);
-                store.commit('mapForTwo/pushDot', dotFeature);
+                store.commit('mapForTwo/pushPoint', [overlay, dotFeature]);
             }
 
         })

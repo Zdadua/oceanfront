@@ -22,7 +22,7 @@ onMounted(() => {
   anime({
     targets: '#grid-container .small-cube',
     scale: [
-      {value: .1, easing: 'easeOutSine', duration: 500},
+      {value: .5, easing: 'easeOutSine', duration: 500},
       {value: 1, easing: 'easeInOutQuad', duration: 1200},
       {value: 1, duration: 3000}
     ],

@@ -96,7 +96,7 @@ onMounted(() => {
 }
 
 #info-cube-container {
-  right: 10px;
+  right: 85px;
   bottom: 10px;
 }
 

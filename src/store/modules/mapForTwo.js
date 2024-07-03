@@ -50,10 +50,23 @@ const mutations = {
 
     clickMode(state) {
         state.clickMode = state.clickMode ? 0 : 1;
+        let source = state.map.getLayers().getArray().at(2).getSource();
+
+        if(state.dotIdx) {
+            if(state.clickMode) {
+                state.map.removeOverlay(state.points[0]);
+                source.clear(true);
+            }
+            else {
+                state.map.addOverlay(state.points[0]);
+                source.addFeature(state.dots[0]);
+            }
+        }
     },
 
     showMode(state) {
         state.showMode = state.showMode ? 0 : 1;
+        let source = state.map.getLayers().getArray().at(2).getSource();
 
         if(state.showMode) {
             state.clickMode = 2;
@@ -61,48 +74,49 @@ const mutations = {
         else {
             state.clickMode -= 2;
 
-            for(let i = 0; i < state.points.length - 1; i++) {
+
+            for(let i = state.dotIdx - 1; i >= 0; i--) {
                 state.map.removeOverlay(state.points[i]);
             }
-        }
-    },
 
-
-    pushPoint(state, overlay) {
-        if(!state.showMode) {
-            state.points[0] = overlay;
-            state.map.getOverlays().forEach((item) => {
-                state.map.removeOverlay(item);
-            })
-        }
-        else {
-            state.points.push(overlay);
-        }
-        state.map.addOverlay(overlay);
-    },
-
-    pushDot(state, dotFeature) {
-        let layers =  state.map.getLayers();
-        let source = null;
-
-
-        for(let i = 0; i < layers.length; i++) {
-            if(layers[i].get('name') === 'dotLayer') {
-                source = layers[i].getSource();
-                break;
-            }
-        }
-
-        if(!state.showMode) {
-            state.dots[0] = dotFeature;
+            state.dots[0] = state.dots[state.dotIdx - 1];
+            state.points[0] = state.points[state.dotIdx - 1];
             state.dotIdx = 1;
-            // source.addFeature(dotFeature);
-        }
-        else {
-            state.dots[state.dotIdx++] = dotFeature;
-            // source.addFeature(dotFeature);
+
+            console.log(state.map.getOverlays());
+
+            source.clear(true);
+            source.addFeature(state.dots[0]);
+            state.map.addOverlay(state.points[0]);
         }
     },
+
+
+
+    pushPoint(state, [overlay, dotFeature]) {
+        let source = state.map.getLayers().getArray().at(2).getSource();
+
+        if(!state.showMode) {
+            state.dotIdx = 1;
+
+            for(let i = state.dotIdx - 1; i >= 0; i--) {
+                state.map.removeOverlay(state.points[i]);
+                console.log(111);
+            }
+
+            state.points[0] = overlay;
+            state.dots[0] = dotFeature;
+            source.clear(true);
+        }
+        else {
+            state.points[state.dotIdx] = overlay;
+            state.dots[state.dotIdx++] = dotFeature;
+        }
+
+        state.map.addOverlay(overlay);
+        source.addFeature(dotFeature);
+    },
+
 
     year(state, y) {
         state.year = y;

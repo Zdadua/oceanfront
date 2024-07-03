@@ -9,7 +9,7 @@ let store = useStore();
 function returnClick() {
   let view = store.state['mapForTwo'].map.getView();
   view.animate({
-    center: fromLonLat([-10, 25]),
+    center: fromLonLat([160, 25]),
     duration: 800,
     easing: easeOut
   })
