@@ -1,7 +1,8 @@
 <script setup>
 
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import VirtualScroll from "./VirtualScroll.vue";
+import {useStore} from "vuex";
 
 function getDate() {
   const today = new Date();
@@ -18,8 +19,11 @@ let month = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 let dropped = ref(false);
 const weekday = ['一', '二', '三', '四', '五', '六', '日'];
 
-onMounted(() => {
+let store = useStore();
+let y = computed(() => store.state['mapForTwo'].year);
+let m = computed(() => store.state['mapForTwo'].month);
 
+onMounted(() => {
 })
 
 
@@ -27,15 +31,15 @@ onMounted(() => {
 
 <template>
   <div id="calendar-com-container">
-    <div id="calendar-text" @click="dropped = !dropped">日期</div>
+    <div id="calendar-text" @click="dropped = !dropped">{{ y }}年{{ m }}月</div>
     <div v-if="dropped" id="drop-container">
       <div id="year-month-container">
         <div class="scroll-wrapper">
-          <VirtualScroll :items="year" :sight-width="70" :sight-height="94" :item-height="30"></VirtualScroll>
+          <VirtualScroll :name="'year'" :items="year" :sight-width="70" :sight-height="94" :item-height="30"></VirtualScroll>
         </div>
         <span class="calendar-span">年</span>
         <div class="scroll-wrapper">
-          <VirtualScroll :items="month" :sight-width="70" :sight-height="94" :item-height="30"></VirtualScroll>
+          <VirtualScroll :name="'month'" :items="month" :sight-width="70" :sight-height="94" :item-height="30"></VirtualScroll>
         </div>
         <span class="calendar-span">月</span>
       </div>

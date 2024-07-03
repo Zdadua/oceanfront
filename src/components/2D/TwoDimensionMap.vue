@@ -62,10 +62,6 @@ onMounted(() => {
       <CommonControls></CommonControls>
     </div>
 
-    <div class="ui-control" style="bottom: 500px; left: 500px">
-      <VirtualScroll :items="array"></VirtualScroll>
-    </div>
-
     <div id="controls-container" class="ui-control">
       <ToggleButton :name="'clickMode'" :left-text="'Point'" :right-text="'Cube'" style="top: 0;"></ToggleButton>
       <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'" style="top: 0;"></ToggleButton>
@@ -136,6 +132,7 @@ onMounted(() => {
   top: 10px;
   right: 10px;
   border-radius: 10px;
+  z-index: 100;
 }
 
 </style>

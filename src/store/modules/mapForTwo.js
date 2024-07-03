@@ -17,6 +17,9 @@ const state = () => ({
     points: [],
     calendarTime: new Date(),
     map: null,
+    year: 0,
+    month: 0,
+    day: 0,
 })
 
 const mutations = {
@@ -63,9 +66,7 @@ const mutations = {
         }
     },
 
-    changeTime(state, year, month, day) {
-        state.calendarTime = new Date(year, month, day);
-    },
+
     pushPoint(state, overlay) {
         if(!state.showMode) {
             state.points[0] = overlay;
@@ -79,6 +80,14 @@ const mutations = {
 
         state.map.addOverlay(overlay);
 
+    },
+
+    year(state, y) {
+        state.year = y;
+    },
+
+    month(state, m) {
+        state.month = m;
     }
 
 }

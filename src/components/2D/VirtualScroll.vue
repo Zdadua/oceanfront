@@ -4,6 +4,7 @@ import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
 
 let list = ref();
+let sight = ref();
 
 let props = defineProps({
   items: {
@@ -21,6 +22,10 @@ let props = defineProps({
   sightWidth: {
     type: Number,
     default: 100
+  },
+  name: {
+    type: String,
+    required: true
   }
 })
 
@@ -28,23 +33,108 @@ let start = ref(0);
 let startOffset = ref(0);
 let end = ref(0);
 let store = useStore();
+let showItems = ref([]);
 
 let visibleCount = computed(() => Math.ceil(props.sightHeight / props.itemHeight) + 1);
-let listHeight = computed(() => props.items.length * props.itemHeight);
+let listHeight = computed(() => showItems.value.length * props.itemHeight);
 let getTransform = computed(() => `translateY(${startOffset.value}px)`);
-let visibleData = computed(() => props.items.slice(start.value, Math.min(end.value, props.items.length)));
+let visibleData = computed(() => showItems.value.slice(start.value, Math.min(end.value, showItems.value.length)));
 
 
+let timeId = null;
+let isProgrammaticScroll = false;
 const scrollEvent = (e) => {
+  if(!isProgrammaticScroll) {
+    sight.value.style.transition = 'none';
+    if(timeId) {
+      clearTimeout(timeId);
+      timeId = null;
+    }
+    timeId = setTimeout(() => {
+      sight.value.style.transition = 'transform 0.3s ease-in-out';
+
+      let tmp = list.value.scrollTop % props.itemHeight;
+      if(tmp < props.itemHeight / 2) {
+        startOffset.value = startOffset.value + tmp;
+
+        store.commit('mapForTwo/' + props.name, visibleData.value.at(visibleCount.value / 2 - 1));
+      }
+      else {
+        startOffset.value = startOffset.value - (props.itemHeight - tmp);
+
+        store.commit('mapForTwo/' + props.name, visibleData.value.at(visibleCount.value / 2));
+      }
+    }, 100);
+
+    let scrollTop = list.value.scrollTop;
+    start.value = Math.floor(scrollTop / props.itemHeight);
+    end.value = start.value + visibleCount.value;
+    startOffset.value = scrollTop - (scrollTop % props.itemHeight);
+
+  }
+}
+
+let initialY = 0;
+let initialScrollTop = 0;
+const mousedownEvent = (e) => {
+  sight.value.style.transition = 'none';
+  initialY = e.clientY;
+  initialScrollTop = list.value.scrollTop;
+  isProgrammaticScroll = true;
+
+  window.addEventListener('mousemove', mousemoveEvent);
+  window.addEventListener('mouseup', mouseupEvent);
+}
+
+const mousemoveEvent = (e) => {
+  const deltaY = e.clientY - initialY;
+  list.value.scrollTop = initialScrollTop - deltaY;
+
   let scrollTop = list.value.scrollTop;
   start.value = Math.floor(scrollTop / props.itemHeight);
   end.value = start.value + visibleCount.value;
   startOffset.value = scrollTop - (scrollTop % props.itemHeight);
+
 }
+
+const mouseupEvent = (e) => {
+  sight.value.style.transition = 'transform 0.3s ease-in-out';
+
+  let tmp = list.value.scrollTop % props.itemHeight;
+  if(tmp < props.itemHeight / 2) {
+    startOffset.value = startOffset.value + tmp;
+
+    store.commit('mapForTwo/' + props.name, visibleData.value.at(visibleCount.value / 2 - 1));
+  }
+  else {
+    startOffset.value = startOffset.value - (props.itemHeight - tmp);
+
+    store.commit('mapForTwo/' + props.name, visibleData.value.at(visibleCount.value / 2));
+  }
+
+  window.removeEventListener('mousemove', mousemoveEvent);
+  window.removeEventListener('mouseup', mouseupEvent);
+  isProgrammaticScroll = false;
+}
+
+function throttle(func, limit) {
+  let inThrottle = false;
+  return (event) => {
+    if (!inThrottle) {
+      func(event);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+const throttleScroll = throttle(scrollEvent, 50);
 
 onMounted(() => {
   if(list.value) {
+    showItems.value = ['', ...props.items, ''];
     end.value = start.value + visibleCount.value;
+
   }
 
 })
@@ -52,11 +142,11 @@ onMounted(() => {
 
 <template>
 
-  <div ref="list" id="virtual-scroll-container" @scroll="scrollEvent" :style="{'height': `${props.sightHeight}px`, 'width': `${props.sightWidth}px`}">
+  <div ref="list" id="virtual-scroll-container" @mousedown="mousedownEvent" @scroll="throttleScroll" :style="{'height': `${props.sightHeight}px`, 'width': `${props.sightWidth}px`}">
     <div class="virtual-scroll-phantom" :style="{'height': `${listHeight}px`, 'width': `${props.sightWidth}px`}">
     </div>
 
-    <div class="see-sight"  :style="{'transform': getTransform, 'width': `${props.sightWidth}px`}">
+    <div ref="sight" class="see-sight"  :style="{'transform': getTransform, 'width': `${props.sightWidth}px`}">
       <div v-for="item in visibleData" class="see-sight-item" :style="{'height': `${props.itemHeight}px`}">
         {{ item }}
       </div>
@@ -72,9 +162,8 @@ onMounted(() => {
 #virtual-scroll-container {
   position: relative;
   overflow: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
-  scroll-snap-type: y mandatory;
-  mask: linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 30%, rgba(255, 255, 255, 1) 70%, rgba(255, 255, 255, 0) 100%);
 }
 
 .virtual-scroll-phantom {
@@ -88,8 +177,8 @@ onMounted(() => {
   width: 100%;
   text-align: center;
   color: black;
+  user-select: none;
 
-  scroll-snap-align: center;
 }
 
 .see-sight {
