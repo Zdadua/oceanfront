@@ -93,6 +93,7 @@ onMounted(() => {
 .toggle-text {
   position: absolute;
   font-size: 1em;
+  font-family: Arial, serif;
   height: 20px;
   line-height: 20px;
   font-weight: 700;

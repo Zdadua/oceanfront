@@ -65,6 +65,7 @@ onMounted(() => {
     <div id="controls-container" class="ui-control">
       <ToggleButton :name="'clickMode'" :left-text="'Point'" :right-text="'Cube'" style="top: 0;"></ToggleButton>
       <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'" style="top: 0;"></ToggleButton>
+      <ToggleButton :name="'draggable'" :left-text="'Unlocked'" :right-text="'Locked'" style="top: 0;"></ToggleButton>
     </div>
 
 <!--    <div ref="infoContainer" id="info-container">-->
@@ -102,7 +103,7 @@ onMounted(() => {
 
 #controls-container {
   height: 200px;
-  left: 100px;
+  left: 120px;
   bottom: 100px;
 }
 

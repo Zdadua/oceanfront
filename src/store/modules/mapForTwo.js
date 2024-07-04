@@ -1,3 +1,4 @@
+import {DragPan} from "ol/interaction.js";
 
 
 const state = () => ({
@@ -14,6 +15,7 @@ const state = () => ({
     * */
     clickMode: 0,
     showMode: 0,
+    draggable: 0,
     points: [],
     dots: [],
     dotIdx: 0,
@@ -91,6 +93,15 @@ const mutations = {
         }
     },
 
+    draggable(state) {
+        let interactions = state.map.getInteractions().getArray();
+        let drag = interactions.find((i) => i instanceof DragPan);
+
+        if(drag) {
+            state.draggable = !state.draggable
+            drag.setActive(!state.draggable);
+        }
+    },
 
 
     pushPoint(state, [overlay, dotFeature]) {
@@ -129,6 +140,10 @@ const mutations = {
 
     month(state, m) {
         state.month = m;
+    },
+
+    day(state, d) {
+        state.day = d;
     }
 
 }
