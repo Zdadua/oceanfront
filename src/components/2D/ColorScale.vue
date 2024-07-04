@@ -1,9 +1,9 @@
 <script setup>
 
 const temp = [40, 35, 30, 25, 20, 15, 10, 5, 0, -5, -10, -15];
-let colorScale = ["#91003b", "#bf002f", "#ff4400", "#ffae00",
-  "#d0e600", "#46bc00", "#00bfaf", "#0070b5",
-  "#0032ff", "#0021d1", "#5700ec", "#380088"];
+let colorScale = ["#6B1527FF", "#932929FF", "#B73466FF", "#DB6C54FF",
+  "#E09F41FF", "#E1CE39FF", "#B7DA40FF", "#5BC94CFF",
+  "#4DB094FF", "#4279BFFF", "#554FAAFF", "#281D69FF"];
 
 let colors = temp.map((e, i) => {
   return {

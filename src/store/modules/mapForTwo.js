@@ -1,4 +1,6 @@
 import {DragPan} from "ol/interaction.js";
+import {XYZ} from "ol/source";
+import {Map} from "ol";
 
 
 const state = () => ({
@@ -20,8 +22,8 @@ const state = () => ({
     dots: [],
     dotIdx: 0,
     map: null,
-    year: new Date().getFullYear(),
-    month: new Date().getMonth() + 1,
+    year: 0,
+    month: 0,
     day: 1,
 })
 
@@ -112,7 +114,6 @@ const mutations = {
 
             for(let i = state.dotIdx - 1; i >= 0; i--) {
                 state.map.removeOverlay(state.points[i]);
-                console.log(111);
             }
 
             state.points[0] = overlay;
@@ -124,8 +125,6 @@ const mutations = {
             state.dots[state.dotIdx++] = dotFeature;
         }
 
-        console.log(state.clickMode);
-
         if(!(state.clickMode % 2)){
             state.map.addOverlay(overlay);
             source.addFeature(dotFeature);
@@ -133,19 +132,57 @@ const mutations = {
 
     },
 
-
     year(state, y) {
         state.year = y;
+
+        if(state.map instanceof Map) {
+            let layer = state.map.getLayers().getArray().at(0);
+            console.log(layer);
+            let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+            let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`
+            }))
+        }
+
     },
 
     month(state, m) {
         state.month = m;
+
+        if(state.map instanceof Map) {
+            let layer = state.map.getLayers().getArray().at(0);
+            console.log(layer);
+            let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+            let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`
+            }))
+        }
+
     },
 
     day(state, d) {
         state.day = d;
-    }
 
+        if(state.map instanceof Map) {
+            let layer = state.map.getLayers().getArray().at(0);
+            console.log(layer);
+            let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+            let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`
+            }))
+        }
+    },
+
+    hide(state, idx) {
+        console.log(idx);
+    },
+
+    show(state, idx) {
+
+    }
 }
 
 export default {

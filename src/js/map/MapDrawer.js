@@ -26,15 +26,17 @@ class MapDrawer {
         })
     })
 
-    constructor(element) {
-        this.infoElement = document.createElement('div');
-        this.infoElement.classList.add('info-container');
-        this.infoElement.innerHTML = '      <div class="info-text">Current Position:</div>\n' +
-            '      <div v-if="true" class="lon-lat"></div>';
+    constructor(element, dom) {
+        // this.infoElement = document.createElement('div');
+        // this.infoElement.classList.add('info-container');
+        // this.infoElement.innerHTML = '      <div class="info-text">Current Position:</div>\n' +
+        //     '      <div class="lon-lat"></div>';
+        this.infoElement = dom;
 
         if(element instanceof HTMLElement) {
             this.element = element;
         }
+
     }
 
     init() {
@@ -53,7 +55,7 @@ class MapDrawer {
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        url: 'http://172.20.163.79:5000/tiles/sst_tiles/2024-01-01/{z}/{x}_{y}.png',
+                        url: 'http://172.20.163.79:5000/tiles/sst_tiles/2024-01-01.csv.png/{z}/{x}_{y}.png',
                         // url: '../../../public/static/sst_tiles/{z}/{x}_{y}.png',
 
                     })
@@ -92,8 +94,16 @@ class MapDrawer {
                 // lon = lon + (lon < 0 ? 180 : -180);
                 store.commit('mapForTwo/updateInfo', [lon, lat]);
 
+
                 let cloneDom = this.infoElement.cloneNode(true);
                 cloneDom.children[1].innerHTML = toStringHDMS([lon, lat]);
+                cloneDom.setAttribute('dotIdx', store.state['mapForTwo'].dotIdx);
+
+                cloneDom.childNodes[2].addEventListener('click', (event) => {
+
+                    // store.commit('mapForTwo/hide', idx);
+                })
+
                 let overlay = new Overlay({
                     element: cloneDom,
                     autoPan: {
@@ -101,7 +111,7 @@ class MapDrawer {
                             duration: 250,
                         },
                     },
-                    stopEvent: false,
+                    stopEvent: true,
                 })
                 overlay.setPosition(coordinate);
 

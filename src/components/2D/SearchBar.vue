@@ -23,7 +23,9 @@ function clickSearch() {
 <template>
   <div id="search-bar" :class="[!clicked ? 'bar-before-click' : 'bar-clicked']" @click="clickSearch">
     <span v-if="!clicked" id="search-text">搜索</span>
-    <img id="search-img" alt="search" src="../../../public/static/svg/search.svg" width="20" height="20">
+    <div id="search-img">
+      <img alt="search" src="../../../public/static/svg/search.svg" width="20" height="20">
+    </div>
     <div v-if="clicked" id="input-wrapper">
       <span>经度:</span>
       <input id="lon">
@@ -40,6 +42,7 @@ function clickSearch() {
   border-radius: 20px;
   background-color: white;
   box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 
   &:hover > span {
     opacity: 1;
@@ -92,9 +95,16 @@ function clickSearch() {
 
 
 #search-img {
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 10px;
   position: absolute;
-  top: 10px;
-  right: 10px;
+  right: 0;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 #search-text {

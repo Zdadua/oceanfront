@@ -1,6 +1,6 @@
 <script setup>
 
-import {computed, onMounted, ref} from "vue";
+import {computed, nextTick, onMounted, ref} from "vue";
 import VirtualScroll from "./VirtualScroll.vue";
 import {useStore} from "vuex";
 
@@ -43,8 +43,8 @@ let store = useStore();
 let y = computed(() => store.state['mapForTwo'].year);
 let m = computed(() => store.state['mapForTwo'].month);
 let d = computed(() => store.state['mapForTwo'].day);
-let yearPlace = year.indexOf(y.value.toString())
-let monthPlace = month.indexOf(m.value.toString())
+let yearPlace = computed(() => year.indexOf(y.value.toString()));
+let monthPlace = computed(() => month.indexOf(m.value.toString()));
 
 let grid = computed(() => {
 
@@ -68,6 +68,14 @@ let grid = computed(() => {
 })
 
 onMounted(() => {
+
+  nextTick(() => {
+    let tmp = new Date();
+
+    store.commit('mapForTwo/year', tmp.getFullYear());
+    store.commit('mapForTwo/month', tmp.getMonth() + 1);
+    store.commit('mapForTwo/day', tmp.getDate());
+  })
 })
 
 
@@ -126,7 +134,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     background-color: white;
-    border: 1px solid #00eeff;
+    border: 1px solid #1c2d2e;
 
     top: -355px;
 

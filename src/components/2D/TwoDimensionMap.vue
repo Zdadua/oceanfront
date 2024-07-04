@@ -1,6 +1,6 @@
 <script setup>
 
-import {computed, defineAsyncComponent, nextTick, onMounted, ref} from "vue";
+import {computed, createApp, defineAsyncComponent, nextTick, onMounted, ref} from "vue";
 import { MapDrawer } from "../../js/map/MapDrawer.js";
 import SearchBar from "./SearchBar.vue";
 import TimeLine from "./TimeLine.vue";
@@ -9,6 +9,7 @@ import CalendarCom from "./CalendarCom.vue";
 import ColorScale from "./ColorScale.vue";
 import CommonControls from "./CommonControls.vue";
 import VirtualScroll from "./VirtualScroll.vue";
+import OverlayInfo from "./OverlayInfo.vue";
 
 const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
 
@@ -18,9 +19,13 @@ let array = Array.from({length: 1000}, (_, i) => i);
 
 
 onMounted(() => {
+  const dom = document.createDocumentFragment();
+  const tmp = createApp(OverlayInfo).mount(dom);
+  console.log(tmp.$el);
+
 
   nextTick(() => {
-    let drawer = new MapDrawer(mapContainer.value, infoContainer.value);
+    let drawer = new MapDrawer(mapContainer.value, tmp.$el);
     drawer.init();
   })
 
@@ -61,6 +66,10 @@ onMounted(() => {
     <div id="common-controls-container" class="ui-control">
       <CommonControls></CommonControls>
     </div>
+
+<!--    <div class="ui-control" style="top: 200px; left: 500px;">-->
+<!--      <OverlayInfo :idx="0"></OverlayInfo>-->
+<!--    </div>-->
 
     <div id="controls-container" class="ui-control">
       <ToggleButton :name="'clickMode'" :left-text="'Point'" :right-text="'Cube'" style="top: 0;"></ToggleButton>
