@@ -21,8 +21,6 @@ let array = Array.from({length: 1000}, (_, i) => i);
 onMounted(() => {
   const dom = document.createDocumentFragment();
   const tmp = createApp(OverlayInfo).mount(dom);
-  console.log(tmp.$el);
-
 
   nextTick(() => {
     let drawer = new MapDrawer(mapContainer.value, tmp.$el);

@@ -22,6 +22,7 @@ onMounted(() => {
       <img src="../../assets/svg/close.svg" alt="close" width="15" height="15">
     </div>
   </div>
+
 </template>
 
 <style scoped>

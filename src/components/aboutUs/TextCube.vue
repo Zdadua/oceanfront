@@ -21,15 +21,13 @@
     }
   })
 
-  let cube = ref(null);
+  let cube = ref();
   let mouseIn = ref(false);
   let cubeClass = computed(() => mouseIn.value ? 'cube-active' : 'cube-not-active');
 
   onMounted(() => {
     if(cube.value) {
       const rect = cube.value.getBoundingClientRect();
-
-      console.log(mouseIn.value)
     }
   })
 

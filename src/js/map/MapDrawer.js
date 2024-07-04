@@ -15,6 +15,7 @@ class MapDrawer {
 
     element = null;
     infoElement = null;
+    hiddenElement = null;
     map = null;
     vectorSource = new Vector();
     vectorLayer = new VectorLayer({
@@ -37,6 +38,12 @@ class MapDrawer {
             this.element = element;
         }
 
+        this.hiddenElement = document.createElement('div');
+        this.hiddenElement.style.left = '-5px';
+        this.hiddenElement.style.top = '-5px';
+        this.hiddenElement.style.position = 'absolute';
+        this.hiddenElement.style.width = '10px';
+        this.hiddenElement.style.height = '10px';
     }
 
     init() {
@@ -72,10 +79,10 @@ class MapDrawer {
             ],
             overlays: [],
             view: new View({
-                center: fromLonLat([0, 0]),
-                minZoom: 1,
+                center: fromLonLat([160, 25]),
+                minZoom: 2,
                 maxZoom: 5,
-                zoom: 1,
+                zoom: 2,
 
             }),
             controls: [],
@@ -91,17 +98,22 @@ class MapDrawer {
             else {
                 let coordinate = event.coordinate;
                 let [lon, lat] = toLonLat(coordinate);
-                // lon = lon + (lon < 0 ? 180 : -180);
                 store.commit('mapForTwo/updateInfo', [lon, lat]);
 
 
                 let cloneDom = this.infoElement.cloneNode(true);
                 cloneDom.children[1].innerHTML = toStringHDMS([lon, lat]);
-                cloneDom.setAttribute('dotIdx', store.state['mapForTwo'].dotIdx);
+
+                if(!store.state['mapForTwo'].clickMode) {
+                    cloneDom.setAttribute('dotIdx', 0);
+                }
+                else {
+                    cloneDom.setAttribute('dotIdx', store.state['mapForTwo'].dotIdx);
+                }
 
                 cloneDom.childNodes[2].addEventListener('click', (event) => {
 
-                    // store.commit('mapForTwo/hide', idx);
+                    store.commit('mapForTwo/hide', cloneDom.getAttribute('dotIdx'));
                 })
 
                 let overlay = new Overlay({
@@ -112,15 +124,32 @@ class MapDrawer {
                         },
                     },
                     stopEvent: true,
-                })
+                });
                 overlay.setPosition(coordinate);
+
+                let cloneHidden = this.hiddenElement.cloneNode(true);
+                cloneHidden.addEventListener('click', (event) => {
+                   store.state['mapForTwo'].map.addOverlay(overlay);
+                   store.state['mapForTwo'].map.removeOverlay(hiddenOverlay);
+                });
+
+                let hiddenOverlay = new Overlay({
+                    element: cloneHidden,
+                    autoPan: {
+                        animation: {
+                            duration: 250,
+                        },
+                    },
+                    stopEvent: true,
+                })
+                hiddenOverlay.setPosition(coordinate);
 
                 let dotFeature = new Feature({
                     geometry: new Point(event.coordinate)
                 })
                 dotFeature.setStyle(this.iconStyle);
 
-                store.commit('mapForTwo/pushPoint', [overlay, dotFeature]);
+                store.commit('mapForTwo/pushPoint', [overlay, dotFeature, hiddenOverlay]);
             }
 
         })

@@ -1,6 +1,6 @@
 import {DragPan} from "ol/interaction.js";
 import {XYZ} from "ol/source";
-import {Map} from "ol";
+import {Map, Overlay} from "ol";
 
 
 const state = () => ({
@@ -18,7 +18,13 @@ const state = () => ({
     clickMode: 0,
     showMode: 0,
     draggable: 0,
+
+    // overlay数组
     points: [],
+    // overlay隐藏标记数组
+    hiddenPoints: [],
+    // overlay隐藏后留下的可用于恢复的标记数组
+    hiddenHints: [],
     dots: [],
     dotIdx: 0,
     map: null,
@@ -87,8 +93,6 @@ const mutations = {
             state.points[0] = state.points[state.dotIdx - 1];
             state.dotIdx = 1;
 
-            console.log(state.map.getOverlays());
-
             source.clear(true);
             source.addFeature(state.dots[0]);
             state.map.addOverlay(state.points[0]);
@@ -106,7 +110,8 @@ const mutations = {
     },
 
 
-    pushPoint(state, [overlay, dotFeature]) {
+    pushPoint(state, [overlay, dotFeature, hiddenOverlay]) {
+
         let source = state.map.getLayers().getArray().at(2).getSource();
 
         if(!state.showMode) {
@@ -118,11 +123,13 @@ const mutations = {
 
             state.points[0] = overlay;
             state.dots[0] = dotFeature;
+            state.hiddenHints[0] = hiddenOverlay;
             source.clear(true);
         }
         else {
             state.points[state.dotIdx] = overlay;
-            state.dots[state.dotIdx++] = dotFeature;
+            state.dots[state.dotIdx] = dotFeature;
+            state.hiddenHints[state.dotIdx++] = hiddenOverlay;
         }
 
         if(!(state.clickMode % 2)){
@@ -137,7 +144,6 @@ const mutations = {
 
         if(state.map instanceof Map) {
             let layer = state.map.getLayers().getArray().at(0);
-            console.log(layer);
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
             layer.setSource(new XYZ({
@@ -152,7 +158,6 @@ const mutations = {
 
         if(state.map instanceof Map) {
             let layer = state.map.getLayers().getArray().at(0);
-            console.log(layer);
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
             layer.setSource(new XYZ({
@@ -167,7 +172,6 @@ const mutations = {
 
         if(state.map instanceof Map) {
             let layer = state.map.getLayers().getArray().at(0);
-            console.log(layer);
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
             layer.setSource(new XYZ({
@@ -177,10 +181,15 @@ const mutations = {
     },
 
     hide(state, idx) {
-        console.log(idx);
+        state.hiddenPoints[idx] = 1;
+        state.map.removeOverlay(state.points[idx]);
+        state.map.addOverlay(state.hiddenHints[idx]);
     },
 
     show(state, idx) {
+        state.hiddenPoints[idx] = 0;
+        state.map.addOverlay(state.points[idx]);
+        state.map.removeOverlay(state.hiddenHints[idx]);
 
     }
 }

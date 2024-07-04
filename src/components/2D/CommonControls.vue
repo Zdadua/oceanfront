@@ -10,6 +10,8 @@ function returnClick() {
   let view = store.state['mapForTwo'].map.getView();
   view.animate({
     center: fromLonLat([160, 25]),
+    zoom: 2,
+    rotation: 0,
     duration: 800,
     easing: easeOut
   })
