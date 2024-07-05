@@ -18,9 +18,14 @@ onMounted(() => {
   <div class="overlay-info-container">
     <div class="info-text">Current Position:</div>
     <div class="lon-lat"></div>
+
+    <div class="minimize-btn">
+      <img src="../../assets/svg/minimize.svg" alt="minimize" width="15" height="15">
+    </div>
     <div ref="close" class="close-btn">
       <img src="../../assets/svg/close.svg" alt="close" width="15" height="15">
     </div>
+
   </div>
 
 </template>
@@ -64,6 +69,18 @@ onMounted(() => {
     position: absolute;
     top: 5px;
     right: 10px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .minimize-btn {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    top: 5px;
+    right: 35px;
 
     &:hover {
       cursor: pointer;

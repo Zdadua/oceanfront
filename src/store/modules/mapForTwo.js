@@ -190,7 +190,22 @@ const mutations = {
         state.hiddenPoints[idx] = 0;
         state.map.addOverlay(state.points[idx]);
         state.map.removeOverlay(state.hiddenHints[idx]);
+    },
 
+    remove(state, idx) {
+        state.map.removeOverlay(state.points[idx]);
+        let source = state.map.getLayers().getArray().at(2).getSource();
+        source.removeFeature(state.dots[idx]);
+        state.hiddenPoints[idx] = 0;
+
+        let tmp = state.points.slice(idx + 1, state.dotIdx - 1);
+        state.points.splice(idx, tmp.length, tmp);
+        tmp = state.dots.slice(idx + 1, state.dotIdx - 1);
+        state.dots.splice(idx, tmp.length, tmp);
+        tmp = state.hiddenHints.slice(idx + 1, state.dotIdx - 1);
+        state.hiddenHints.splice(idx, tmp.length, tmp);
+
+        state.dotIdx--;
     }
 }
 

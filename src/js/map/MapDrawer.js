@@ -112,8 +112,11 @@ class MapDrawer {
                 }
 
                 cloneDom.childNodes[2].addEventListener('click', (event) => {
-
                     store.commit('mapForTwo/hide', cloneDom.getAttribute('dotIdx'));
+                })
+
+                cloneDom.childNodes[3].addEventListener('click', (event) => {
+                    store.commit('mapForTwo/remove', cloneDom.getAttribute('dotIdx'));
                 })
 
                 let overlay = new Overlay({
