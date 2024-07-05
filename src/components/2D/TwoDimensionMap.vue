@@ -8,7 +8,6 @@ import ToggleButton from "./ToggleButton.vue";
 import CalendarCom from "./CalendarCom.vue";
 import ColorScale from "./ColorScale.vue";
 import CommonControls from "./CommonControls.vue";
-import VirtualScroll from "./VirtualScroll.vue";
 import OverlayInfo from "./OverlayInfo.vue";
 
 const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
@@ -21,6 +20,8 @@ let array = Array.from({length: 1000}, (_, i) => i);
 onMounted(() => {
   const dom = document.createDocumentFragment();
   const tmp = createApp(OverlayInfo).mount(dom);
+
+  const overlayElement = document.createElement('div');
 
   nextTick(() => {
     let drawer = new MapDrawer(mapContainer.value, tmp.$el);

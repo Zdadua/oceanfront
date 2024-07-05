@@ -23,7 +23,13 @@ function paintChart() {
   const marginLeft = 40;
 
   const x = scaleLinear(
+      [0, 365],
+      [marginLeft, width - marginRight]
+  );
 
+  const y = scaleLinear(
+      [-20, 40],
+      [height - marginBottom, marginTop]
   )
 
 }

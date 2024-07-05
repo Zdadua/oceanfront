@@ -3,26 +3,26 @@
 import {useStore} from "vuex";
 import {onMounted, ref} from "vue";
 
-let close = ref();
+let over = ref();
 const store = useStore();
 
 onMounted(() => {
-  close.value.addEventListener('click', (event) => {
-
+  over.value.addEventListener('click', (event) => {
+    console.log(123);
   })
 })
 
 </script>
 
 <template>
-  <div class="overlay-info-container">
+  <div ref="over" class="overlay-info-container">
     <div class="info-text">Current Position:</div>
     <div class="lon-lat"></div>
 
     <div class="minimize-btn">
       <img src="../../assets/svg/minimize.svg" alt="minimize" width="15" height="15">
     </div>
-    <div ref="close" class="close-btn">
+    <div class="close-btn">
       <img src="../../assets/svg/close.svg" alt="close" width="15" height="15">
     </div>
 

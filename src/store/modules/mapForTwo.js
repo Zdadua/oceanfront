@@ -1,6 +1,6 @@
 import {DragPan} from "ol/interaction.js";
 import {XYZ} from "ol/source";
-import {Map, Overlay} from "ol";
+import { Map as olMap, Overlay } from "ol";
 
 
 const state = () => ({
@@ -19,13 +19,9 @@ const state = () => ({
     showMode: 0,
     draggable: 0,
 
-    // overlay数组
-    points: [],
-    // overlay隐藏标记数组
-    hiddenPoints: [],
-    // overlay隐藏后留下的可用于恢复的标记数组
-    hiddenHints: [],
-    dots: [],
+    // dotOverlay对象数组
+    points: new Map(),
+    lastPoint: 0,
     dotIdx: 0,
     map: null,
     year: 0,
@@ -64,12 +60,12 @@ const mutations = {
 
         if(state.dotIdx) {
             if(state.clickMode) {
-                state.map.removeOverlay(state.points[0]);
+                state.map.removeOverlay(state.points.get(0).getOverlay());
                 source.clear(true);
             }
             else {
-                state.map.addOverlay(state.points[0]);
-                source.addFeature(state.dots[0]);
+                state.map.addOverlay(state.points.get(0).getOverlay());
+                source.addFeature(state.points.get(0).getDotFeature());
             }
         }
     },
@@ -84,18 +80,21 @@ const mutations = {
         else {
             state.clickMode -= 2;
 
-
-            for(let i = state.dotIdx - 1; i >= 0; i--) {
-                state.map.removeOverlay(state.points[i]);
+            let dotOverlay = state.points.get(state.lastPoint);
+            for(let i = state.lastPoint - 1; i >= 0; i--) {
+                state.map.removeOverlay(state.points.get(i).getOverlay());
+                if(state.points.has(i)) {
+                    state.points.delete(i);
+                }
             }
-
-            state.dots[0] = state.dots[state.dotIdx - 1];
-            state.points[0] = state.points[state.dotIdx - 1];
             state.dotIdx = 1;
+            state.lastPoint = 0;
+
+            dotOverlay.setId(0);
+            state.points.set(0, dotOverlay);
 
             source.clear(true);
-            source.addFeature(state.dots[0]);
-            state.map.addOverlay(state.points[0]);
+            source.addFeature(dotOverlay.getDotFeature());
         }
     },
 
@@ -110,31 +109,31 @@ const mutations = {
     },
 
 
-    pushPoint(state, [overlay, dotFeature, hiddenOverlay]) {
+    pushPoint(state, dotOverlay) {
 
         let source = state.map.getLayers().getArray().at(2).getSource();
 
         if(!state.showMode) {
             state.dotIdx = 1;
 
-            for(let i = state.dotIdx - 1; i >= 0; i--) {
-                state.map.removeOverlay(state.points[i]);
+            for(let value of state.points.values()) {
+                state.map.removeOverlay(value.getOverlay());
             }
+            state.lastPoint = 0;
 
-            state.points[0] = overlay;
-            state.dots[0] = dotFeature;
-            state.hiddenHints[0] = hiddenOverlay;
+            dotOverlay.setId(0);
+            state.points.set(0, dotOverlay);
             source.clear(true);
         }
         else {
-            state.points[state.dotIdx] = overlay;
-            state.dots[state.dotIdx] = dotFeature;
-            state.hiddenHints[state.dotIdx++] = hiddenOverlay;
+            state.points.set(state.dotIdx, dotOverlay);
+            state.lastPoint = state.dotIdx;
+            state.dotIdx++;
         }
 
         if(!(state.clickMode % 2)){
-            state.map.addOverlay(overlay);
-            source.addFeature(dotFeature);
+            state.map.addOverlay(dotOverlay.getOverlay());
+            source.addFeature(dotOverlay.getDotFeature());
         }
 
     },
@@ -142,7 +141,7 @@ const mutations = {
     year(state, y) {
         state.year = y;
 
-        if(state.map instanceof Map) {
+        if(state.map instanceof olMap) {
             let layer = state.map.getLayers().getArray().at(0);
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
@@ -156,7 +155,7 @@ const mutations = {
     month(state, m) {
         state.month = m;
 
-        if(state.map instanceof Map) {
+        if(state.map instanceof olMap) {
             let layer = state.map.getLayers().getArray().at(0);
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
@@ -170,7 +169,7 @@ const mutations = {
     day(state, d) {
         state.day = d;
 
-        if(state.map instanceof Map) {
+        if(state.map instanceof olMap) {
             let layer = state.map.getLayers().getArray().at(0);
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
@@ -181,32 +180,29 @@ const mutations = {
     },
 
     hide(state, idx) {
-        state.hiddenPoints[idx] = 1;
-        state.map.removeOverlay(state.points[idx]);
-        state.map.addOverlay(state.hiddenHints[idx]);
+        state.map.removeOverlay(state.points.get(idx).getOverlay());
+        state.map.addOverlay(state.points.get(idx).getHiddenOverlay());
     },
 
     show(state, idx) {
-        state.hiddenPoints[idx] = 0;
-        state.map.addOverlay(state.points[idx]);
-        state.map.removeOverlay(state.hiddenHints[idx]);
+        state.map.addOverlay(state.points.get(idx).getOverlay());
+        state.map.removeOverlay(state.points.get(idx).getHiddenOverlay());
     },
 
     remove(state, idx) {
-        state.map.removeOverlay(state.points[idx]);
+        state.map.removeOverlay(state.points.get(idx).getOverlay());
         let source = state.map.getLayers().getArray().at(2).getSource();
-        source.removeFeature(state.dots[idx]);
-        state.hiddenPoints[idx] = 0;
+        source.removeFeature(state.points.get(idx).getDotFeature());
+        state.points.delete(idx);
 
-        let tmp = state.points.slice(idx + 1, state.dotIdx - 1);
-        state.points.splice(idx, tmp.length, tmp);
-        tmp = state.dots.slice(idx + 1, state.dotIdx - 1);
-        state.dots.splice(idx, tmp.length, tmp);
-        tmp = state.hiddenHints.slice(idx + 1, state.dotIdx - 1);
-        state.hiddenHints.splice(idx, tmp.length, tmp);
+        for(let i = state.dotIdx - 1; i >= 0; i--) {
+            if(state.points.has(i)) {
+                state.lastPoint = i;
+            }
+        }
 
-        state.dotIdx--;
-    }
+    },
+
 }
 
 export default {
