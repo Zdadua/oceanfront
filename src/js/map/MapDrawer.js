@@ -55,12 +55,12 @@ class MapDrawer {
 
                     })
                 }),
+
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
                         url: 'http://172.20.163.79:5000/tiles/world_tiles/{z}/{x}_{y}.png',
                         // url: '../../../public/static/world_tiles/{z}/{x}_{y}.png',
-
                     })
                 }),
                 this.vectorLayer
@@ -80,6 +80,7 @@ class MapDrawer {
         store.state['mapForTwo'].map = this.map;
 
         this.map.on('click', (event) => {
+
             if(store.state['mapForTwo'].onUI) {
                 store.commit('mapForTwo/setOnUI', 0);
             }

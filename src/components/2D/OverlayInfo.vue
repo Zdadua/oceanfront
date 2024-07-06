@@ -1,15 +1,14 @@
 <script setup>
 
 import {useStore} from "vuex";
-import {onMounted, ref} from "vue";
+import {nextTick, onMounted, ref} from "vue";
+import TestChart from "./TestChart.vue";
 
 let over = ref();
 const store = useStore();
 
 onMounted(() => {
-  over.value.addEventListener('click', (event) => {
-    console.log(123);
-  })
+
 })
 
 </script>

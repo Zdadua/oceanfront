@@ -9,6 +9,7 @@ import CalendarCom from "./CalendarCom.vue";
 import ColorScale from "./ColorScale.vue";
 import CommonControls from "./CommonControls.vue";
 import OverlayInfo from "./OverlayInfo.vue";
+import TestChart from "./TestChart.vue";
 
 const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
 
@@ -67,7 +68,7 @@ onMounted(() => {
     </div>
 
 <!--    <div class="ui-control" style="top: 200px; left: 500px;">-->
-<!--      <OverlayInfo :idx="0"></OverlayInfo>-->
+<!--      <TestChart></TestChart>-->
 <!--    </div>-->
 
     <div id="controls-container" class="ui-control">

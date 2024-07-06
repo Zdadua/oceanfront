@@ -4,15 +4,6 @@ import {computed, nextTick, onMounted, ref} from "vue";
 import VirtualScroll from "./VirtualScroll.vue";
 import {useStore} from "vuex";
 
-function getDate() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const date = today.getDate();
-
-  return [year, month, date];
-}
-
 function getDaysInMonth(year, month) {
   return new Date(year, month, 0).getDate();
 }
