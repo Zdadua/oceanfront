@@ -1,6 +1,6 @@
 <script setup>
 
-import {computed, createApp, defineAsyncComponent, nextTick, onMounted, ref} from "vue";
+import {computed, createApp, createVNode, defineAsyncComponent, nextTick, onMounted, ref} from "vue";
 import { MapDrawer } from "../../js/map/MapDrawer.js";
 import SearchBar from "./SearchBar.vue";
 import TimeLine from "./TimeLine.vue";
@@ -10,13 +10,22 @@ import ColorScale from "./ColorScale.vue";
 import CommonControls from "./CommonControls.vue";
 import OverlayInfo from "./OverlayInfo.vue";
 import TestChart from "./TestChart.vue";
+import RightPopup from "./RightPopup.vue";
+import {useStore} from "vuex";
 
 const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
 
+let store = useStore();
 let mapContainer = ref();
 let infoContainer = ref();
-let array = Array.from({length: 1000}, (_, i) => i);
 
+let popped = ref(false);
+let offset = computed(() => popped.value ? 700 : 0);
+let overlays = computed(() => store.state['mapForTwo'].points);
+
+function testClick() {
+  popped.value = !popped.value;
+}
 
 onMounted(() => {
   const dom = document.createDocumentFragment();
@@ -36,11 +45,16 @@ onMounted(() => {
 <template>
 
   <div id="two-d-map-container" class="see-sight">
-    <div class="ui-control" id="projection-name">
+    <div @click="testClick" class="ui-control" id="projection-name" :style="{'right': (10 + offset) + 'px'}">
       投影系: 墨卡托投影
     </div>
 
     <div ref="mapContainer" id="map-container">
+      <OverlayInfo></OverlayInfo>
+    </div>
+
+    <div id="overlay-container">
+
     </div>
 
     <div id="search-container" class="ui-control">
@@ -59,12 +73,16 @@ onMounted(() => {
       <CalendarCom></CalendarCom>
     </div>
 
-    <div id="color-scale-container" class="ui-control">
+    <div id="color-scale-container" class="ui-control" :style="{'right': (30 + offset) + 'px'}">
       <ColorScale></ColorScale>
     </div>
 
-    <div id="common-controls-container" class="ui-control">
+    <div id="common-controls-container" class="ui-control" :style="{'right': (15 + offset) + 'px'}">
       <CommonControls></CommonControls>
+    </div>
+
+    <div id="popup-container" class="ui-control" :style="{'right': (-700 + offset) + 'px'}">
+      <RightPopup></RightPopup>
     </div>
 
 <!--    <div class="ui-control" style="top: 200px; left: 500px;">-->
@@ -92,6 +110,7 @@ onMounted(() => {
 
 .ui-control {
   position: absolute;
+  transition: right .3s ease-in-out;
 }
 
 #search-container {
@@ -122,13 +141,16 @@ onMounted(() => {
 }
 
 #color-scale-container {
-  right: 30px;
   bottom: 50px;
 }
 
 #common-controls-container {
-  right: 15px;
   top: 50px;
+}
+
+#popup-container {
+  top: 0;
+  z-index: 50;
 }
 
 #projection-name {
@@ -140,9 +162,8 @@ onMounted(() => {
   background-color: rgba(0, 0, 0, .5);
   backdrop-filter: blur(5px);
   top: 10px;
-  right: 10px;
   border-radius: 10px;
-  z-index: 100;
+  z-index: 10;
 }
 
 </style>

@@ -4,6 +4,8 @@ import {Icon, Style} from "ol/style.js";
 import store from "../../store/index.js";
 import {toStringHDMS} from "ol/coordinate.js";
 import {toLonLat} from "ol/proj.js";
+import OverlayInfo from "../../components/2D/OverlayInfo.vue";
+import {createVNode} from "vue";
 
 
 class DotOverlay {
@@ -31,6 +33,11 @@ class DotOverlay {
         if(id != null) {
             this.id = id;
         }
+
+        const vnode = createVNode(OverlayInfo, {props: {
+
+            }});
+
     }
 
     init() {

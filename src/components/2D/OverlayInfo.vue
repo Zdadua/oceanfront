@@ -7,6 +7,13 @@ import TestChart from "./TestChart.vue";
 let over = ref();
 const store = useStore();
 
+const props = defineProps({
+  coordinate: {
+    type: Object,
+    required: true
+  }
+});
+
 onMounted(() => {
 
 })
