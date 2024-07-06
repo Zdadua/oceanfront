@@ -60,12 +60,12 @@ const mutations = {
 
         if(state.dotIdx) {
             if(state.clickMode) {
-                state.map.removeOverlay(state.points.get(0).getOverlay());
+                state.map.removeOverlay(state.points.get(state.lastPoint).getOverlay());
                 source.clear(true);
             }
             else {
-                state.map.addOverlay(state.points.get(0).getOverlay());
-                source.addFeature(state.points.get(0).getDotFeature());
+                state.map.addOverlay(state.points.get(state.lastPoint).getOverlay());
+                source.addFeature(state.points.get(state.lastPoint).getDotFeature());
             }
         }
     },
@@ -87,11 +87,6 @@ const mutations = {
                     state.points.delete(i);
                 }
             }
-            state.dotIdx = 1;
-            state.lastPoint = 0;
-
-            dotOverlay.setId(0);
-            state.points.set(0, dotOverlay);
 
             source.clear(true);
             source.addFeature(dotOverlay.getDotFeature());
@@ -119,17 +114,16 @@ const mutations = {
             for(let value of state.points.values()) {
                 state.map.removeOverlay(value.getOverlay());
             }
-            state.lastPoint = 0;
 
-            dotOverlay.setId(0);
-            state.points.set(0, dotOverlay);
+            state.points.set(state.dotIdx, dotOverlay);
             source.clear(true);
         }
         else {
             state.points.set(state.dotIdx, dotOverlay);
-            state.lastPoint = state.dotIdx;
             state.dotIdx++;
         }
+
+        state.lastPoint = state.dotIdx;
 
         if(!(state.clickMode % 2)){
             state.map.addOverlay(dotOverlay.getOverlay());

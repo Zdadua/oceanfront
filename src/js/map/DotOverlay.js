@@ -2,10 +2,8 @@ import {Feature, Overlay} from "ol";
 import {Point} from "ol/geom.js";
 import {Icon, Style} from "ol/style.js";
 import store from "../../store/index.js";
-import {toStringHDMS} from "ol/coordinate.js";
-import {toLonLat} from "ol/proj.js";
 import OverlayInfo from "../../components/2D/OverlayInfo.vue";
-import {createVNode} from "vue";
+import {createApp, nextTick} from "vue";
 
 
 class DotOverlay {
@@ -22,22 +20,26 @@ class DotOverlay {
     outsideDom = null;
     coordinate = null;
 
-    constructor(id, dom, coordinate) {
-        if(dom instanceof HTMLElement) {
-            this.outsideDom = dom;
-            this.coordinate = coordinate;
-
-            this.init();
-        }
+    constructor(id, coordinate) {
+        this.coordinate = coordinate;
 
         if(id != null) {
             this.id = id;
         }
+    }
 
-        const vnode = createVNode(OverlayInfo, {props: {
+    async initDotOverlay() {
+        let tmpContainer = document.createElement('div');
+        const app = createApp(OverlayInfo, {
+            coordinate: this.coordinate,
+            id: this.id,
+        });
+        app.mount(tmpContainer);
 
-            }});
+        await nextTick();
 
+        this.outsideDom = tmpContainer.children[0];
+        this.init();
     }
 
     init() {
@@ -74,20 +76,20 @@ class DotOverlay {
     initElement() {
         this.initHiddenElement();
 
-        this.outsideDom.childNodes[1].innerHTML = toStringHDMS(toLonLat(this.coordinate));
-
-        this.outsideDom.childNodes[2].addEventListener('click', (event) => {
-            store.commit('mapForTwo/hide', this.id);
-        })
-
-        this.outsideDom.childNodes[3].addEventListener('click', (event) => {
-            store.commit('mapForTwo/remove', this.id);
-        })
-
-        this.hiddenElement.addEventListener('click', (event) => {
-            store.state['mapForTwo'].map.addOverlay(this.overlay);
-            store.state['mapForTwo'].map.removeOverlay(this.hiddenOverlay);
-        });
+        // this.outsideDom.childNodes[1].innerHTML = toStringHDMS(toLonLat(this.coordinate));
+        //
+        // this.outsideDom.childNodes[2].addEventListener('click', (event) => {
+        //     store.commit('mapForTwo/hide', this.id);
+        // })
+        //
+        // this.outsideDom.childNodes[3].addEventListener('click', (event) => {
+        //     store.commit('mapForTwo/remove', this.id);
+        // })
+        //
+        // this.hiddenElement.addEventListener('click', (event) => {
+        //     store.state['mapForTwo'].map.addOverlay(this.overlay);
+        //     store.state['mapForTwo'].map.removeOverlay(this.hiddenOverlay);
+        // });
 
     }
 

@@ -3,34 +3,70 @@
 import {useStore} from "vuex";
 import {nextTick, onMounted, ref} from "vue";
 import TestChart from "./TestChart.vue";
+import {toStringHDMS} from "ol/coordinate";
+import {toLonLat} from "ol/proj";
+import {Overlay} from "ol";
 
-let over = ref();
 const store = useStore();
 
 const props = defineProps({
   coordinate: {
     type: Object,
     required: true
-  }
+  },
+  id: {
+    type: Number,
+    required: true
+  },
+  // overlay: {
+  //   type: Overlay,
+  //   required: true
+  // },
+  // hiddenOverlay: {
+  //   type: Overlay,
+  //   required: true
+  // }
 });
 
-onMounted(() => {
+let coordinateStr = ref();
+let hided = ref(false);
 
+
+function hideOverlay() {
+  store.commit('mapForTwo/hide', this.id);
+}
+
+function removeOverlay() {
+  store.commit('mapForTwo/removeOverlay', this.id);
+}
+
+function showOverlay() {
+  store.commit('mapForTwo/show', this.id);
+}
+
+onMounted(() => {
+    if(props.coordinate) {
+      coordinateStr.value = toStringHDMS(toLonLat(props.coordinate))
+    }
 })
 
 </script>
 
 <template>
-  <div ref="over" class="overlay-info-container">
-    <div class="info-text">Current Position:</div>
-    <div class="lon-lat"></div>
+  <div class="overlay-info-container">
+    <div v-if="!hided" class="visible-container">
+      <div class="info-text">Current Position:</div>
+      <div class="lon-lat">{{ coordinateStr }}</div>
 
-    <div class="minimize-btn">
-      <img src="../../assets/svg/minimize.svg" alt="minimize" width="15" height="15">
+      <div class="minimize-btn" @click="hideOverlay">
+        <img src="../../assets/svg/minimize.svg" alt="minimize" width="15" height="15">
+      </div>
+      <div class="close-btn" @click="removeOverlay">
+        <img src="../../assets/svg/close.svg" alt="close" width="15" height="15">
+      </div>
     </div>
-    <div class="close-btn">
-      <img src="../../assets/svg/close.svg" alt="close" width="15" height="15">
-    </div>
+
+    <div v-if="hided" style="left: -5px; top: -5px; position: absolute; width: 10px; height: 10px;"></div>
 
   </div>
 
@@ -39,6 +75,10 @@ onMounted(() => {
 <style scoped>
 
 .overlay-info-container {
+  position: relative;
+}
+
+.visible-container {
   box-sizing: border-box;
   padding: 5px;
   width: 200px;
@@ -105,5 +145,4 @@ onMounted(() => {
     border-color: #ffffff transparent transparent transparent;
   }
 }
-
 </style>

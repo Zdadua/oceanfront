@@ -28,13 +28,9 @@ function testClick() {
 }
 
 onMounted(() => {
-  const dom = document.createDocumentFragment();
-  const tmp = createApp(OverlayInfo).mount(dom);
-
-  const overlayElement = document.createElement('div');
 
   nextTick(() => {
-    let drawer = new MapDrawer(mapContainer.value, tmp.$el);
+    let drawer = new MapDrawer(mapContainer.value);
     drawer.init();
   })
 

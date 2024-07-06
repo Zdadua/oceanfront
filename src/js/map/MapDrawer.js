@@ -15,20 +15,13 @@ import {DotOverlay} from "./DotOverlay.js";
 class MapDrawer {
 
     element = null;
-    infoElement = null;
     map = null;
     vectorSource = new Vector();
     vectorLayer = new VectorLayer({
         source: this.vectorSource
     });
 
-    constructor(element, dom) {
-        // this.infoElement = document.createElement('div');
-        // this.infoElement.classList.add('info-container');
-        // this.infoElement.innerHTML = '      <div class="info-text">Current Position:</div>\n' +
-        //     '      <div class="lon-lat"></div>';
-        this.infoElement = dom;
-
+    constructor(element) {
         if(element instanceof HTMLElement) {
             this.element = element;
         }
@@ -91,13 +84,15 @@ class MapDrawer {
 
                 let dotOverlay;
                 if(!store.state['mapForTwo'].clickMode) {
-                    dotOverlay = new DotOverlay(0, this.infoElement.cloneNode(true), coordinate);
+                    dotOverlay = new DotOverlay(0, coordinate);
                 }
                 else {
-                    dotOverlay = new DotOverlay(store.state['mapForTwo'].dotIdx, this.infoElement.cloneNode(true), coordinate);
+                    dotOverlay = new DotOverlay(store.state['mapForTwo'].dotIdx, coordinate);
                 }
 
-                store.commit('mapForTwo/pushPoint', dotOverlay);
+                dotOverlay.initDotOverlay().then(() => {
+                    store.commit('mapForTwo/pushPoint', dotOverlay);
+                })
             }
 
         })
