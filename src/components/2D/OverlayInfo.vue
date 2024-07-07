@@ -1,13 +1,14 @@
 <script setup>
 
 import {useStore} from "vuex";
-import {nextTick, onMounted, ref} from "vue";
+import {onMounted, ref} from "vue";
 import TestChart from "./TestChart.vue";
 import {toStringHDMS} from "ol/coordinate";
 import {toLonLat} from "ol/proj";
-import {Overlay} from "ol";
 
-const store = useStore();
+
+// TODO store为undefined
+let store = useStore();
 
 const props = defineProps({
   coordinate: {
@@ -18,14 +19,7 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  // overlay: {
-  //   type: Overlay,
-  //   required: true
-  // },
-  // hiddenOverlay: {
-  //   type: Overlay,
-  //   required: true
-  // }
+
 });
 
 let coordinateStr = ref();
@@ -33,15 +27,15 @@ let hided = ref(false);
 
 
 function hideOverlay() {
-  store.commit('mapForTwo/hide', this.id);
+  hided.value = true;
 }
 
 function removeOverlay() {
-  store.commit('mapForTwo/removeOverlay', this.id);
+  store.commit('mapForTwo/remove', props.id);
 }
 
 function showOverlay() {
-  store.commit('mapForTwo/show', this.id);
+  hided.value = false;
 }
 
 onMounted(() => {
@@ -56,7 +50,7 @@ onMounted(() => {
   <div class="overlay-info-container">
     <div v-if="!hided" class="visible-container">
       <div class="info-text">Current Position:</div>
-      <div class="lon-lat">{{ coordinateStr }}</div>
+      <div class="lon-lat">{{ coordinateStr }} + {{ props.id }}</div>
 
       <div class="minimize-btn" @click="hideOverlay">
         <img src="../../assets/svg/minimize.svg" alt="minimize" width="15" height="15">
@@ -66,7 +60,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-if="hided" style="left: -5px; top: -5px; position: absolute; width: 10px; height: 10px;"></div>
+    <div v-if="hided" @click="showOverlay" style="left: -5px; top: -5px; position: absolute; width: 10px; height: 10px;"></div>
 
   </div>
 

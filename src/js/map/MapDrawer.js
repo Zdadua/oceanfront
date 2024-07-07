@@ -82,13 +82,10 @@ class MapDrawer {
                 let [lon, lat] = toLonLat(coordinate);
                 store.commit('mapForTwo/updateInfo', [lon, lat]);
 
-                let dotOverlay;
-                if(!store.state['mapForTwo'].clickMode) {
-                    dotOverlay = new DotOverlay(0, coordinate);
+                if(store.state['mapForTwo'].showMode) {
+                    store.state['mapForTwo'].dotIdx++;
                 }
-                else {
-                    dotOverlay = new DotOverlay(store.state['mapForTwo'].dotIdx, coordinate);
-                }
+                let dotOverlay = new DotOverlay(store.state['mapForTwo'].dotIdx, coordinate);
 
                 dotOverlay.initDotOverlay().then(() => {
                     store.commit('mapForTwo/pushPoint', dotOverlay);

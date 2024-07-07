@@ -82,8 +82,8 @@ const mutations = {
 
             let dotOverlay = state.points.get(state.lastPoint);
             for(let i = state.lastPoint - 1; i >= 0; i--) {
-                state.map.removeOverlay(state.points.get(i).getOverlay());
                 if(state.points.has(i)) {
+                    state.map.removeOverlay(state.points.get(i).getOverlay());
                     state.points.delete(i);
                 }
             }
@@ -109,21 +109,20 @@ const mutations = {
         let source = state.map.getLayers().getArray().at(2).getSource();
 
         if(!state.showMode) {
-            state.dotIdx = 1;
-
             for(let value of state.points.values()) {
                 state.map.removeOverlay(value.getOverlay());
             }
 
             state.points.set(state.dotIdx, dotOverlay);
             source.clear(true);
+            state.lastPoint = state.dotIdx;
         }
         else {
             state.points.set(state.dotIdx, dotOverlay);
-            state.dotIdx++;
+            state.lastPoint = state.dotIdx;
         }
 
-        state.lastPoint = state.dotIdx;
+
 
         if(!(state.clickMode % 2)){
             state.map.addOverlay(dotOverlay.getOverlay());
@@ -171,16 +170,6 @@ const mutations = {
                 url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`
             }))
         }
-    },
-
-    hide(state, idx) {
-        state.map.removeOverlay(state.points.get(idx).getOverlay());
-        state.map.addOverlay(state.points.get(idx).getHiddenOverlay());
-    },
-
-    show(state, idx) {
-        state.map.addOverlay(state.points.get(idx).getOverlay());
-        state.map.removeOverlay(state.points.get(idx).getHiddenOverlay());
     },
 
     remove(state, idx) {
