@@ -72,6 +72,10 @@ class DotOverlay {
     getDotFeature() {
         return this.dotFeature;
     }
+
+    getCoordinate() {
+        return this.coordinate;
+    }
 }
 
 export {

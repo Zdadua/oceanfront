@@ -189,9 +189,12 @@ const mutations = {
     },
 
     popup(state) {
-        console.log(state.popup);
         state.popup = true;
     },
+
+    dismiss(state) {
+        state.popup = false;
+    }
 
 }
 

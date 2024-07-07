@@ -114,6 +114,11 @@ onMounted(() => {
     text-align: center;
     height: 50px;
     line-height: 50px;
+    
+    &:hover {
+      cursor: pointer;
+    }
+
   }
 
   #drop-container {

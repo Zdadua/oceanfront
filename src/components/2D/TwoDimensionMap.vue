@@ -32,11 +32,23 @@ onMounted(() => {
 <template>
 
   <div id="two-d-map-container" class="see-sight">
-    <div class="ui-control" id="projection-name" :style="{'right': (10 + offset) + 'px'}">
-      投影系: 墨卡托投影
+    <div id="map-guide-container" class="ui-control" :style="{'right': (10 + offset) + 'px'}">
+      <div id="about-us-btn">
+        <RouterLink id="router-link" to="/">
+          AboutUs
+        </RouterLink>
+      </div>
+      <div id="projection-name" >
+        投影系: 墨卡托投影
+      </div>
     </div>
 
+
     <div ref="mapContainer" id="map-container">
+    </div>
+
+    <div id="title-container" class="ui-control" :style="{'right':  'calc(50% - 270px + ' + offset * .5 + 'px)'}">
+      基于物理增强和多级残差估计的海表温度预测系统
     </div>
 
     <div id="overlay-container">
@@ -131,7 +143,7 @@ onMounted(() => {
 }
 
 #common-controls-container {
-  top: 50px;
+  top: 80px;
 }
 
 #popup-container {
@@ -139,17 +151,56 @@ onMounted(() => {
   z-index: 50;
 }
 
-#projection-name {
-  width: 200px;
-  height: 30px;
-  line-height: 30px;
+#map-guide-container {
+  top: 20px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  flex-direction: row;
+
+  #projection-name {
+    width: 200px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: white;
+    background-color: rgba(0, 0, 0, .5);
+    backdrop-filter: blur(5px);
+    border-radius: 20px;
+  }
+
+  #about-us-btn {
+    width: 140px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    background-color: white;
+    border-radius: 20px;
+    margin-right: 20px;
+    font-size: 1.2em;
+    font-family: UNSII Serif sans-serif;
+    font-weight: 800;
+  }
+}
+
+#title-container {
+  width: 540px;
+  height: 50px;
+  top: 20px;
+  line-height: 50px;
   text-align: center;
   color: white;
-  background-color: rgba(0, 0, 0, .5);
-  backdrop-filter: blur(5px);
-  top: 10px;
-  border-radius: 10px;
-  z-index: 10;
+  font-size: 2.3em;
+  font-weight: 400;
+}
+
+#router-link {
+  text-decoration: none;
+  color: black;
+  width: 140px;
+  height: 40px;
+  font-family: UNSII, sans-serif;
+  display: block;
 }
 
 </style>

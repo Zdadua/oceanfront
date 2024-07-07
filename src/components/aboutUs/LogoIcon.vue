@@ -35,8 +35,10 @@ onMounted(() => {
 
 <template>
 
-  <div id="grid-container">
-    <div class="small-cube" v-for="cube in cubes" :class="[cube]" ></div>
+  <div>
+    <RouterLink id="grid-container" to="/twoMap">
+      <div class="small-cube" v-for="cube in cubes" :class="[cube]" ></div>
+    </RouterLink>
   </div>
 
 </template>
