@@ -2,9 +2,8 @@ import {Feature, Overlay} from "ol";
 import {Point} from "ol/geom.js";
 import {Icon, Style} from "ol/style.js";
 import OverlayInfo from "../../components/2D/OverlayInfo.vue";
-import {createApp, defineAsyncComponent, nextTick} from "vue";
+import {createApp, nextTick} from "vue";
 import store from "../../store/index.js";
-
 
 class DotOverlay {
     id = null;
@@ -15,7 +14,6 @@ class DotOverlay {
             src: './src/assets/svg/circleIcon.svg'
         })
     });
-    hiddenElement = document.createElement('div'); //TODO 删除
     outsideDom = null;
     coordinate = null;
 

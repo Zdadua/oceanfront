@@ -18,12 +18,15 @@ const state = () => ({
     clickMode: 0,
     showMode: 0,
     draggable: 0,
+    popup: false,
 
     // dotOverlay对象数组
     points: new Map(),
     lastPoint: 0,
     dotIdx: 0,
+
     map: null,
+
     year: 0,
     month: 0,
     day: 1,
@@ -183,7 +186,11 @@ const mutations = {
                 state.lastPoint = i;
             }
         }
+    },
 
+    popup(state) {
+        console.log(state.popup);
+        state.popup = true;
     },
 
 }

@@ -8,8 +8,6 @@ import ToggleButton from "./ToggleButton.vue";
 import CalendarCom from "./CalendarCom.vue";
 import ColorScale from "./ColorScale.vue";
 import CommonControls from "./CommonControls.vue";
-import OverlayInfo from "./OverlayInfo.vue";
-import TestChart from "./TestChart.vue";
 import RightPopup from "./RightPopup.vue";
 import {useStore} from "vuex";
 
@@ -17,15 +15,8 @@ const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
 
 let store = useStore();
 let mapContainer = ref();
-let infoContainer = ref();
 
-let popped = ref(false);
-let offset = computed(() => popped.value ? 700 : 0);
-let overlays = computed(() => store.state['mapForTwo'].points);
-
-function testClick() {
-  popped.value = !popped.value;
-}
+let offset = computed(() => store.state['mapForTwo'].popup ? 700 : 0);
 
 onMounted(() => {
 
@@ -41,12 +32,11 @@ onMounted(() => {
 <template>
 
   <div id="two-d-map-container" class="see-sight">
-    <div @click="testClick" class="ui-control" id="projection-name" :style="{'right': (10 + offset) + 'px'}">
+    <div class="ui-control" id="projection-name" :style="{'right': (10 + offset) + 'px'}">
       投影系: 墨卡托投影
     </div>
 
     <div ref="mapContainer" id="map-container">
-      <OverlayInfo></OverlayInfo>
     </div>
 
     <div id="overlay-container">
