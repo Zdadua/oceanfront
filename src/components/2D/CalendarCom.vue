@@ -4,18 +4,33 @@ import {computed, nextTick, onMounted, ref} from "vue";
 import VirtualScroll from "./VirtualScroll.vue";
 import {useStore} from "vuex";
 
+let store = useStore();
+
 function getDaysInMonth(year, month) {
   return new Date(year, month, 0).getDate();
 }
 
+let chosenIndex = ref(0);
+let chosenY = ref(0);
+let chosenM = ref(0);
+let isRightMY = computed(() => {
+
+  return chosenY.value == y.value && chosenM.value == m.value;
+})
 function clickDay(idx) {
   if(idx >= firstDay.value && idx <= firstDay.value + monthDays.value - 1) {
     store.commit('mapForTwo/day', idx - firstDay.value + 1);
+
+    chosenIndex.value = idx;
+    chosenY.value = y.value;
+    chosenM.value = m.value;
   }
 }
 
 let year = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'];
 let month = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+const weekday = ['一', '二', '三', '四', '五', '六', '日'];
+
 let firstDay = computed(() => {
   let tmp = new Date(y.value, m.value - 1, 1);
   return !tmp.getDay() ? 6 : tmp.getDay() - 1;
@@ -28,14 +43,14 @@ let beforeDays = computed(() => {
 })
 
 let dropped = ref(false);
-const weekday = ['一', '二', '三', '四', '五', '六', '日'];
 
-let store = useStore();
-let y = computed(() => store.state['mapForTwo'].year);
-let m = computed(() => store.state['mapForTwo'].month);
+let y = computed(() => store.state['mapForTwo'].tmpYear);
+let showY = computed(() => store.state['mapForTwo'].year);
+let m = computed(() => store.state['mapForTwo'].tmpMonth);
+let showM = computed(() => store.state['mapForTwo'].month);
 let d = computed(() => store.state['mapForTwo'].day);
-let yearPlace = computed(() => year.indexOf(y.value.toString()));
-let monthPlace = computed(() => month.indexOf(m.value.toString()));
+let yearPlace = computed(() => year.indexOf(showY.value.toString()));
+let monthPlace = computed(() => month.indexOf(showM.value.toString()));
 
 let grid = computed(() => {
 
@@ -53,20 +68,22 @@ let grid = computed(() => {
     res.push(i);
   }
 
-  console.log('before = ' + beforeDays.value + '  weekday = ' + firstDay.value + '  days = ' + monthDays.value)
-
   return res;
 })
 
 onMounted(() => {
+  let tmp = new Date();
+  tmp.setDate(tmp.getDate() - 1);
+  store.commit('mapForTwo/year', tmp.getFullYear());
+  store.commit('mapForTwo/tmpYear', tmp.getFullYear());
+  store.commit('mapForTwo/month', tmp.getMonth() + 1);
+  store.commit('mapForTwo/tmpMonth', tmp.getMonth() + 1);
+  store.commit('mapForTwo/day', tmp.getDate());
 
-  nextTick(() => {
-    let tmp = new Date();
+  chosenIndex.value = firstDay.value + d.value - 1;
+  chosenY.value = showY.value;
+  chosenM.value = showM.value;
 
-    store.commit('mapForTwo/year', tmp.getFullYear());
-    store.commit('mapForTwo/month', tmp.getMonth() + 1);
-    store.commit('mapForTwo/day', tmp.getDate());
-  })
 })
 
 
@@ -74,15 +91,15 @@ onMounted(() => {
 
 <template>
   <div id="calendar-com-container">
-    <div id="calendar-text" @click="dropped = !dropped">{{ y }}年{{ m }}月{{ d }}日</div>
+    <div id="calendar-text" @click="dropped = !dropped">{{ showY }}年{{ showM }}月{{ d }}日</div>
     <div v-if="dropped" id="drop-container">
       <div id="year-month-container">
         <div class="scroll-wrapper">
-          <VirtualScroll :name="'year'" :items="year" :sight-width="70" :sight-height="94" :item-height="30" :init-place="yearPlace"></VirtualScroll>
+          <VirtualScroll :name="'tmpYear'" :items="year" :sight-width="70" :sight-height="94" :item-height="30" :init-place="yearPlace"></VirtualScroll>
         </div>
         <span class="calendar-span">年</span>
         <div class="scroll-wrapper">
-          <VirtualScroll :name="'month'" :items="month" :sight-width="70" :sight-height="94" :item-height="30" :init-place="monthPlace"></VirtualScroll>
+          <VirtualScroll :name="'tmpMonth'" :items="month" :sight-width="70" :sight-height="94" :item-height="30" :init-place="monthPlace"></VirtualScroll>
         </div>
         <span class="calendar-span">月</span>
       </div>
@@ -90,7 +107,7 @@ onMounted(() => {
         <div class="weekday" v-for="day in weekday">{{ day }}</div>
       </div>
       <div id="grid-container">
-        <div v-for="(day, index) in grid" class="day-items" @click="clickDay(index)">
+        <div v-for="(day, index) in grid" class="day-items" @click="clickDay(index)" :class="[(index < firstDay || index >= firstDay + monthDays) ? 'cant-choose' : 'can-choose', (index === chosenIndex && isRightMY) ? 'day-chosen': '']">
           {{ day }}
         </div>
       </div>
@@ -173,17 +190,29 @@ onMounted(() => {
         width: 100%;
         align-self: center;
         font-size: .9em;
-        color: black;
         text-align: center;
         line-height: 34px;
         user-select: none;
-        background-color: white;
+      }
 
+      .cant-choose {
+        background-color: #e3e3e3;
+        color: #636363;
+      }
+
+      .can-choose {
+        color: black;
         &:hover {
           background-color: #d8d8d8;
+          cursor: pointer;
         }
-
       }
+
+      .day-chosen {
+        background-color: #2a7fff;
+        color: white;
+      }
+
     }
 
     #weekday-container {
@@ -200,10 +229,6 @@ onMounted(() => {
         color: #2a7fff;
       }
     }
-  }
-
-  .day-chosen {
-    background-color: #2a7fff;
   }
 
 }

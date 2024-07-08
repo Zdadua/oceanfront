@@ -28,7 +28,9 @@ const state = () => ({
     map: null,
 
     year: 0,
+    tmpYear: 0,
     month: 0,
+    tmpMonth: 0,
     day: 1,
 })
 
@@ -136,30 +138,18 @@ const mutations = {
 
     year(state, y) {
         state.year = y;
+    },
 
-        if(state.map instanceof olMap) {
-            let layer = state.map.getLayers().getArray().at(0);
-            let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
-            let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
-            layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`
-            }))
-        }
-
+    tmpYear(state, y) {
+        state.tmpYear = y;
     },
 
     month(state, m) {
         state.month = m;
+    },
 
-        if(state.map instanceof olMap) {
-            let layer = state.map.getLayers().getArray().at(0);
-            let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
-            let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
-            layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`
-            }))
-        }
-
+    tmpMonth(state, m) {
+        state.tmpMonth = m;
     },
 
     day(state, d) {
@@ -173,6 +163,9 @@ const mutations = {
                 url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`
             }))
         }
+
+        state.year = state.tmpYear;
+        state.month = state.tmpMonth;
     },
 
     remove(state, idx) {

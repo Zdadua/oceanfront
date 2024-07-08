@@ -111,6 +111,11 @@ onMounted(() => {
   transition: right .3s ease-in-out;
 }
 
+#map-container {
+  width: 100vw;
+  height: 100vh;
+}
+
 #search-container {
   top: 20px;
   left: 200px;

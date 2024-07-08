@@ -34,6 +34,17 @@ class MapDrawer {
     initMap() {
         this.vectorLayer.set('name', 'dotLayer');
 
+        let tmp = new Date();
+        tmp.setDate(tmp.getDate() - 1);
+
+        let year = tmp.getFullYear();
+        let month = tmp.getMonth() + 1;
+        let day = tmp.getDate();
+
+        month = month < 10 ? `0${month}` : `${month}`;
+        day = day < 10 ? `0${day}` : `${day}`;
+
+
         let options = {
             target: this.element.id,
             layers: [
@@ -43,7 +54,7 @@ class MapDrawer {
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        url: 'http://172.20.163.79:5000/tiles/sst_tiles/2024-01-01.csv.png/{z}/{x}_{y}.png',
+                        url: `http://172.20.163.79:5000/tiles/sst_tiles/${year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`,
                         // url: '../../../public/static/sst_tiles/{z}/{x}_{y}.png',
 
                     })

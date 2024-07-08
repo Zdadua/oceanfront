@@ -1,10 +1,8 @@
 <script setup>
 import {useStore} from "vuex";
 import {computed, onMounted, ref} from "vue";
-import {toStringHDMS} from "ol/coordinate";
 import {toLonLat} from "ol/proj";
 import OverlayChart from "./chart/OverlayChart.vue";
-import {fromLonLat} from "ol/proj.js";
 import {easeOut} from "ol/easing.js";
 
 let store = useStore();
@@ -39,11 +37,21 @@ function showOverlay() {
 function popup() {
 
   store.commit('mapForTwo/popup');
-  let view = store.state['mapForTwo'].map.getView();
+  const view = store.state['mapForTwo'].map.getView();
+  const map = store.state['mapForTwo'].map;
 
-  let [lon, lat] = toLonLat(props.coordinate);
+  let width = document.getElementById('map-container').offsetWidth;
+  let height = document.getElementById('map-container').offsetHeight;
+  let pixel = map.getPixelFromCoordinate(props.coordinate);
+  let deltaY = height / 2 - pixel[1];
+
+  pixel[0] = pixel[0] + width / 5;
+  pixel[1] = pixel[1] + deltaY;
+
+  let co = map.getCoordinateFromPixel(pixel);
+
   view.animate({
-    center: fromLonLat([lon, lat]),
+    center: co,
     rotation: 0,
     duration: 800,
     easing: easeOut
