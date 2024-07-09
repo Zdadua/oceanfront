@@ -54,7 +54,7 @@ class MapDrawer {
                 new TileLayer({
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
-                        url: `http://172.20.163.79:5000/tiles/sst_tiles/${year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`,
+                        url: `http://172.20.163.79:5000/tiles/sst_tiles/${year}-${month}-${day}/{z}/{x}_{y}.png`,
                         // url: '../../../public/static/sst_tiles/{z}/{x}_{y}.png',
 
                     })

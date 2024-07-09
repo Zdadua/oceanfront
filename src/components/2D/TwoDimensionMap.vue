@@ -47,7 +47,7 @@ onMounted(() => {
     <div ref="mapContainer" id="map-container">
     </div>
 
-    <div id="title-container" class="ui-control" :style="{'right':  'calc(50% - 270px + ' + offset * .5 + 'px)'}">
+    <div id="title-container" class="ui-control" :style="{'right':  'calc(50% - 270px + ' + offset * .6 + 'px)'}">
       基于物理增强和多级残差估计的海表温度预测系统
     </div>
 
@@ -195,7 +195,7 @@ onMounted(() => {
   line-height: 50px;
   text-align: center;
   color: white;
-  font-size: 2.3em;
+  font-size: 1.5em;
   font-weight: 400;
 }
 

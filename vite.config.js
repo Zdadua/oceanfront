@@ -13,6 +13,14 @@ export default defineConfig({
       clientFiles: [
         './src/components/aboutUs/TextCube.vue',
       ],
+    },
+
+    proxy: {
+      '/data': {
+        target: 'http://172.20.163.79:5000',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/data/, ''),
+      }
     }
   }
 

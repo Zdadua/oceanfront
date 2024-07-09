@@ -60,25 +60,36 @@ function changeClick() {
   inputType.value = !inputType.value;
 
   if(inputType.value) {
-    if (lon < 0) {
-      positiveLon.value = false;
-    }
-    let tmpLon = abs(lon.value);
-    lonD.value = floor(tmpLon);
-    lonM.value = floor((tmpLon - lonD.value) * 60);
-    lonS.value = round(((tmpLon - lonD.value) * 60 - lonM.value) * 60 * 1000) / 1000;
+    if (lon.value) {
+      if (lon.value < 0) {
+        positiveLon.value = false;
+      }
+      let tmpLon = abs(lon.value);
+      lonD.value = floor(tmpLon);
+      lonM.value = floor((tmpLon - lonD.value) * 60);
+      lonS.value = round(((tmpLon - lonD.value) * 60 - lonM.value) * 60 * 1000) / 1000;
 
-    if (lat < 0) {
-      positiveLat.value = false;
     }
-    let tmpLat = abs(lat.value);
-    latD.value = floor(tmpLat);
-    latM.value = floor((tmpLat - latD.value) * 60);
-    latS.value = round(((tmpLat - latD.value) * 60 - latM.value) * 60 * 1000) / 1000;
+    if (lat.value) {
+      if (lat < 0) {
+        positiveLat.value = false;
+      }
+      let tmpLat = abs(lat.value);
+      latD.value = floor(tmpLat);
+      latM.value = floor((tmpLat - latD.value) * 60);
+      latS.value = round(((tmpLat - latD.value) * 60 - latM.value) * 60 * 1000) / 1000;
+    }
   }
   else {
-    lon.value = (lonD.value + lonM.value / 60 + lonS.value / 3600) * (positiveLon.value ? 1 : -1);
-    lat.value = (latD.value + latM.value / 60 + latS.value / 3600) * (positiveLat.value ? 1 : -1);
+    if(lonD.value || lonM.value || lonS.value) {
+      lon.value = ((lonD.value ? lonD.value : 0) + (lonM.value ? lonM.value / 60 : 0) + (lonS.value ? lonS.value / 3600 : 0)) * (positiveLon.value ? 1 : -1);
+      lon.value = lon.value.toFixed(3);
+    }
+
+    if(latD.value || latM.value || latS.value) {
+      lat.value = ((latD.value ? latD.value : 0) + (latM.value ? latM.value / 60 : 0) + (latS.value ? latS.value / 3600 : 0)) * (positiveLat.value ? 1 : -1);
+      lat.value = lat.value.toFixed(3);
+    }
   }
 }
 

@@ -96,6 +96,7 @@ onMounted(() => {
       <div id="year-month-container">
         <div class="scroll-wrapper">
           <VirtualScroll :name="'tmpYear'" :items="year" :sight-width="70" :sight-height="94" :item-height="30" :init-place="yearPlace"></VirtualScroll>
+          <div class="center-line"></div>
         </div>
         <span class="calendar-span">年</span>
         <div class="scroll-wrapper">
@@ -172,6 +173,7 @@ onMounted(() => {
         display: flex;
         flex-direction: column;
         justify-content: center;
+
       }
 
     }

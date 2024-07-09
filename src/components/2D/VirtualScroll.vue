@@ -149,19 +149,16 @@ onMounted(() => {
 </script>
 
 <template>
+    <div ref="list" id="virtual-scroll-container" @mousedown="mousedownEvent" @scroll="throttleScroll" :style="{'height': `${props.sightHeight}px`, 'width': `${props.sightWidth}px`}">
+      <div class="virtual-scroll-phantom" :style="{'height': `${listHeight}px`, 'width': `${props.sightWidth}px`}">
+      </div>
 
-  <div ref="list" id="virtual-scroll-container" @mousedown="mousedownEvent" @scroll="throttleScroll" :style="{'height': `${props.sightHeight}px`, 'width': `${props.sightWidth}px`}">
-    <div class="virtual-scroll-phantom" :style="{'height': `${listHeight}px`, 'width': `${props.sightWidth}px`}">
-    </div>
-
-    <div ref="sight" class="see-sight"  :style="{'transform': getTransform, 'width': `${props.sightWidth}px`}">
-      <div v-for="item in visibleData" class="see-sight-item" :style="{'height': `${props.itemHeight}px`}">
-        {{ item }}
+      <div ref="sight" class="see-sight"  :style="{'transform': getTransform, 'width': `${props.sightWidth}px`}">
+        <div v-for="item in visibleData" class="see-sight-item" :style="{'height': `${props.itemHeight}px`}">
+          {{ item }}
+        </div>
       </div>
     </div>
-
-
-  </div>
 
 </template>
 

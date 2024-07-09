@@ -160,7 +160,7 @@ const mutations = {
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
             layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}.csv.png/{z}/{x}_{y}.png`
+                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
             }))
         }
 
