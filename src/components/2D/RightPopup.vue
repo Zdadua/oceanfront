@@ -2,13 +2,27 @@
 
 import SeasonChart from "./chart/SeasonChart.vue";
 import {useStore} from "vuex";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
+import {DotOverlay} from "../../js/map/DotOverlay.js";
 
 let store = useStore();
 let testData = ref([])
 let summerData = ref([])
 let fallData = ref([])
 let winterData = ref([])
+
+let popup = computed(() => store.state['mapForTwo'].popup);
+
+let showDot = null;
+
+watch(showDot, async (newValue) => {
+  if(newValue instanceof DotOverlay) {
+
+    const response = fetch('/data/')
+    
+  }
+})
+
 
 function closeClick() {
   store.commit('mapForTwo/dismiss');
@@ -49,73 +63,75 @@ onMounted(() => {
 
 <template>
 
-  <div id="popup-wrapper">
+  <Transition name="popup">
+    <div v-if="popup" id="popup-wrapper">
 
-    <div id="popup-container">
-      <div class="to-left-btn popup-btn">
-        <img src="../../assets/svg/left.svg" alt="left" width="30" height="30">
-      </div>
-      <div class="lon-container">
+      <div id="popup-container">
+        <div class="to-left-btn popup-btn">
+          <img src="../../assets/svg/left.svg" alt="left" width="30" height="30">
+        </div>
+        <div class="lon-container">
         <span class="big-text">
           45°
         </span>
 
-        <span class="small-text">
+          <span class="small-text">
           12'45"
         </span>
-        <span class="direction">
+          <span class="direction">
           E
         </span>
-      </div>
+        </div>
 
-      <div class="lat-container">
+        <div class="lat-container">
         <span class="big-text">
         45°
         </span>
 
-        <span class="small-text">
+          <span class="small-text">
           12'45"
         </span>
-        <span class="direction">
+          <span class="direction">
           N
         </span>
+        </div>
+
+        <div class="to-right-btn popup-btn">
+          <img src="../../assets/svg/right.svg" alt="right" width="30" height="30">
+        </div>
+
+        <div class="subtitle" style="grid-column: 2 / 4; grid-row: 3 / 4;">
+          四季海温分析
+        </div>
+
+        <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">
+          <SeasonChart title="Spring" :data="testData"></SeasonChart>
+        </div>
+        <div style="grid-column: 2 / 6; grid-row: 5 / 6; border: 1px solid #e1e1e1; border-radius: 5px;">
+          <SeasonChart title="Summer" :data="summerData"></SeasonChart>
+        </div>
+        <div style="grid-column: 2 / 6; grid-row: 6 / 7; border: 1px solid #e1e1e1; border-radius: 5px;">
+          <SeasonChart title="Fall" :data="fallData"></SeasonChart>
+        </div>
+        <div style="grid-column: 2 / 6; grid-row: 7 / 8; border: 1px solid #e1e1e1; border-radius: 5px;">
+          <SeasonChart title="Winter" :data="winterData"></SeasonChart>
+        </div>
+
+        <div class="subtitle" style="grid-column: 2 / 4; grid-row: 9 / 10;">
+          历年海温
+        </div>
+        <div style="grid-column: 2 / 6; grid-row: 10 / 11; border: 1px solid #e1e1e1; border-radius: 5px;">
+          <SeasonChart title="" :data="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]"></SeasonChart>
+        </div>
+
       </div>
 
-      <div class="to-right-btn popup-btn">
-        <img src="../../assets/svg/right.svg" alt="right" width="30" height="30">
-      </div>
-
-      <div class="subtitle" style="grid-column: 2 / 4; grid-row: 3 / 4;">
-        四季海温分析
-      </div>
-
-      <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">
-        <SeasonChart title="Spring" :data="testData"></SeasonChart>
-      </div>
-      <div style="grid-column: 2 / 6; grid-row: 5 / 6; border: 1px solid #e1e1e1; border-radius: 5px;">
-        <SeasonChart title="Summer" :data="summerData"></SeasonChart>
-      </div>
-      <div style="grid-column: 2 / 6; grid-row: 6 / 7; border: 1px solid #e1e1e1; border-radius: 5px;">
-        <SeasonChart title="Fall" :data="fallData"></SeasonChart>
-      </div>
-      <div style="grid-column: 2 / 6; grid-row: 7 / 8; border: 1px solid #e1e1e1; border-radius: 5px;">
-        <SeasonChart title="Winter" :data="winterData"></SeasonChart>
-      </div>
-
-      <div class="subtitle" style="grid-column: 2 / 4; grid-row: 9 / 10;">
-        历年海温
-      </div>
-      <div style="grid-column: 2 / 6; grid-row: 10 / 11; border: 1px solid #e1e1e1; border-radius: 5px;">
-        <SeasonChart title="" :data="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]"></SeasonChart>
+      <div id="right-popup-close-btn" @click="closeClick">
+        <img src="../../assets/svg/close.svg" alt="close" width="25" height="25">
       </div>
 
     </div>
-
-    <div id="right-popup-close-btn" @click="closeClick">
-      <img src="../../assets/svg/close.svg" alt="close" width="25" height="25">
-    </div>
-
-  </div>
+  </Transition>
 
 </template>
 
@@ -218,6 +234,21 @@ onMounted(() => {
   font-family: UNSII, sans-serif;
   line-height: 50px;
   text-indent: 30px;
+}
+
+.popup-enter-from,
+.popup-leave-to {
+  transform: translateX(700px);
+}
+
+.popup-enter-to,
+.popup-leave-from {
+  transform: translateX(0px);
+}
+
+.popup-enter-active,
+.popup-leave-active {
+  transition: all .3s ease-in-out;
 }
 
 </style>

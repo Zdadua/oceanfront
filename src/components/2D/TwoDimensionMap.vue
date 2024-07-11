@@ -79,7 +79,7 @@ onMounted(() => {
       <CommonControls></CommonControls>
     </div>
 
-    <div id="popup-container" class="ui-control" :style="{'right': (-700 + offset) + 'px'}">
+    <div id="popup-container" class="ui-control" :style="{'right': '0'}">
       <RightPopup></RightPopup>
     </div>
 
@@ -151,11 +151,6 @@ onMounted(() => {
   top: 80px;
 }
 
-#popup-container {
-  top: 0;
-  z-index: 50;
-}
-
 #map-guide-container {
   top: 20px;
   right: 10px;
@@ -206,6 +201,11 @@ onMounted(() => {
   height: 40px;
   font-family: UNSII, sans-serif;
   display: block;
+}
+
+#popup-container {
+  top: 0;
+  z-index: 10;
 }
 
 </style>

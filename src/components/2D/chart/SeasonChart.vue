@@ -11,7 +11,7 @@ const props = defineProps({
   },
   data: {
     type: Array,
-  }
+  },
 })
 
 let seasonContainer = ref();
@@ -22,7 +22,7 @@ let display = {
   marginLeft: 40,
 }
 
-watch(props, () => {
+watch(() => props.data, () => {
   const svg = d3.select(`#${props.title}`)
   svg.selectAll('*').remove();
   initChart();
