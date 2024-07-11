@@ -3,6 +3,7 @@
 import {onMounted, ref, watch} from "vue";
 import * as d3 from "d3";
 import {ceil, floor} from "mathjs";
+import store from "../../../store/index.js";
 
 const props = defineProps({
   title: {
@@ -38,22 +39,28 @@ function initChart() {
 
   let height = h - display.marginTop - display.marginBottom;
 
-  const xScale = d3.scaleLinear([1, props.data.length], [display.marginLeft, w - display.marginRight]);
+  const year = store.state['mapForTwo'].year;
+  const xScale = d3.scaleTime([new Date(year, 0, 1), new Date(year, 11, 1)], [display.marginLeft, w - display.marginRight]);
+  const timeFormat = d3.timeFormat("%m-%d");
+  const ticks = d3.timeMonths(new Date(year, 0, 1), new Date(year, 11, 31 + 1));
 
   let yScale = d3.scaleLinear().range([h - display.marginBottom, display.marginTop]);
   if(props.data) {
-    yScale.domain(d3.extent(props.data, d => d));
+    let extent = d3.extent(props.data, d => d.value);
+    extent[0] -= 5;
+    extent[1] += 5;
+    yScale.domain(extent);
   }
   else {
     yScale.domain([0, 40]);
   }
 
-  const xAxis = d3.axisBottom(xScale).ticks(15);
+  const xAxis = d3.axisBottom(xScale).tickFormat(timeFormat).tickValues(ticks);
   const yAxis = d3.axisLeft(yScale).ticks(5);
 
   const line = d3.line()
-      .x((d, i) => xScale(i + 1))
-      .y(d => yScale(d));
+      .x(d => xScale(d.date))
+      .y(d => yScale(d.value));
 
   svg.append('g')
       .attr('transform', `translate(0, ${h - display.marginBottom})`)

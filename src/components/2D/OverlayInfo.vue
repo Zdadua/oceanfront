@@ -95,7 +95,7 @@ onMounted(() => {
         <span class="unit">{{ lon < 0 ? 'W' : 'E' }}</span>
         <span class="degree" style="margin-left: 20px" >{{ lonLat[3] + '°'}}</span>
         <span class="min-sec">{{ lonLat[4] + '\'' + lonLat[5] + '"'}}</span>
-        <span class="unit">{{ lon < 0 ? 'S' : 'N' }}</span>
+        <span class="unit">{{ lat < 0 ? 'S' : 'N' }}</span>
       </div>
 
       <div class="minimize-btn" @click="hideOverlay">
