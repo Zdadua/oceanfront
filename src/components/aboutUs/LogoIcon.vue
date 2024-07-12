@@ -37,7 +37,7 @@ onMounted(() => {
 
   <div>
     <RouterLink id="grid-container" to="/twoMap">
-      <div class="small-cube" v-for="cube in cubes" :class="[cube]" ></div>
+      <div class="small-cube" v-for="cube in cubes" key="index" :class="[cube]" ></div>
     </RouterLink>
   </div>
 

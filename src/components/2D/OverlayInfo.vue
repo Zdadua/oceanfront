@@ -36,7 +36,7 @@ function showOverlay() {
 
 function popup() {
 
-  store.commit('popup/popup');
+  store.commit('popup/popup', props.id);
   const view = store.state['mapForTwo'].map.getView();
   const map = store.state['mapForTwo'].map;
 

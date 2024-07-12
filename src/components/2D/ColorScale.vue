@@ -26,7 +26,7 @@ let isCelsius = ref(true);
   <div id="scale-container" @click="isCelsius = !isCelsius">
     <div style="height: 30px; width: 100%; text-align: center; line-height: 30px; font-size: .9em; ">°{{ isCelsius ? 'C' : 'F' }}</div>
     <div id="color-wrapper">
-      <div class="color" v-for="(t, index) in temp" :style="{backgroundColor: isCelsius ? colorScaleC[index] : colorScaleF[index]}">
+      <div class="color" v-for="(t, index) in temp" key="index" :style="{backgroundColor: isCelsius ? colorScaleC[index] : colorScaleF[index]}">
           {{ t }}
       </div>
     </div>

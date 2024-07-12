@@ -11,8 +11,8 @@ let store = useStore();
 
 let popup = computed(() => store.state['popup'].popup);
 
-let showDot = computed(() => store.state['mapForTwo'].points.get(store.state['mapForTwo'].lastPoint));
-let wholeData = ref();
+let showDot = computed(() => store.state['popup'].showDot);
+let wholeData = ref([]);
 watch(showDot, async (newValue) => {
   if(newValue instanceof DotOverlay) {
     let [lon, lat] = toLonLat(newValue.getCoordinate());
@@ -22,7 +22,7 @@ watch(showDot, async (newValue) => {
     const response = await fetch('/data/sst/' + lat + '/' + lon);
 
     if(!response.ok) {
-      throw new Error('Network response was not ok');
+      console.log('network error!!!');
     }
 
     let tmp = await response.text();
@@ -34,20 +34,17 @@ let year = computed(() => store.state['mapForTwo'].year);
 let yearData = computed(() => {
   let res = [];
   let startDate = new Date(year.value, 0, 1);
+
   for(let i = 0; i < wholeData.value.length; i++) {
     let tmpDate = new Date(startDate);
     tmpDate.setDate(startDate.getDate() + i);
     res.push({
-      date: tmpDate.getUTCDate(),
+      date: tmpDate,
       value: wholeData.value[i]
     })
   }
 
   return res;
-})
-
-let springData = computed(() => {
-
 })
 
 function closeClick() {
@@ -100,19 +97,19 @@ onMounted(() => {
         </div>
 
         <div class="subtitle" style="grid-column: 2 / 4; grid-row: 3 / 4;">
-          四季海温分析
+          海温分析
         </div>
 
-<!--        <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">-->
-<!--          <SeasonChart title="Year" :data="yearData"></SeasonChart>-->
+        <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">
+          <SeasonChart title="Year" :data="yearData"></SeasonChart>
+        </div>
+
+<!--        <div class="subtitle" style="grid-column: 2 / 4; grid-row: 9 / 10;">-->
+<!--          历年海温-->
 <!--        </div>-->
-
-        <div class="subtitle" style="grid-column: 2 / 4; grid-row: 9 / 10;">
-          历年海温
-        </div>
-        <div style="grid-column: 2 / 6; grid-row: 10 / 11; border: 1px solid #e1e1e1; border-radius: 5px;">
-          <SeasonChart title="" :data="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]"></SeasonChart>
-        </div>
+<!--        <div style="grid-column: 2 / 6; grid-row: 10 / 11; border: 1px solid #e1e1e1; border-radius: 5px;">-->
+<!--          <SeasonChart title="" :data="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]"></SeasonChart>-->
+<!--        </div>-->
 
       </div>
 
