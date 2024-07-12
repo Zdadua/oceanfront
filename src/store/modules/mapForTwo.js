@@ -18,7 +18,6 @@ const state = () => ({
     clickMode: 0,
     showMode: 0,
     draggable: 0,
-    popup: false,
 
     // dotOverlay对象数组
     points: new Map(),
@@ -180,15 +179,6 @@ const mutations = {
             }
         }
     },
-
-    popup(state) {
-        state.popup = true;
-    },
-
-    dismiss(state) {
-        state.popup = false;
-    }
-
 }
 
 export default {

@@ -16,7 +16,7 @@ const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
 let store = useStore();
 let mapContainer = ref();
 
-let offset = computed(() => store.state['mapForTwo'].popup ? 700 : 0);
+let offset = computed(() => store.state['popup'].popup ? 700 : 0);
 
 onMounted(() => {
 

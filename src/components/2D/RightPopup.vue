@@ -8,12 +8,8 @@ import {toLonLat} from "ol/proj";
 import {floor} from "mathjs";
 
 let store = useStore();
-// let testData = ref([])
-// let summerData = ref([])
-// let fallData = ref([])
-// let winterData = ref([])
 
-let popup = computed(() => store.state['mapForTwo'].popup);
+let popup = computed(() => store.state['popup'].popup);
 
 let showDot = computed(() => store.state['mapForTwo'].points.get(store.state['mapForTwo'].lastPoint));
 let wholeData = ref();
@@ -55,35 +51,8 @@ let springData = computed(() => {
 })
 
 function closeClick() {
-  store.commit('mapForTwo/dismiss');
+  store.commit('popup/dismiss');
 }
-
-// async function fetchData() {
-//   const response = await fetch('/data/sst/12/12');
-//   const text = await response.text();
-//
-//   let origin = text.split(',').map((d) => parseFloat(d));
-//   console.log(origin);
-//
-//   const startOfYear = new Date(2024, 0, 1);
-//   const endOfYear = new Date(2024, 11, 31);
-//   const startOfSpring = new Date(2024, 2, 21);
-//   const startOfSummer = new Date(2024, 5, 21);
-//   const startOfFall = new Date(2024, 8, 21);
-//   const startOfWinter = new Date(2024, 11, 21);
-//
-//   let l = Math.floor((endOfYear - startOfYear) / (24 * 60 * 60 * 1000));
-//   for(let i = origin.length; i <= l; i++) {
-//     origin.push(NaN);
-//   }
-//
-//   testData.value = origin.slice(Math.floor((startOfSpring - startOfYear) / (24 * 60 * 60 * 1000)), Math.floor((startOfSummer - startOfYear) / (24 * 60 * 60 * 1000)));
-//   summerData.value = origin.slice(Math.floor((startOfSummer - startOfYear) / (24 * 60 * 60 * 1000)), Math.floor((startOfFall - startOfYear) / (24 * 60 * 60 * 1000)));
-//   fallData.value = origin.slice(Math.floor((startOfFall - startOfYear) / (24 * 60 * 60 * 1000)), Math.floor((startOfWinter - startOfYear) / (24 * 60 * 60 * 1000)));
-//
-//   let tmp = origin.slice(Math.floor((startOfWinter - startOfYear) / (24 * 60 * 60 * 1000)), origin.length);
-//   winterData.value = tmp.concat(origin.slice(0, Math.floor((startOfSpring - startOfYear) / (24 * 60 * 60 * 1000))));
-// }
 
 onMounted(() => {
   // fetchData();
@@ -136,15 +105,6 @@ onMounted(() => {
 
 <!--        <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">-->
 <!--          <SeasonChart title="Year" :data="yearData"></SeasonChart>-->
-<!--        </div>-->
-<!--        <div style="grid-column: 2 / 6; grid-row: 5 / 6; border: 1px solid #e1e1e1; border-radius: 5px;">-->
-<!--          <SeasonChart title="Summer" :data="summerData"></SeasonChart>-->
-<!--        </div>-->
-<!--        <div style="grid-column: 2 / 6; grid-row: 6 / 7; border: 1px solid #e1e1e1; border-radius: 5px;">-->
-<!--          <SeasonChart title="Fall" :data="fallData"></SeasonChart>-->
-<!--        </div>-->
-<!--        <div style="grid-column: 2 / 6; grid-row: 7 / 8; border: 1px solid #e1e1e1; border-radius: 5px;">-->
-<!--          <SeasonChart title="Winter" :data="winterData"></SeasonChart>-->
 <!--        </div>-->
 
         <div class="subtitle" style="grid-column: 2 / 4; grid-row: 9 / 10;">

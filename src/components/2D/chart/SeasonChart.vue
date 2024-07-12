@@ -32,17 +32,12 @@ watch(() => props.data, () => {
 function initChart() {
   let w = seasonContainer.value.offsetWidth;
   let h = seasonContainer.value.offsetHeight;
-
-  const svg = d3.select(`#${props.title}`);
-  svg.attr('width', w);
-  svg.attr('height', h);
-
   let height = h - display.marginTop - display.marginBottom;
 
+  const svg = d3.select(`#${props.title}`);
+
   const year = store.state['mapForTwo'].year;
-  const xScale = d3.scaleTime([new Date(year, 0, 1), new Date(year, 11, 1)], [display.marginLeft, w - display.marginRight]);
-  const timeFormat = d3.timeFormat("%m-%d");
-  const ticks = d3.timeMonths(new Date(year, 0, 1), new Date(year, 11, 31 + 1));
+  const xScale = d3.scaleUtc([new Date(year, 0, 1), new Date(year, 11, 1)], [display.marginLeft, w - display.marginRight]);
 
   let yScale = d3.scaleLinear().range([h - display.marginBottom, display.marginTop]);
   if(props.data) {
@@ -55,13 +50,14 @@ function initChart() {
     yScale.domain([0, 40]);
   }
 
-  const xAxis = d3.axisBottom(xScale).tickFormat(timeFormat).tickValues(ticks);
+  const xAxis = d3.axisBottom(xScale);
   const yAxis = d3.axisLeft(yScale).ticks(5);
 
   const line = d3.line()
       .x(d => xScale(d.date))
       .y(d => yScale(d.value));
 
+  // x轴绘制
   svg.append('g')
       .attr('transform', `translate(0, ${h - display.marginBottom})`)
       .call(xAxis)
@@ -71,6 +67,7 @@ function initChart() {
       .call(g => g.selectAll('.tick line')
           .attr('stroke-opacity', 0.4))
 
+  // y轴绘制
   svg.append('g')
       .attr('transform', `translate(${display.marginLeft}, 0)`)
       .call(yAxis)
@@ -81,12 +78,14 @@ function initChart() {
       .call(g => g.selectAll('.tick line')
           .attr('stroke-opacity', 0.1))
 
+  // 折线绘制(数据部分)
   svg.append('path')
       .attr('fill', 'none')
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 1.5)
       .attr('d', line(props.data));
 
+  // 表格标题
   svg.append('text')
       .attr('x', '15px')
       .attr('y', '5px')
@@ -95,6 +94,7 @@ function initChart() {
       .attr('dy', '.8em')
       .text(props.title)
 
+  // 跟随鼠标的tips
   let tip = svg.append('g')
       .attr('class', 'tooltip')
       .style('display', 'none');
@@ -141,8 +141,14 @@ function initChart() {
 }
 
 onMounted(() => {
+  let w = seasonContainer.value.offsetWidth;
+  let h = seasonContainer.value.offsetHeight;
+
   const svg = d3.create('svg');
   svg.attr('id', props.title);
+  svg.attr('width', w);
+  svg.attr('height', h);
+
   seasonContainer.value.appendChild(svg.node());
 })
 
