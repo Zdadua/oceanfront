@@ -107,6 +107,40 @@ function initChart() {
       .attr('stroke-opacity', 0.2)
       .style('display', 'none');
 
+  svg.append('circle')
+      .attr('id', `${props.title}P`)
+      .attr('r', 3)
+      .attr('fill', 'rgb(255,0,98)');
+
+  const tips = svg.append('g')
+      .attr('id', `${props.title}T`)
+      .style('display', 'none')
+
+  tips.append('rect')
+      .attr('width', 140)
+      .attr('height', 80)
+      .attr('fill', 'white')
+      .attr('rx', 10)
+      .attr('ry', 10)
+      .style("filter", "drop-shadow(2px 2px 5px rgba(0,0,0,0.5))");
+
+  tips.append('text')
+      .attr('id', `${props.title}D`)
+      .attr('x', 15)
+      .attr('y', 25)
+      .style("font-size", "14px")
+      .style("font-family", "UNSII, sans-serif")
+      .style("fill", 'rgb(108,108,108)');
+
+  tips.append('text')
+      .attr('id', `${props.title}TEMP`)
+      .attr('x', 20)
+      .attr('y', 55)
+      .text('hhh')
+      .style("font-size", "15px")
+      .style("font-family", "UNSII, sans-serif")
+      .style("fill", "black");
+
   // 用于监听事件
   svg.append('rect')
       .attr('class', 'overPlane')
@@ -117,11 +151,23 @@ function initChart() {
       .attr('opacity', 0)
       .on('mouseover', () => {
         svg.select(`#${props.title}GL`)
-            .style('display', null)
+            .style('display', null);
+
+        svg.select(`#${props.title}T`)
+            .style('display', null);
+
+        svg.select(`#${props.title}P`)
+            .style('display', null);
       })
       .on('mouseout', () => {
         svg.select(`#${props.title}GL`)
-            .style('display', 'none')
+            .style('display', 'none');
+
+        svg.select(`#${props.title}T`)
+            .style('display', 'none');
+
+        svg.select(`#${props.title}P`)
+            .style('display', 'none');
       })
       .on('mousemove', (event) => {
         const currentX = xScale.invert(event.offsetX);
@@ -139,6 +185,46 @@ function initChart() {
               .attr('x2', offset)
               .attr('y1', display.marginTop)
               .attr('y2', h - display.marginBottom);
+
+          let dateString = currentData.date.toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          });
+
+          tips.select(`#${props.title}D`)
+              .text(dateString);
+
+          tips.select(`#${props.title}TEMP`)
+              .text('海表温度: ' + currentData.value);
+
+          svg.select('circle')
+              .attr('cx', offset)
+              .attr('cy', yScale(currentData.value));
+
+          let tipWidth = 140;
+          let tipHeight = 80;
+          let gap = 10;
+          let x, y;
+          if(event.offsetY - gap - tipHeight > display.marginTop) {
+            y = event.offsetY - gap - tipHeight;
+          }
+          else {
+            y = display.marginTop;
+          }
+
+          if(event.offsetX + tipWidth + gap < w - display.marginRight) {
+            x = event.offsetX + gap;
+          }
+          else {
+            x = event.offsetX - tipWidth - gap;
+          }
+
+          tips.transition()
+              .ease(d3.easeSinOut)
+              .delay(50)
+              .duration(100)
+              .attr('transform', `translate(${x}, ${y})`);
         }
       })
       .on('wheel', (event) => {
@@ -210,7 +296,6 @@ function drawAxis(offsetX, z) {
   yNewDomain[0] -= 1;
   yNewDomain[1] += 1;
   yScale.domain(yNewDomain);
-  console.log(newDomain);
   const yAxis = d3.axisLeft(yScale).ticks(8);
 
   svg.select(`#${props.title}Y`)

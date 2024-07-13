@@ -97,7 +97,7 @@ onMounted(() => {
         </div>
 
         <div class="subtitle" style="grid-column: 2 / 4; grid-row: 3 / 4;">
-          海温分析
+          海温数据
         </div>
 
         <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">

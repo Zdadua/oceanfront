@@ -140,6 +140,7 @@ onMounted(() => {
   left: 10px;
   background-color: white;
   border-radius: 10px;
+  box-shadow: 2px 2px 5px rgba(55, 55, 55, 0.2);
 
   .info-text {
     position: absolute;
