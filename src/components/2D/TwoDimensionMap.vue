@@ -48,7 +48,7 @@ onMounted(() => {
     </div>
 
     <div id="title-container" class="ui-control" :style="{'right':  'calc(50% - 270px + ' + offset * .6 + 'px)'}">
-      基于物理增强和多级残差估计的海表温度预测系统
+      海表温度预测系统
     </div>
 
     <div id="overlay-container">
@@ -180,18 +180,21 @@ onMounted(() => {
     font-size: 1.2em;
     font-family: UNSII Serif sans-serif;
     font-weight: 800;
+    box-shadow: 2px 2px 5px rgba(55, 55, 55, 0.2);
   }
 }
 
 #title-container {
   width: 540px;
   height: 50px;
-  top: 20px;
+  top: 0;
   line-height: 50px;
   text-align: center;
   color: white;
   font-size: 1.5em;
   font-weight: 400;
+  background-color: black;
+  border: 1px solid rgba(0, 0, 0, 1);
 }
 
 #router-link {

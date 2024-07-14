@@ -47,3 +47,24 @@
 2. 瓦片服务器，可以自建；
 3. 配置OpenLayers的瓦片图层；
 4. 简单的地图实现就写好了；
+
+# 关于节流
+我在制作虚拟滚动时，遇到了这样一个问题：我总是无法精确的获取到精确位置的数据，比如位于列表最中间的数据。  
+起初我以为是我的监听事件写错了，但是经过反复修改，依然无效，于是我开始跟踪scrollTop这一属性，发现其回显值和真实滚动值不符。  
+那就很奇怪了，难道是浏览器的问题？  
+后来我想到了自己对scroll事件的节流，我是这么写的：
+```js
+function throttle(func, limit) {
+  let inThrottle = false;
+  return (event) => {
+    if (!inThrottle) {
+      func(event);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+const throttleScroll = throttle(scrollEvent, 50);
+```
+破案了假人们，就是因为节流函数使用了定时器，导致scrollTop总是会不精确。。。

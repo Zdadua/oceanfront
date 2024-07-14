@@ -18,6 +18,7 @@ let isRightMY = computed(() => {
   return chosenY.value == y.value && chosenM.value == m.value;
 })
 function clickDay(idx) {
+
   if(idx >= firstDay.value && idx <= firstDay.value + monthDays.value - 1) {
     store.commit('mapForTwo/day', idx - firstDay.value + 1);
 
@@ -96,11 +97,14 @@ onMounted(() => {
       <div id="year-month-container">
         <div class="scroll-wrapper">
           <VirtualScroll :name="'tmpYear'" :items="year" :sight-width="70" :sight-height="94" :item-height="30" :init-place="yearPlace"></VirtualScroll>
-          <div class="center-line"></div>
+          <div class="top-line"></div>
+          <div class="bottom-line"></div>
         </div>
         <span class="calendar-span">年</span>
         <div class="scroll-wrapper">
-          <VirtualScroll :name="'tmpMonth'" :items="month" :sight-width="70" :sight-height="94" :item-height="30" :init-place="monthPlace"></VirtualScroll>
+          <VirtualScroll :name="'tmpMonth'" :items="month" :sight-width="70" :sight-height="90" :item-height="30" :init-place="monthPlace"></VirtualScroll>
+          <div class="top-line"></div>
+          <div class="bottom-line"></div>
         </div>
         <span class="calendar-span">月</span>
       </div>
@@ -126,6 +130,7 @@ onMounted(() => {
   border-radius: 25px;
   z-index: 99;
   position: relative;
+  box-shadow: 2px 2px 5px rgba(55, 55, 55, 0.2);
 
   #calendar-text {
     width: 100%;
@@ -148,8 +153,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     background-color: white;
-    border: 1px solid #1c2d2e;
-
+    box-shadow: 2px 2px 8px rgba(55, 55, 55, 0.2);
     top: -355px;
 
     #year-month-container {
@@ -169,10 +173,29 @@ onMounted(() => {
 
       .scroll-wrapper {
         width: 70px;
-        height: 94px;
+        height: 90px;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        position: relative;
+
+        .top-line {
+          position: absolute;
+          height: 1px;
+          width: 80%;
+          background-color: #939393;
+          top: 30px;
+          left: calc(10%);
+        }
+
+        .bottom-line {
+          position: absolute;
+          height: 1px;
+          width: 80%;
+          background-color: #939393;
+          bottom: 30px;
+          left: calc(10%);
+        }
 
       }
 

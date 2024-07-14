@@ -2,6 +2,7 @@
 
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useStore} from "vuex";
+import {floor} from "mathjs";
 
 let list = ref();
 let sight = ref();
@@ -43,13 +44,22 @@ let visibleCount = computed(() => Math.ceil(props.sightHeight / props.itemHeight
 let listHeight = computed(() => showItems.value.length * props.itemHeight);
 let getTransform = computed(() => `translateY(${startOffset.value}px)`);
 let visibleData = computed(() => showItems.value.slice(start.value, Math.min(end.value, showItems.value.length)));
+let chosenIdx = ref(-1);
 
 
 let timeId = null;
 let isProgrammaticScroll = false;
 const scrollEvent = (e) => {
+  chosenIdx.value = -1;
+
   if(!isProgrammaticScroll) {
     sight.value.style.transition = 'none';
+
+    let scrollTop = list.value.scrollTop;
+    start.value = Math.floor(scrollTop / props.itemHeight);
+    end.value = start.value + visibleCount.value;
+    startOffset.value = scrollTop - (scrollTop % props.itemHeight);
+
     if(timeId) {
       clearTimeout(timeId);
       timeId = null;
@@ -61,19 +71,18 @@ const scrollEvent = (e) => {
       if(tmp < props.itemHeight / 2) {
         startOffset.value = startOffset.value + tmp;
 
-        store.commit('mapForTwo/' + props.name, visibleData.value.at(visibleCount.value / 2 - 1));
+        chosenIdx.value = floor(visibleCount.value / 2) - 1;
+        store.commit('mapForTwo/' + props.name, visibleData.value.at(chosenIdx.value));
       }
       else {
         startOffset.value = startOffset.value - (props.itemHeight - tmp);
 
-        store.commit('mapForTwo/' + props.name, visibleData.value.at(visibleCount.value / 2));
+        chosenIdx.value = floor(visibleCount.value / 2);
+        store.commit('mapForTwo/' + props.name, visibleData.value.at(chosenIdx.value));
       }
     }, 100);
 
-    let scrollTop = list.value.scrollTop;
-    start.value = Math.floor(scrollTop / props.itemHeight);
-    end.value = start.value + visibleCount.value;
-    startOffset.value = scrollTop - (scrollTop % props.itemHeight);
+
 
   }
 }
@@ -81,6 +90,7 @@ const scrollEvent = (e) => {
 let initialY = 0;
 let initialScrollTop = 0;
 const mousedownEvent = (e) => {
+  chosenIdx.value = -1;
   sight.value.style.transition = 'none';
   initialY = e.clientY;
   initialScrollTop = list.value.scrollTop;
@@ -108,11 +118,13 @@ const mouseupEvent = (e) => {
   if(tmp < props.itemHeight / 2) {
     startOffset.value = startOffset.value + tmp;
 
+    chosenIdx.value = floor(visibleCount.value / 2) - 1;
     store.commit('mapForTwo/' + props.name, visibleData.value.at(visibleCount.value / 2 - 1));
   }
   else {
     startOffset.value = startOffset.value - (props.itemHeight - tmp);
 
+    chosenIdx.value = floor(visibleCount.value / 2);
     store.commit('mapForTwo/' + props.name, visibleData.value.at(visibleCount.value / 2));
   }
 
@@ -149,12 +161,12 @@ onMounted(() => {
 </script>
 
 <template>
-    <div ref="list" id="virtual-scroll-container" @mousedown="mousedownEvent" @scroll="throttleScroll" :style="{'height': `${props.sightHeight}px`, 'width': `${props.sightWidth}px`}">
+    <div ref="list" id="virtual-scroll-container" @mousedown="mousedownEvent" @scroll="scrollEvent" :style="{'height': `${props.sightHeight}px`, 'width': `${props.sightWidth}px`}">
       <div class="virtual-scroll-phantom" :style="{'height': `${listHeight}px`, 'width': `${props.sightWidth}px`}">
       </div>
 
       <div ref="sight" class="see-sight"  :style="{'transform': getTransform, 'width': `${props.sightWidth}px`}">
-        <div v-for="item in visibleData" class="see-sight-item" :style="{'height': `${props.itemHeight}px`}">
+        <div v-for="(item, index) in visibleData" class="see-sight-item" :key="index" :style="{'height': `${props.itemHeight}px`}" :class="[index == chosenIdx ? 'chosen-item' : 'not-chosen-item']">
           {{ item }}
         </div>
       </div>
@@ -183,7 +195,17 @@ onMounted(() => {
   text-align: center;
   color: black;
   user-select: none;
+  transition: color .3s ease-in-out, font-weight .3s ease-in-out;
+}
 
+.chosen-item {
+  color: black;
+  font-weight: 700;
+}
+
+.not-chosen-item {
+  color: gray;
+  font-weight: 300;
 }
 
 .see-sight {
