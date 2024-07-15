@@ -10,6 +10,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  id: {
+    type: String,
+    required: true
+  },
   data: {
     type: Array,
   },
@@ -17,7 +21,7 @@ const props = defineProps({
 
 let seasonContainer = ref();
 let display = {
-  marginTop: 30,
+  marginTop: 40,
   marginRight: 30,
   marginBottom: 20,
   marginLeft: 40,
@@ -30,6 +34,7 @@ watch(() => props.data, () => {
 
 let xScale;
 let yScale;
+let colorScale;
 let line;
 let svg;
 let w;
@@ -41,15 +46,16 @@ function initChart() {
 
   const year = store.state['mapForTwo'].year;
   xScale.domain([new Date(year, 0, 1), new Date(year, 11, 31)])
+
+  let extent = [0, 40];
   if(props.data) {
-    let extent = d3.extent(props.data, d => d.value);
+    extent = d3.extent(props.data, d => d.value);
     extent[0] -= 1;
     extent[1] += 1;
-    yScale.domain(extent);
+
   }
-  else {
-    yScale.domain([0, 40]);
-  }
+  yScale.domain(extent);
+  colorScale.domain(extent);
 
   const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%m-%d"));
   const yAxis = d3.axisLeft(yScale).ticks(8);
@@ -60,7 +66,7 @@ function initChart() {
 
   // x轴绘制
   svg.append('g')
-      .attr('id', `${props.title}X`)
+      .attr('id', `${props.id}X`)
       .attr('transform', `translate(0, ${h - display.marginBottom})`)
       .call(xAxis)
       .call(g => g.select('.domain')
@@ -71,28 +77,27 @@ function initChart() {
 
   // y轴绘制
   svg.append('g')
-      .attr('id', `${props.title}Y`)
+      .attr('id', `${props.id}Y`)
       .attr('transform', `translate(${display.marginLeft}, 0)`)
       .call(yAxis)
       .call(g => g.select('.domain').remove())
       .call(g => g.selectAll('.tick line').clone()
-          .attr('class', `${props.title}YL`)
+          .attr('class', `${props.id}YL`)
           .attr('x2', w - display.marginLeft - display.marginRight)
           .attr('stroke-opacity', 0.1))
       .call(g => g.selectAll('.tick line')
           .attr('stroke-opacity', 0.1))
 
-  // 折线绘制(数据部分)
-  svg.append('path')
-      .attr('id', `${props.title}L`)
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 1.5)
-      .attr('d', line(props.data));
+  // y轴单位
+  svg.append('text')
+      .attr('x', '20px')
+      .attr('y', '30px')
+      .style('font-size', '.7em')
+      .text('C°');
 
   // 表格标题
   svg.append('text')
-      .attr('x', '15px')
+      .attr('x', '40px')
       .attr('y', '5px')
       .attr('fill', 'rgb(96,96,96)')
       .style('font-weight', '900')
@@ -101,19 +106,46 @@ function initChart() {
 
   // 指示线
   svg.append('line')
-      .attr('id', `${props.title}GL`)
+      .attr('id', `${props.id}GL`)
       .attr('stroke', 'black')
       .attr('stroke-width', 1)
       .attr('stroke-opacity', 0.2)
       .style('display', 'none');
 
   svg.append('circle')
-      .attr('id', `${props.title}P`)
+      .attr('id', `${props.id}P`)
       .attr('r', 3)
-      .attr('fill', 'rgb(255,0,98)');
+      .attr('fill', 'rgb(255,0,98)')
+      .style('display', 'none');
+
+  const defs = svg.append('defs')
+      .append('linearGradient')
+      .attr('id', 'myGradient')
+      .attr('x1', '0%')
+      .attr('y1', '0%')
+      .attr('x2', '0%')
+      .attr('y2', '100%');
+
+  defs.selectAll('stop')
+      .data([
+        {offset: '0%', color: colorScale(extent[0])},
+        {offset: '100%', color: colorScale(extent[1])}
+      ])
+      .enter()
+      .append('stop')
+      .attr('offset', d => d.offset)
+      .attr('stop-color', d => d.color)
+
+  // 折线绘制(数据部分)
+  svg.append('path')
+      .attr('id', `${props.id}L`)
+      .attr('fill', 'none')
+      .attr('stroke', 'url(#myGradient)')
+      .attr('stroke-width', 1.5)
+      .attr('d', line(props.data));
 
   const tips = svg.append('g')
-      .attr('id', `${props.title}T`)
+      .attr('id', `${props.id}T`)
       .style('display', 'none')
 
   tips.append('rect')
@@ -125,21 +157,22 @@ function initChart() {
       .style("filter", "drop-shadow(2px 2px 5px rgba(0,0,0,0.5))");
 
   tips.append('text')
-      .attr('id', `${props.title}D`)
+      .attr('id', `${props.id}D`)
       .attr('x', 15)
       .attr('y', 25)
       .style("font-size", "14px")
-      .style("font-family", "UNSII, sans-serif")
+      .style("font-family", "sans-serif")
       .style("fill", 'rgb(108,108,108)');
 
   tips.append('text')
-      .attr('id', `${props.title}TEMP`)
+      .attr('id', `${props.id}TEMP`)
       .attr('x', 20)
       .attr('y', 55)
       .text('hhh')
       .style("font-size", "15px")
       .style("font-family", "UNSII, sans-serif")
       .style("fill", "black");
+
 
   // 用于监听事件
   svg.append('rect')
@@ -150,23 +183,23 @@ function initChart() {
       .attr('y', display.marginTop)
       .attr('opacity', 0)
       .on('mouseover', () => {
-        svg.select(`#${props.title}GL`)
+        svg.select(`#${props.id}GL`)
             .style('display', null);
 
-        svg.select(`#${props.title}T`)
+        svg.select(`#${props.id}T`)
             .style('display', null);
 
-        svg.select(`#${props.title}P`)
+        svg.select(`#${props.id}P`)
             .style('display', null);
       })
       .on('mouseout', () => {
-        svg.select(`#${props.title}GL`)
+        svg.select(`#${props.id}GL`)
             .style('display', 'none');
 
         svg.select(`#${props.title}T`)
             .style('display', 'none');
 
-        svg.select(`#${props.title}P`)
+        svg.select(`#${props.id}P`)
             .style('display', 'none');
       })
       .on('mousemove', (event) => {
@@ -180,7 +213,7 @@ function initChart() {
 
         const currentData = props.data.find(d => d.date.getTime() == xScale.invert(offset).getTime());
         if(currentData) {
-          svg.select(`#${props.title}GL`)
+          svg.select(`#${props.id}GL`)
               .attr('x1', offset)
               .attr('x2', offset)
               .attr('y1', display.marginTop)
@@ -192,10 +225,10 @@ function initChart() {
             day: '2-digit'
           });
 
-          tips.select(`#${props.title}D`)
+          tips.select(`#${props.id}D`)
               .text(dateString);
 
-          tips.select(`#${props.title}TEMP`)
+          tips.select(`#${props.id}TEMP`)
               .text('海表温度: ' + currentData.value);
 
           svg.select('circle')
@@ -278,7 +311,7 @@ function drawAxis(offsetX, z) {
   xScale.domain(newDomain);
   const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%m-%d"));
 
-  svg.select(`#${props.title}X`)
+  svg.select(`#${props.id}X`)
       .transition()
       .duration(500)
       .call(xAxis)
@@ -298,12 +331,12 @@ function drawAxis(offsetX, z) {
   yScale.domain(yNewDomain);
   const yAxis = d3.axisLeft(yScale).ticks(8);
 
-  svg.select(`#${props.title}Y`)
+  svg.select(`#${props.id}Y`)
       .call(yAxis)
       .call(g => g.select('.domain').remove())
-      .call(g => g.selectAll(`.${props.title}YL`).remove())
+      .call(g => g.selectAll(`.${props.id}YL`).remove())
       .call(g => g.selectAll('.tick line').clone()
-          .attr('class', `${props.title}YL`)
+          .attr('class', `${props.id}YL`)
           .attr('x2', w - display.marginLeft - display.marginRight)
           .attr('stroke-opacity', 0.1))
       .call(g => g.selectAll('.tick line')
@@ -312,7 +345,7 @@ function drawAxis(offsetX, z) {
   line.x(d => xScale(d.date))
       .y(d => yScale(d.value));
 
-  svg.select(`#${props.title}L`)
+  svg.select(`#${props.id}L`)
       .transition()
       .duration(500)
       .attr('d', line(props.data));
@@ -325,9 +358,10 @@ onMounted(() => {
     h = seasonContainer.value.offsetHeight;
     xScale = d3.scaleTime().range([display.marginLeft, w - display.marginRight]);
     yScale = d3.scaleLinear().range([h - display.marginBottom, display.marginTop]);
+    colorScale = d3.scaleLinear().range(['red', 'blue']);
 
     svg = d3.create('svg');
-    svg.attr('id', props.title);
+    svg.attr('id', props.id);
     svg.attr('width', w);
     svg.attr('height', h);
     seasonContainer.value.appendChild(svg.node());

@@ -101,7 +101,7 @@ onMounted(() => {
         </div>
 
         <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">
-          <SeasonChart title="Year" :data="yearData"></SeasonChart>
+          <SeasonChart id="year" title="Annual sea surface temperature" :data="yearData"></SeasonChart>
         </div>
 
 <!--        <div class="subtitle" style="grid-column: 2 / 4; grid-row: 9 / 10;">-->

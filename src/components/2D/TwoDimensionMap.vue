@@ -43,6 +43,9 @@ onMounted(() => {
       </div>
     </div>
 
+    <div class="ui-control" :style="{'left': 20 + 'px', 'top': 10 + 'px', 'z-index': '20'}">
+      <img src="../../assets/svg/singleLogo.svg" width="160" height="60">
+    </div>
 
     <div ref="mapContainer" id="map-container">
     </div>
