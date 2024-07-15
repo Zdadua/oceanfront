@@ -1,9 +1,10 @@
 <script setup>
 import {useStore} from "vuex";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {toLonLat} from "ol/proj";
 import OverlayChart from "./chart/OverlayChart.vue";
 import {easeOut} from "ol/easing.js";
+import {abs, floor} from "mathjs";
 
 let store = useStore();
 
@@ -20,7 +21,54 @@ const props = defineProps({
 });
 
 let hided = ref(false);
-let temp = ref([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+let xDomain = computed(() => {
+  const year = store.state['mapForTwo'].year;
+  const month = store.state['mapForTwo'].month;
+  const day = store.state['mapForTwo'].day;
+
+  let startDay = new Date(year, month - 1, day);
+  startDay.setDate(startDay.getDate() - 7);
+
+  let endDay = new Date(year, month - 1, day);
+  endDay.setDate(endDay.getDate() + 7);
+
+  return [startDay, endDay];
+})
+let data = ref([]);
+
+watch(() => store.state['mapForTwo'].day, async (newValue) => {
+  const year = store.state['mapForTwo'].year;
+  const month = store.state['mapForTwo'].month;
+  const startOfYear = new Date(year, 0, 1);
+  const startDate = xDomain.value[0];
+
+  let [lon, lat] = toLonLat(props.coordinate);
+  lon = floor(lon);
+  lat = floor(lat);
+
+  const response = await fetch('/data/sst/' + lat + '/' + lon);
+
+  if(!response.ok) {
+    console.log('network error!!!');
+    return;
+  }
+
+  let tmp = await response.text();
+  let tmpData = tmp.split(',').map((d) => parseFloat(d));
+  let startIndex = Math.floor((startDate - startOfYear) / (1000 * 60 * 60 * 24));
+
+  let resData = tmpData.slice(startIndex, startIndex + 15);
+  resData = resData.map((d, i) => {
+    let tmpDate = new Date(startDate);
+    tmpDate.setDate(startDate.getDate() + i);
+    return {
+      date: tmpDate,
+      value: d
+    }
+  });
+
+  data.value = resData;
+},{ immediate: true })
 
 function hideOverlay() {
   hided.value = true;
@@ -106,11 +154,11 @@ onMounted(() => {
       </div>
 
       <div class="chart-wrapper">
-        <OverlayChart :width="290" :height="230" :data="temp" :title="'temperature for 15 days'"></OverlayChart>
+        <OverlayChart :domain="xDomain" :id="id" :width="290" :height="230" :data="data" :title="'前后7天海表温度'"></OverlayChart>
       </div>
 
       <div class="more-btn" @click="popup">
-        Learn more
+        了解更多
       </div>
 
     </div>

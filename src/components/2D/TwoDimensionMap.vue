@@ -43,15 +43,11 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="ui-control" :style="{'left': 20 + 'px', 'top': 10 + 'px', 'z-index': '20'}">
+    <div class="ui-control" id="logo-container" :style="{'left': 20 + 'px', 'top': 10 + 'px', 'z-index': '20'}">
       <img src="../../assets/svg/singleLogo.svg" width="160" height="60">
     </div>
 
     <div ref="mapContainer" id="map-container">
-    </div>
-
-    <div id="title-container" class="ui-control" :style="{'right':  'calc(50% - 270px + ' + offset * .6 + 'px)'}">
-      海表温度预测系统
     </div>
 
     <div id="overlay-container">
@@ -66,9 +62,9 @@ onMounted(() => {
       <InfoCube></InfoCube>
     </div>
 
-    <div id="timeline-container" class="ui-control">
-<!--      <TimeLine></TimeLine>-->
-    </div>
+<!--    <div id="timeline-container" class="ui-control">-->
+<!--&lt;!&ndash;      <TimeLine></TimeLine>&ndash;&gt;-->
+<!--    </div>-->
 
     <div id="calendar-container" class="ui-control">
       <CalendarCom></CalendarCom>
@@ -121,7 +117,7 @@ onMounted(() => {
 
 #search-container {
   top: 20px;
-  left: 200px;
+  left: 220px;
 }
 
 #timeline-container {
@@ -212,6 +208,15 @@ onMounted(() => {
 #popup-container {
   top: 0;
   z-index: 10;
+}
+
+#logo-container {
+  height: 60px;
+  width: 180px;
+  background-color: #cccccc;
+  box-sizing: border-box;
+  padding: 0 8px;
+  border-radius: 20px;
 }
 
 </style>

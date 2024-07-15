@@ -2,7 +2,6 @@
 
 import {nextTick, onMounted, ref, watch} from "vue";
 import * as d3 from "d3";
-import {ceil, floor} from "mathjs";
 import store from "../../../store/index.js";
 
 const props = defineProps({
@@ -28,6 +27,7 @@ let display = {
 }
 
 watch(() => props.data, () => {
+  console.log(111);
   svg.selectAll('*').remove();
   initChart();
 })
@@ -196,7 +196,7 @@ function initChart() {
         svg.select(`#${props.id}GL`)
             .style('display', 'none');
 
-        svg.select(`#${props.title}T`)
+        svg.select(`#${props.id}T`)
             .style('display', 'none');
 
         svg.select(`#${props.id}P`)

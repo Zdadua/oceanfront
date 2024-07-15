@@ -135,7 +135,7 @@ function latChangeClick() {
       <span>经度:</span>
       <div class="big-input-container">
         <div v-if="!inputType" class="input-container">
-          <input class="decimal-input" id="lon" v-model="lon" type="number">
+          <input class="decimal-input" id="lon" v-model="lon" type="number" placeholder="e.g 108.92">
         </div>
         <div v-if="inputType" class="input-container">
           <input id="lonD" class="degree-input" v-model="lonD" type="number">°
@@ -151,7 +151,7 @@ function latChangeClick() {
       <span>纬度:</span>
       <div class="big-input-container">
         <div v-if="!inputType" class="input-container">
-          <input class="decimal-input" id="lat" v-model="lat" type="number">
+          <input class="decimal-input" id="lat" v-model="lat" type="number" placeholder="e.g 34.54">
         </div>
         <div v-if="inputType" class="input-container">
           <input class="degree-input" v-model="latD" type="number">°
@@ -318,6 +318,10 @@ function latChangeClick() {
   opacity: 0;
   transition-delay: .2s;
   transition: opacity .2s ease;
+}
+
+input::placeholder {
+  font-size: .8em;
 }
 
 

@@ -1,13 +1,22 @@
 <script setup>
 
-import SeasonChart from "./chart/SeasonChart.vue";
+import YearChart from "./chart/YearChart.vue";
 import {useStore} from "vuex";
 import {computed, onMounted, ref, watch} from "vue";
 import {DotOverlay} from "../../js/map/DotOverlay.js";
 import {toLonLat} from "ol/proj";
 import {floor} from "mathjs";
+import {lonLatToDMS} from "../../js/tools.js";
 
 let store = useStore();
+let lonPassive = ref();
+let lonD = ref();
+let lonM = ref();
+let lonS = ref();
+let latPassive = ref();
+let latD = ref();
+let latM = ref();
+let latS = ref();
 
 let popup = computed(() => store.state['popup'].popup);
 
@@ -16,9 +25,22 @@ let wholeData = ref([]);
 watch(showDot, async (newValue) => {
   if(newValue instanceof DotOverlay) {
     let [lon, lat] = toLonLat(newValue.getCoordinate());
+
+    const position = lonLatToDMS(lon, lat);
+    console.log(position);
+
+    lonPassive.value = position.lonPassive;
+    lonD.value = position.lonD;
+    lonM.value = position.lonM;
+    lonS.value = position.lonS;
+    latPassive.value = position.latPassive;
+    latD.value = position.latD;
+    latM.value = position.latM;
+    latS.value = position.latS;
+
+    // TODO 目前是直接抹平处理
     lon = floor(lon);
     lat = floor(lat);
-
     const response = await fetch('/data/sst/' + lat + '/' + lon);
 
     if(!response.ok) {
@@ -27,8 +49,9 @@ watch(showDot, async (newValue) => {
 
     let tmp = await response.text();
     wholeData.value = tmp.split(',').map((d) => parseFloat(d));
+    console.log(wholeData.value);
   }
-})
+}, {immediate: true})
 
 let year = computed(() => store.state['mapForTwo'].year);
 let yearData = computed(() => {
@@ -68,27 +91,27 @@ onMounted(() => {
         </div>
         <div class="lon-container">
         <span class="big-text">
-          45°
+          {{ lonD }}°
         </span>
 
           <span class="small-text">
-          12'45"
+          {{ lonM }}'{{ lonS }}"
         </span>
           <span class="direction">
-          E
+          {{ lonPassive > 0 ? 'E' : 'W' }}
         </span>
         </div>
 
         <div class="lat-container">
         <span class="big-text">
-        45°
+        {{ latD }}°
         </span>
 
           <span class="small-text">
-          12'45"
+          {{ latM }}'{{ latS }}"
         </span>
           <span class="direction">
-          N
+          {{ latPassive > 0 ? 'N' : 'S' }}
         </span>
         </div>
 
@@ -101,12 +124,12 @@ onMounted(() => {
         </div>
 
         <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">
-          <SeasonChart id="year" title="Annual sea surface temperature" :data="yearData"></SeasonChart>
+          <YearChart id="year" title="" :data="yearData"></YearChart>
         </div>
 
-<!--        <div class="subtitle" style="grid-column: 2 / 4; grid-row: 9 / 10;">-->
-<!--          历年海温-->
-<!--        </div>-->
+        <div class="subtitle" style="grid-column: 2 / 4; grid-row: 5 / 6;">
+          历年海温
+        </div>
 <!--        <div style="grid-column: 2 / 6; grid-row: 10 / 11; border: 1px solid #e1e1e1; border-radius: 5px;">-->
 <!--          <SeasonChart title="" :data="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]"></SeasonChart>-->
 <!--        </div>-->
@@ -137,7 +160,7 @@ onMounted(() => {
     display: grid;
     grid-gap: 5px;
     grid-template-columns: 40px repeat(4, 1fr) 10px;
-    grid-template-rows: 50px 80px 50px repeat(4, 250px) 40px 50px 250px;
+    grid-template-rows: 50px 80px 50px 250px 50px 250px 40px 50px 250px;
     width: 100%;
     overflow-y: auto;
   }
