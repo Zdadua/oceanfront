@@ -11,8 +11,6 @@ import CommonControls from "./CommonControls.vue";
 import RightPopup from "./RightPopup.vue";
 import {useStore} from "vuex";
 
-const InfoCube = defineAsyncComponent(() => import("./InfoCube.vue"));
-
 let store = useStore();
 let mapContainer = ref();
 
@@ -58,10 +56,6 @@ onMounted(() => {
       <SearchBar></SearchBar>
     </div>
 
-    <div id="info-cube-container" class="ui-control">
-      <InfoCube></InfoCube>
-    </div>
-
 <!--    <div id="timeline-container" class="ui-control">-->
 <!--&lt;!&ndash;      <TimeLine></TimeLine>&ndash;&gt;-->
 <!--    </div>-->
@@ -87,7 +81,6 @@ onMounted(() => {
 <!--    </div>-->
 
     <div id="controls-container" class="ui-control">
-      <ToggleButton :name="'clickMode'" :left-text="'Point'" :right-text="'Cube'" style="top: 0;"></ToggleButton>
       <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'" style="top: 0;"></ToggleButton>
       <ToggleButton :name="'draggable'" :left-text="'Unlocked'" :right-text="'Locked'" style="top: 0;"></ToggleButton>
     </div>

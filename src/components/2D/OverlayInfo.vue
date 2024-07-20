@@ -34,6 +34,9 @@ let xDomain = computed(() => {
 
   return [startDay, endDay];
 })
+
+let isTop = computed(() => store.state['button'].topOverlayId === props.id);
+
 let data = ref([]);
 
 watch(() => store.state['mapForTwo'].day, async (newValue) => {
@@ -80,6 +83,10 @@ function removeOverlay() {
 
 function showOverlay() {
   hided.value = false;
+}
+
+function pinToTop() {
+
 }
 
 function popup() {
@@ -136,7 +143,7 @@ onMounted(() => {
 
 <template>
   <div class="overlay-info-container">
-    <div v-if="!hided" class="visible-container">
+    <div v-if="!hided" class="visible-container" @click="pinToTop" :class="{'sticky': isTop}">
       <div class="info-text">
         <span class="degree">{{ lonLat[0] + '°'}}</span>
         <span class="min-sec">{{ lonLat[1] + '\'' + lonLat[2] + '"'}}</span>
@@ -293,4 +300,9 @@ onMounted(() => {
     border-color: white;
   }
 }
+
+.sticky {
+  z-index: 100;
+}
+
 </style>
