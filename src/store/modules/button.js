@@ -6,12 +6,18 @@ const state = () => ({
     windFieldMode: 0,
     oceanCurrentMode: 0,
     topOverlayId: -1,
+    popup: false,
 });
 
 const mutations = {
     setTopOverlay(state, id) {
 
-    }
+    },
+
+    popup(state) {
+        state.popup = !state.popup;
+    },
+
 };
 
 export default {

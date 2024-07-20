@@ -9,6 +9,7 @@ import CalendarCom from "./CalendarCom.vue";
 import ColorScale from "./ColorScale.vue";
 import CommonControls from "./CommonControls.vue";
 import RightPopup from "./RightPopup.vue";
+import ButtonField from "./buttonField/ButtonField.vue";
 import {useStore} from "vuex";
 
 let store = useStore();
@@ -60,6 +61,10 @@ onMounted(() => {
 <!--&lt;!&ndash;      <TimeLine></TimeLine>&ndash;&gt;-->
 <!--    </div>-->
 
+    <div id="btn-field-wrapper" class="ui-control">
+      <ButtonField></ButtonField>
+    </div>
+
     <div id="calendar-container" class="ui-control">
       <CalendarCom></CalendarCom>
     </div>
@@ -76,19 +81,10 @@ onMounted(() => {
       <RightPopup></RightPopup>
     </div>
 
-<!--    <div class="ui-control" style="top: 200px; left: 500px;">-->
-<!--      <TestChart></TestChart>-->
-<!--    </div>-->
-
     <div id="controls-container" class="ui-control">
       <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'" style="top: 0;"></ToggleButton>
       <ToggleButton :name="'draggable'" :left-text="'Unlocked'" :right-text="'Locked'" style="top: 0;"></ToggleButton>
     </div>
-
-<!--    <div ref="infoContainer" id="info-container">-->
-<!--      <div id="info-text">Current Position:</div>-->
-<!--      <div v-if="true" id="lon-lat"></div>-->
-<!--    </div>-->
 
   </div>
 
@@ -102,6 +98,8 @@ onMounted(() => {
   position: absolute;
   transition: right .3s ease-in-out;
 }
+
+
 
 #map-container {
   width: 100vw;
@@ -176,19 +174,6 @@ onMounted(() => {
   }
 }
 
-#title-container {
-  width: 540px;
-  height: 50px;
-  top: 0;
-  line-height: 50px;
-  text-align: center;
-  color: white;
-  font-size: 1.5em;
-  font-weight: 400;
-  background-color: black;
-  border: 1px solid rgba(0, 0, 0, 1);
-}
-
 #router-link {
   text-decoration: none;
   color: black;
@@ -210,6 +195,11 @@ onMounted(() => {
   box-sizing: border-box;
   padding: 0 8px;
   border-radius: 20px;
+}
+
+#btn-field-wrapper {
+  left: 0;
+  bottom: 400px;
 }
 
 </style>
