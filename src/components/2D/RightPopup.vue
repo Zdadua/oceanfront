@@ -7,6 +7,7 @@ import {DotOverlay} from "../../js/map/DotOverlay.js";
 import {toLonLat} from "ol/proj";
 import {floor} from "mathjs";
 import {lonLatToDMS} from "../../js/tools.js";
+import {DotIterator} from "../../js/map/DotIterator.js";
 
 let store = useStore();
 let lonPassive = ref();
@@ -23,11 +24,11 @@ let popup = computed(() => store.state['popup'].popup);
 let showDot = computed(() => store.state['popup'].showDot);
 let wholeData = ref([]);
 watch(showDot, async (newValue) => {
-  if(newValue instanceof DotOverlay) {
-    let [lon, lat] = toLonLat(newValue.getCoordinate());
+  if(newValue != null) {
+    const temp = store.state['mapForTwo'].points.get(newValue);
 
+    let [lon, lat] = toLonLat(temp.getCoordinate());
     const position = lonLatToDMS(lon, lat);
-    console.log(position);
 
     lonPassive.value = position.lonPassive;
     lonD.value = position.lonD;
@@ -49,8 +50,8 @@ watch(showDot, async (newValue) => {
 
     let tmp = await response.text();
     wholeData.value = tmp.split(',').map((d) => parseFloat(d));
-    console.log(wholeData.value);
   }
+
 }, {immediate: true})
 
 let year = computed(() => store.state['mapForTwo'].year);
@@ -74,6 +75,16 @@ function closeClick() {
   store.commit('popup/dismiss');
 }
 
+function leftClick() {
+  const iterator = new DotIterator(showDot.value);
+  iterator.prev();
+}
+
+function rightClick() {
+  const iterator = new DotIterator(showDot.value);
+  iterator.next();
+}
+
 onMounted(() => {
   // fetchData();
 })
@@ -86,7 +97,7 @@ onMounted(() => {
     <div v-if="popup" id="popup-wrapper">
 
       <div id="popup-container">
-        <div class="to-left-btn popup-btn">
+        <div class="to-left-btn popup-btn" @click="leftClick">
           <img src="../../assets/svg/left.svg" alt="left" width="30" height="30">
         </div>
         <div class="lon-container">
@@ -115,7 +126,7 @@ onMounted(() => {
         </span>
         </div>
 
-        <div class="to-right-btn popup-btn">
+        <div class="to-right-btn popup-btn" @click="rightClick">
           <img src="../../assets/svg/right.svg" alt="right" width="30" height="30">
         </div>
 
@@ -124,7 +135,7 @@ onMounted(() => {
         </div>
 
         <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">
-          <YearChart id="year" title="" :data="yearData"></YearChart>
+          <YearChart id="year" :data="yearData"></YearChart>
         </div>
 
         <div class="subtitle" style="grid-column: 2 / 4; grid-row: 5 / 6;">
@@ -222,6 +233,11 @@ onMounted(() => {
   width: 30px;
   align-self: center;
   line-height: 50px;
+
+  &:hover {
+    cursor: pointer;
+  }
+
 }
 
 .to-left-btn {

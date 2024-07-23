@@ -81,10 +81,10 @@ onMounted(() => {
       <RightPopup></RightPopup>
     </div>
 
-    <div id="controls-container" class="ui-control">
-      <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'" style="top: 0;"></ToggleButton>
-      <ToggleButton :name="'draggable'" :left-text="'Unlocked'" :right-text="'Locked'" style="top: 0;"></ToggleButton>
-    </div>
+<!--    <div id="controls-container" class="ui-control">-->
+<!--      <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'" style="top: 0;"></ToggleButton>-->
+<!--      <ToggleButton :name="'draggable'" :left-text="'Unlocked'" :right-text="'Locked'" style="top: 0;"></ToggleButton>-->
+<!--    </div>-->
 
   </div>
 

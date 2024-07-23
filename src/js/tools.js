@@ -1,4 +1,5 @@
 import {toLonLat} from "ol/proj";
+import store from "../store/index.js";
 
 function coordinateToDMS(coordinate) {
     return lonLatToDMS(toLonLat(coordinate));
@@ -30,6 +31,7 @@ function lonLatToDMS(lon, lat) {
         latS: latS
     }
 }
+
 
 export {
     coordinateToDMS,

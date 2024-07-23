@@ -2,6 +2,7 @@ import {DragPan} from "ol/interaction.js";
 import {XYZ} from "ol/source";
 import { Map as olMap, Overlay } from "ol";
 import { lonLatToDMS } from "../../js/tools.js"
+import { DotIterator } from "../../js/map/DotIterator.js"
 
 
 const state = () => ({
@@ -16,7 +17,6 @@ const state = () => ({
     * 2: 按钮不可控，左侧
     * 3: 按钮不可控，右侧
     * */
-    clickMode: 0,
     showMode: 0,
     draggable: 0,
 
@@ -48,43 +48,21 @@ const mutations = {
         state.onUI = val;
     },
 
-    clickMode(state) {
-        state.clickMode = state.clickMode ? 0 : 1;
-        let source = state.map.getLayers().getArray().at(2).getSource();
-
-        if(state.dotIdx) {
-            if(state.clickMode) {
-                state.map.removeOverlay(state.points.get(state.lastPoint).getOverlay());
-                source.clear(true);
-            }
-            else {
-                state.map.addOverlay(state.points.get(state.lastPoint).getOverlay());
-                source.addFeature(state.points.get(state.lastPoint).getDotFeature());
-            }
-        }
-    },
-
     showMode(state) {
         state.showMode = state.showMode ? 0 : 1;
         let source = state.map.getLayers().getArray().at(2).getSource();
 
-        if(state.showMode) {
-            state.clickMode = 2;
-        }
-        else {
-            state.clickMode -= 2;
-
-            let dotOverlay = state.points.get(state.lastPoint);
-            for(let i = state.lastPoint - 1; i >= 0; i--) {
-                if(state.points.has(i)) {
-                    state.map.removeOverlay(state.points.get(i).getOverlay());
-                    state.points.delete(i);
-                }
+        let dotOverlay = state.points.get(state.lastPoint);
+        for(let i = state.lastPoint - 1; i >= 0; i--) {
+            if(state.points.has(i)) {
+                state.map.removeOverlay(state.points.get(i).getOverlay());
+                state.points.delete(i);
             }
-
-            source.clear(true);
-            source.addFeature(dotOverlay.getDotFeature());
         }
+
+        source.clear(true);
+        source.addFeature(dotOverlay.getDotFeature());
+        source.addFeature(dotOverlay.getLineFeature());
     },
 
     draggable(state) {
@@ -116,13 +94,13 @@ const mutations = {
             state.lastPoint = state.dotIdx;
         }
 
+        DotIterator.updateMap(state.points);
 
+        state.map.addOverlay(dotOverlay.getOverlay());
+        source.addFeature(dotOverlay.getDotFeature());
+        source.addFeature(dotOverlay.getLineFeature());
 
-        if(!(state.clickMode % 2)){
-            state.map.addOverlay(dotOverlay.getOverlay());
-            source.addFeature(dotOverlay.getDotFeature());
-        }
-
+        // console.log(dotOverlay.)
     },
 
     year(state, y) {
@@ -161,6 +139,7 @@ const mutations = {
         state.map.removeOverlay(state.points.get(idx).getOverlay());
         let source = state.map.getLayers().getArray().at(2).getSource();
         source.removeFeature(state.points.get(idx).getDotFeature());
+        source.removeFeature(state.points.get(idx).getLineFeature());
         state.points.delete(idx);
 
         for(let i = state.dotIdx - 1; i >= 0; i--) {

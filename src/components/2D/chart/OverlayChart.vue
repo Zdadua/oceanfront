@@ -8,8 +8,6 @@ import {useStore} from "vuex";
 const store = useStore();
 const props = defineProps({
   data: Array,
-  width: Number,
-  height: Number,
   options: {
     type: Object,
     default: {
@@ -32,7 +30,7 @@ const props = defineProps({
   }
 })
 
-let container = ref();
+let overlayContainer = ref();
 
 let showDay = computed(() => {
   const year = store.state['mapForTwo'].year;
@@ -45,14 +43,19 @@ let showDay = computed(() => {
 let xScale;
 let yScale;
 let svg;
+let w = 290;
+let h = 230;
 
-watch(() => props.data, () => {
-  svg.selectAll('*').remove();
-  initChart();
+watch(() => props.data, (newValue) => {
+  if(newValue != null) {
+    svg.selectAll('*').remove();
+    initChart();
+  }
 })
 
 
 function initChart() {
+  initScale();
 
   xScale.domain(props.domain);
 
@@ -77,7 +80,7 @@ function initChart() {
       .y(d => yScale(d.value));
 
   svg.append('g')
-      .attr('transform', `translate(0, ${props.height - props.options.marginBottom})`)
+      .attr('transform', `translate(0, ${h - props.options.marginBottom})`)
       .call(xAxis)
       .call(g => g.select('.domain')
           .attr('stroke-opacity', 0.4)
@@ -90,7 +93,7 @@ function initChart() {
       .call(yAxis)
       .call(g => g.select('.domain').remove())
       .call(g => g.selectAll('.tick line').clone()
-          .attr('x2', props.width - props.options.marginLeft - props.options.marginRight)
+          .attr('x2', w - props.options.marginLeft - props.options.marginRight)
           .attr('stroke-opacity', 0.1))
       .call(g => g.selectAll('.tick line')
           .attr('stroke-opacity', 0.1))
@@ -128,7 +131,7 @@ function initChart() {
       .attr('stroke-width', 2)
       .attr('stroke-opacity', 0.3)
       .attr('y1', props.options.marginTop)
-      .attr('y2', props.height - props.options.marginBottom)
+      .attr('y2', h - props.options.marginBottom)
       .attr('x1', x)
       .attr('x2', x)
 
@@ -137,13 +140,6 @@ function initChart() {
       .attr('fill', 'rgb(65,204,0)')
       .attr('cx', x)
       .attr('cy', yScale(props.data[7].value))
-
-  const todayText = svg.append('text')
-      .attr('x', x - 14)
-      .attr('y', props.options.marginTop)
-      .style('font-size', '.8em')
-      .style('fill', 'rgb(182,182,182)')
-      .text('今天');
 
 
 
@@ -178,8 +174,8 @@ function initChart() {
 
   svg.append('rect')
       .attr('class', 'overPlane')
-      .attr('width', props.width - props.options.marginLeft - props.options.marginRight)
-      .attr('height', props.height - props.options.marginTop - props.options.marginBottom)
+      .attr('width', w - props.options.marginLeft - props.options.marginRight)
+      .attr('height', h - props.options.marginTop - props.options.marginBottom)
       .attr('x', props.options.marginLeft)
       .attr('y', props.options.marginTop)
       .attr('opacity', 0)
@@ -207,7 +203,7 @@ function initChart() {
           guideLine.attr('x1', offset)
               .attr('x2', offset)
               .attr('y1', props.options.marginTop)
-              .attr('y2', props.height - props.options.marginBottom);
+              .attr('y2', h - props.options.marginBottom);
 
           let dateString = currentData.date.toLocaleDateString('zh-CN', {
             year: 'numeric',
@@ -235,7 +231,7 @@ function initChart() {
             y = props.options.marginTop;
           }
 
-          if (event.offsetX + tipWidth + gap < props.width - props.options.marginRight) {
+          if (event.offsetX + tipWidth + gap < w - props.options.marginRight) {
             x = event.offsetX + gap;
           } else {
             x = event.offsetX - tipWidth - gap;
@@ -250,17 +246,25 @@ function initChart() {
       });
 }
 
+function initScale() {
+  xScale = d3.scaleTime().range([props.options.marginLeft, w - props.options.marginRight]);
+  yScale = d3.scaleLinear().range([h - props.options.marginBottom, props.options.marginTop]);
+}
+
+function initAxis() {
+
+}
+
+function createNode() {
+  svg = d3.create('svg');
+  svg.attr('width', w);
+  svg.attr('height', h);
+}
+
 onMounted(() => {
   nextTick(() => {
-    xScale = d3.scaleTime().range([props.options.marginLeft, props.width - props.options.marginRight]);
-    yScale = d3.scaleLinear().range([props.height - props.options.marginBottom, props.options.marginTop]);
-
-    svg = d3.create('svg');
-    svg.attr('id', props.id);
-    svg.attr('width', props.width);
-    svg.attr('height', props.height);
-    container.value.appendChild(svg.node());
-    initChart();
+    createNode();
+    overlayContainer.value.appendChild(svg.node());
   })
 })
 
@@ -268,11 +272,16 @@ onMounted(() => {
 
 <template>
 
-  <div ref="container" class="overlay-chart-container" :style="{'height': props.height + 'px', 'width': props.width + 'px'}">
+  <div ref="overlayContainer" class="overlay-chart-container">
   </div>
 
 </template>
 
 <style scoped>
+
+.overlay-chart-container {
+  width: 100%;
+  height: 100%;
+}
 
 </style>

@@ -5,10 +5,11 @@ import {toLonLat} from "ol/proj";
 import OverlayChart from "./chart/OverlayChart.vue";
 import {easeOut} from "ol/easing.js";
 import {abs, floor} from "mathjs";
+import { lonLatToDMS } from "../../js/tools.js";
 
 let store = useStore();
 
-const props = defineProps({
+let props = defineProps({
   coordinate: {
     type: Object,
     required: true
@@ -19,6 +20,8 @@ const props = defineProps({
   },
 
 });
+
+let overlay = computed(() => store.state['mapForTwo'].points.get(props.id));
 
 let hided = ref(false);
 let xDomain = computed(() => {
@@ -35,10 +38,9 @@ let xDomain = computed(() => {
   return [startDay, endDay];
 })
 
-let isTop = computed(() => store.state['button'].topOverlayId === props.id);
-
 let data = ref([]);
 
+// TODO 请求没有加入时间元素
 watch(() => store.state['mapForTwo'].day, async (newValue) => {
   const year = store.state['mapForTwo'].year;
   const month = store.state['mapForTwo'].month;
@@ -74,24 +76,53 @@ watch(() => store.state['mapForTwo'].day, async (newValue) => {
 },{ immediate: true })
 
 function hideOverlay() {
-  hided.value = true;
+  hided.value = !hided.value;
 }
 
 function removeOverlay() {
   store.commit('mapForTwo/remove', props.id);
 }
 
-function showOverlay() {
-  hided.value = false;
-}
-
 function pinToTop() {
 
+}
+
+let briefContainer = ref();
+function mouseDown(e) {
+  const map = store.state['mapForTwo'].map;
+  let startX = e.clientX;
+  let startY = e.clientY;
+  let startPixel = map.getPixelFromCoordinate(overlay.value.getPosition());
+  let finalPixel = map.getPixelFromCoordinate(overlay.value.getPosition());
+  let mouseMove = function(event) {
+
+    let endX = event.clientX;
+    let endY = event.clientY;
+
+    finalPixel[0] = startPixel[0] + (endX - startX);
+    finalPixel[1] = startPixel[1] + (endY - startY);
+
+    let co = map.getCoordinateFromPixel(finalPixel);
+
+    overlay.value.getOverlay().setPosition(co);
+    overlay.value.updateLine(co);
+
+  };
+
+  let mouseUp = function(event) {
+    document.removeEventListener('mousemove', mouseMove);
+    document.removeEventListener('mouseup', mouseUp);
+    overlay.value.setPosition(map.getCoordinateFromPixel(finalPixel));
+  }
+
+  document.addEventListener('mousemove', mouseMove);
+  document.addEventListener('mouseup', mouseUp);
 }
 
 function popup() {
 
   store.commit('popup/popup', props.id);
+
   const view = store.state['mapForTwo'].map.getView();
   const map = store.state['mapForTwo'].map;
 
@@ -110,67 +141,54 @@ function popup() {
     rotation: 0,
     duration: 800,
     easing: easeOut
-
   })
 }
 
 let [lon, lat] = toLonLat(props.coordinate);
 let lonLat = computed(() => {
-  let absLon = Math.abs(lon); // 取绝对值以便计算
-  let lonD = Math.floor(absLon); // 度
-  let lonM = Math.floor((absLon - lonD) * 60); // 分
-  lonM = lonM < 10 ? '0' + lonM : lonM;
-  let lonS = Math.floor((absLon - lonD - lonM / 60) * 3600); // 秒
-  lonS = lonS < 10 ? '0' + lonS : lonS;
-
-  let absLat = Math.abs(lat); // 取绝对值以便计算
-  let latD = Math.floor(absLat); // 度
-  let latM = Math.floor((absLat - latD) * 60); // 分
-  latM = latM < 10 ? '0' + latM : latM;
-  let latS = Math.floor((absLat - latD - latM / 60) * 3600); // 秒
-  latS = latS < 10 ? '0' + latS : latS;
-
-  return [lonD, lonM, lonS, latD, latM, latS];
+  return lonLatToDMS(lon, lat);
 })
 
 onMounted(() => {
-    if(props.coordinate) {
 
-    }
 })
 
 </script>
 
 <template>
   <div class="overlay-info-container">
-    <div v-if="!hided" class="visible-container" @click="pinToTop" :class="{'sticky': isTop}">
-      <div class="info-text">
-        <span class="degree">{{ lonLat[0] + '°'}}</span>
-        <span class="min-sec">{{ lonLat[1] + '\'' + lonLat[2] + '"'}}</span>
-        <span class="unit">{{ lon < 0 ? 'W' : 'E' }}</span>
-        <span class="degree" style="margin-left: 20px" >{{ lonLat[3] + '°'}}</span>
-        <span class="min-sec">{{ lonLat[4] + '\'' + lonLat[5] + '"'}}</span>
-        <span class="unit">{{ lat < 0 ? 'S' : 'N' }}</span>
+    <div class="visible-container">
+      <div ref="briefContainer" class="brief-container" @mousedown="mouseDown">
+        <div class="info-text">
+          <span class="degree">{{ lonLat.lonD + '°'}}</span>
+          <span class="min-sec">{{ lonLat.lonM + '\'' + lonLat.lonS + '"'}}</span>
+          <span class="unit">{{ lonLat.lonPassive < 0 ? 'W' : 'E' }}</span>
+          <span class="degree" style="margin-left: 20px" >{{ lonLat.latD + '°'}}</span>
+          <span class="min-sec">{{ lonLat.latM + '\'' + lonLat.latS + '"'}}</span>
+          <span class="unit">{{ lonLat.latPassive < 0 ? 'S' : 'N' }}</span>
+        </div>
+
+        <div class="minimize-btn" @click="hideOverlay">
+          <img :class="{'dismiss': hided}" src="../../assets/svg/up.svg" alt="minimize" width="15" height="15">
+        </div>
+        <div class="close-btn" @click="removeOverlay">
+          <img src="../../assets/svg/close.svg" alt="close" width="15" height="15">
+        </div>
       </div>
 
-      <div class="minimize-btn" @click="hideOverlay">
-        <img src="../../assets/svg/minimize.svg" alt="minimize" width="15" height="15">
-      </div>
-      <div class="close-btn" @click="removeOverlay">
-        <img src="../../assets/svg/close.svg" alt="close" width="15" height="15">
+      <div v-show="!hided" class="more-info-container">
+        <div class="chart-wrapper">
+          <OverlayChart :domain="xDomain" :id="id" :data="data" :title="'前后7天海表温度'"></OverlayChart>
+        </div>
+
+        <div class="more-btn" @click="popup">
+          了解更多
+        </div>
       </div>
 
-      <div class="chart-wrapper">
-        <OverlayChart :domain="xDomain" :id="id" :width="290" :height="230" :data="data" :title="'前后7天海表温度'"></OverlayChart>
-      </div>
 
-      <div class="more-btn" @click="popup">
-        了解更多
-      </div>
 
     </div>
-
-    <div v-if="hided" @click="showOverlay" style="left: -5px; top: -5px; position: absolute; width: 10px; height: 10px;"></div>
 
   </div>
 
@@ -186,24 +204,61 @@ onMounted(() => {
   box-sizing: border-box;
   padding: 5px 5px;
   width: 300px;
-  height: 320px;
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  justify-content: start;
   position: absolute;
-  top: -50px;
-  left: 10px;
+  top: -25px;
+
   background-color: white;
   border-radius: 10px;
   box-shadow: 2px 2px 5px rgba(55, 55, 55, 0.2);
 
+  .brief-container {
+    height: 40px;
+    width: 100%;
+
+    .close-btn {
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      top: 15px;
+      right: 10px;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .minimize-btn {
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      top: 15px;
+      right: 35px;
+
+      img {
+        transition: all .2s ease-in-out;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .dismiss {
+      transform: rotate(180deg);
+    }
+
+  }
+
   .info-text {
+    user-select: none;
     position: absolute;
     top: 10px;
     width: 100%;
     height: 30px;
     font-family: UNSII Serif sans-serif;
-    margin-bottom: 10px;
 
     .degree {
       line-height: 30px;
@@ -259,45 +314,6 @@ onMounted(() => {
 
       border: solid 1px #7a898e;
     }
-  }
-
-  .close-btn {
-    width: 10px;
-    height: 10px;
-    position: absolute;
-    top: 5px;
-    right: 10px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  .minimize-btn {
-    width: 10px;
-    height: 10px;
-    position: absolute;
-    top: 5px;
-    right: 35px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  &:after {
-    content: '';
-
-    width: 10px;
-    height: 5px;
-    border-radius: 5px 0 0 5px;
-
-    position: absolute;
-    left: -15px;
-    top: 44px;
-    border-style: solid;
-    border-width: 4px;
-    border-color: white;
   }
 }
 

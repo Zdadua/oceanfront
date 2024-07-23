@@ -2,7 +2,7 @@
 
 import {useStore} from "vuex";
 import {computed, onMounted} from "vue";
-import ToggleButton from "../ToggleButton.vue";
+import ToggleButton from "./ToggleButton.vue";
 
 const store = useStore();
 
@@ -15,7 +15,7 @@ function btnFieldClick() {
 }
 
 onMounted(() => {
-  console.log(popup.value);
+
 })
 
 
@@ -25,12 +25,11 @@ onMounted(() => {
 
   <div id="btn-field-container" :style="{'left': (popup ? '0' : '-200') + 'px'}">
     <div id="toggle-btn" @click="btnFieldClick">
-      <img src="../../../assets/svg/right.svg" alt="right" width="20" height="20">
+      <img :class="{'rotate': popup}" src="../../../assets/svg/right.svg" alt="right" width="20" height="20">
     </div>
 
     <div id="toggle-btn-container">
-      <ToggleButton :name="'showMode'" :left-text="'Single'" :right-text="'Multi'"></ToggleButton>
-      <ToggleButton :name="'draggable'" :left-text="'Unlocked'" :right-text="'Locked'"></ToggleButton>
+      <ToggleButton name="showMode" url="src/assets/svg/pinpoint.svg" text="多点模式"></ToggleButton>
     </div>
 
   </div>
@@ -49,7 +48,7 @@ onMounted(() => {
   flex-direction: column;
   justify-content: center;
   background-color: white;
-  border-radius: 15px;
+  border-radius: 0 0 15px 0;
   box-sizing: border-box;
   width: 200px;
   height: 300px;
@@ -62,10 +61,10 @@ onMounted(() => {
   align-self: center;
   justify-content: center;
   position: absolute;
-  right: -25px;
+  right: -26px;
   width: 25px;
   padding: 4px 0;
-  top: 10px;
+  top: 0;
   background-color: white;
   border-radius: 0 10px 10px 0;
   box-shadow: 4px 2px 5px rgba(55, 55, 55, 0.2);
@@ -77,6 +76,14 @@ onMounted(() => {
     box-shadow: 4px 2px 5px rgba(19, 19, 19, 0.4);
   }
 
+  img {
+    transition: all .3s ease-in-out;
+  }
+
+}
+
+.rotate {
+  transform: rotate(180deg);
 }
 
 

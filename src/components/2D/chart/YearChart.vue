@@ -5,10 +5,6 @@ import * as d3 from "d3";
 import store from "../../../store/index.js";
 
 const props = defineProps({
-  title: {
-    type: String,
-    required: true,
-  },
   id: {
     type: String,
     required: true
@@ -27,7 +23,6 @@ let display = {
 }
 
 watch(() => props.data, () => {
-  console.log(111);
   svg.selectAll('*').remove();
   initChart();
 })
@@ -95,14 +90,6 @@ function initChart() {
       .style('font-size', '.7em')
       .text('C°');
 
-  // 表格标题
-  svg.append('text')
-      .attr('x', '40px')
-      .attr('y', '5px')
-      .attr('fill', 'rgb(96,96,96)')
-      .style('font-weight', '900')
-      .attr('dy', '.8em')
-      .text(props.title)
 
   // 指示线
   svg.append('line')

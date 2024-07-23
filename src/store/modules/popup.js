@@ -9,11 +9,15 @@ const state = () => ({
 const mutations = {
     popup(state, idx) {
         state.popup = true;
-        state.showDot = store.state['mapForTwo'].points.get(idx);
+        state.showDot = idx;
     },
 
     dismiss(state) {
         state.popup = false;
+    },
+
+    updateShowDot(state, idx) {
+        state.showDot = idx;
     }
 };
 
