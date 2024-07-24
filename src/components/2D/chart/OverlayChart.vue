@@ -1,12 +1,16 @@
 <script setup>
 
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch, watchEffect} from "vue";
 import * as d3 from 'd3';
 import {ceil, floor} from "mathjs";
 import {useStore} from "vuex";
+import {toLonLat} from "ol/proj.js";
+import { fetchWithTimeout } from "../../../js/tools.js";
+import LoadingAnimate from "../animate/LoadingAnimate.vue";
 
 const store = useStore();
 const props = defineProps({
+  coordinate: Array,
   data: Array,
   options: {
     type: Object,
@@ -24,10 +28,59 @@ const props = defineProps({
   id: {
     required: true
   },
-  domain: {
-    type: Array,
-    required: true
-  }
+})
+
+let date = computed(() => {
+  const year = store.state['mapForTwo'].year;
+  const month = store.state['mapForTwo'].month;
+  const day = store.state['mapForTwo'].day;
+
+  return new Date(year, month - 1, day);
+});
+// 是否获取到数据
+let loaded = ref(false);
+let data = ref();
+let timeoutId = ref();
+
+watchEffect(() => {
+  let [lon, lat] = toLonLat(props.coordinate);
+  lon = floor(lon);
+  lat = floor(lat);
+
+  let dateString = date.value.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).replaceAll('/', '-');
+
+  const url = `/data/sst/${lat}/${lon}/${dateString}`;
+
+  console.log(url);
+
+  fetchWithTimeout({url: url, timeout: 10000})
+      .then(response => {
+        if(!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        return response.json();
+      })
+      .then(data => {
+        loaded.value = true;
+        // TODO 处理data
+        console.log(data);
+      })
+      .catch(error => {
+        if(error.message === 'timeout') {
+          console.log('network request timout!');
+        }
+        else if(error.message === 'Network response was not ok') {
+         console.log('Network response was not ok!');
+        }
+        else {
+          console.error('An error occurred at OverlayChart.vue:', error);
+        }
+      });
 })
 
 let overlayContainer = ref();
@@ -46,12 +99,12 @@ let svg;
 let w = 290;
 let h = 230;
 
-watch(() => props.data, (newValue) => {
-  if(newValue != null) {
-    svg.selectAll('*').remove();
-    initChart();
-  }
-})
+// watch(() => props.data, (newValue) => {
+//   if(newValue != null) {
+//     svg.selectAll('*').remove();
+//     initChart();
+//   }
+// })
 
 
 function initChart() {
@@ -273,6 +326,9 @@ onMounted(() => {
 <template>
 
   <div ref="overlayContainer" class="overlay-chart-container">
+    <div v-if="!loaded" style="height: 100%; width: 100%; display: grid; place-items: center">
+      <LoadingAnimate></LoadingAnimate>
+    </div>
   </div>
 
 </template>

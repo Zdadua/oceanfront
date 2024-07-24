@@ -1,7 +1,6 @@
 <script setup>
 
 import TextCube from "./TextCube.vue";
-import PicLib from "./PicLib.vue";
 import LogoIcon from "./LogoIcon.vue";
 import GuideBar from "./GuideBar.vue";
 

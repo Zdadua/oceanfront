@@ -32,8 +32,24 @@ function lonLatToDMS(lon, lat) {
     }
 }
 
+function fetchWithTimeout({url, options, timeout = 10000}) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const fetchPromise = fetch(url, {...options, signal});
+    const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+            controller.abort();
+            reject(new Error('timeout'));
+        }, timeout);
+    })
+
+    return Promise.race([fetchPromise, timeoutPromise]);
+}
+
 
 export {
     coordinateToDMS,
-    lonLatToDMS
+    lonLatToDMS,
+    fetchWithTimeout
 }
