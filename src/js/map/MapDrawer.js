@@ -52,6 +52,7 @@ class MapDrawer {
                 //     source: new OSM(),
                 // }),
                 new TileLayer({
+                    preload: 2,
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
                         url: `http://172.20.163.79:5000/tiles/sst_tiles/${year}-${month}-${day}/{z}/{x}_{y}.png`,
@@ -61,6 +62,7 @@ class MapDrawer {
                 }),
 
                 new TileLayer({
+                    preload: Infinity,
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
                         url: 'http://172.20.163.79:5000/tiles/world_tiles/{z}/{x}_{y}.png',

@@ -68,7 +68,7 @@ watchEffect(() => {
       .then(data => {
         loaded.value = true;
         // TODO 处理data
-        console.log(data);
+        console.log(data.row);
       })
       .catch(error => {
         if(error.message === 'timeout') {
@@ -76,6 +76,7 @@ watchEffect(() => {
         }
         else if(error.message === 'Network response was not ok') {
          console.log('Network response was not ok!');
+
         }
         else {
           console.error('An error occurred at OverlayChart.vue:', error);

@@ -47,9 +47,25 @@ function fetchWithTimeout({url, options, timeout = 10000}) {
     return Promise.race([fetchPromise, timeoutPromise]);
 }
 
+function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
+
+function dayOfYear(date) {
+    const startDate = new Date(date.getFullYear(), 0, 1);
+    return Math.floor((date - startDate) / (1000 * 60 * 60 * 24));
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 
 export {
     coordinateToDMS,
     lonLatToDMS,
-    fetchWithTimeout
+    fetchWithTimeout,
+    isLeapYear,
+    dayOfYear,
+    sleep
 }

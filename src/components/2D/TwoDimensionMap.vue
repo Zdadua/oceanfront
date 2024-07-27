@@ -3,7 +3,7 @@
 import {computed, createApp, createVNode, defineAsyncComponent, nextTick, onMounted, ref} from "vue";
 import { MapDrawer } from "../../js/map/MapDrawer.js";
 import SearchBar from "./SearchBar.vue";
-import TimeLine from "./TimeLine.vue";
+import TimeLine from "./timeLine/TimeLine.vue";
 import ToggleButton from "./ToggleButton.vue";
 import CalendarCom from "./CalendarCom.vue";
 import ColorScale from "./ColorScale.vue";
@@ -79,6 +79,10 @@ onMounted(() => {
 
     <div id="popup-container" class="ui-control" :style="{'right': '0'}">
       <RightPopup></RightPopup>
+    </div>
+
+    <div id="time-line-wrapper" class="ui-control" :style="{'left': '350px', 'bottom': '25px'}">
+      <TimeLine></TimeLine>
     </div>
 
 <!--    <div id="controls-container" class="ui-control">-->
