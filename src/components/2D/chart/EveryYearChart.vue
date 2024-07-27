@@ -2,9 +2,12 @@
 
 import * as d3 from "d3";
 
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch, watchEffect} from "vue";
 import {useStore} from "vuex";
 import {ceil, floor} from "mathjs";
+import {toLonLat} from "ol/proj.js";
+import {dateString, fetchWithTimeout} from "../../../js/tools.js";
+import LoadingAnimate from "../animate/LoadingAnimate.vue";
 
 const props = defineProps({
   id: {
@@ -14,6 +17,7 @@ const props = defineProps({
   data: {
     type: Array,
   },
+  date: Date,
 })
 
 // TODO 拟合线
@@ -35,6 +39,62 @@ let w;
 let h;
 let tips;
 
+let showDot = computed(() => store.state['popup'].showDot);
+let loaded = ref(false);
+
+let rawData = ref();
+let data = computed(() => {
+  if(rawData.value != null) {
+    let res = [];
+    for(let i = 0; i < rawData.value.length; i++) {
+      res.push({
+        year: 1981 + i,
+        value: rawData.value[i]
+      })
+    }
+
+    return res;
+  }
+})
+
+watchEffect(() => {
+  loaded.value = false;
+  if(showDot.value != null) {
+    const temp = store.state['mapForTwo'].points.get(showDot.value);
+    let [lon, lat] = toLonLat(temp.getCoordinate());
+
+    // fetch数据
+    // TODO 目前是直接抹平处理
+    const url = `/data/sst_past/${floor(lat)}/${floor(lon)}/${dateString(props.date)}`;
+    fetchWithTimeout({url: url, timeout: 10000})
+        .then(response => {
+          if(!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // TODO 处理data
+          loaded.value = true;
+          rawData.value = data.column;
+          svg.selectAll('*').remove();
+          initChart();
+        })
+        .catch(error => {
+          if(error.message === 'timeout') {
+            console.log('network request timout!');
+          }
+          else if(error.message === 'Network response was not ok') {
+            console.log('Network response was not ok!');
+
+          }
+          else {
+            console.error('An error occurred at OverlayChart.vue:', error);
+          }
+        });
+  }
+})
+
 watch(() => props.data, () => {
   if(props.data != null) {
     svg.selectAll('*').remove();
@@ -47,6 +107,7 @@ watch(() => props.data, () => {
 
 function initChart() {
   initAxis();
+  initLine();
 }
 
 function noData() {
@@ -95,10 +156,10 @@ function initScale() {
   xScale = d3.scaleLinear().range([display.marginLeft, w - display.marginRight]);
   yScale = d3.scaleLinear().range([h - display.marginBottom, display.marginTop]);
 
-  const xDomain = d3.extent(props.data, d => d.year);
+  const xDomain = d3.extent(data.value, d => d.year);
   xScale.domain(xDomain);
 
-  const yDomain = d3.extent(props.data, d => d.value);
+  const yDomain = d3.extent(data.value, d => d.value);
   yDomain[0] -= 1;
   yDomain[1] += 1;
   yScale.domain(yDomain);
@@ -115,7 +176,7 @@ function initLine() {
       .attr('fill', 'none')
       .attr('stroke', 'blue')
       .attr('stroke-width', 1.5)
-      .attr('d', line(props.data));
+      .attr('d', line(data.value));
 }
 
 function initTips() {
@@ -200,7 +261,7 @@ function setListener() {
     const d1 = xScale(ceil(currentX));
     const offset = event.offsetX - d0 < d1 - event.offsetX ? d0 : d1;
 
-    const currentData = props.data.find(d => d.date.getTime() == xScale.invert(offset).getTime());
+    const currentData = data.value.find(d => d.date.getTime() == xScale.invert(offset).getTime());
     if(currentData) {
       svg.select(`#GL${props.id}`)
           .attr('x1', offset)
@@ -273,6 +334,9 @@ onMounted(() => {
 <template>
 
   <div ref="everyContainer" class="every-chart-container">
+    <div v-if="!loaded" style="height: 100%; width: 100%; display: grid; place-items: center">
+      <LoadingAnimate></LoadingAnimate>
+    </div>
   </div>
 
 </template>

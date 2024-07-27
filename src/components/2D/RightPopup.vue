@@ -3,11 +3,11 @@
 import YearChart from "./chart/YearChart.vue";
 import {useStore} from "vuex";
 import {computed, onMounted, ref, watch} from "vue";
-import {DotOverlay} from "../../js/map/DotOverlay.js";
 import {toLonLat} from "ol/proj";
 import {floor} from "mathjs";
-import {lonLatToDMS} from "../../js/tools.js";
+import {dateString, fetchWithTimeout, lonLatToDMS} from "../../js/tools.js";
 import {DotIterator} from "../../js/map/DotIterator.js";
+import EveryYearChart from "./chart/EveryYearChart.vue";
 
 let store = useStore();
 let lonPassive = ref();
@@ -21,55 +21,38 @@ let latS = ref();
 
 let popup = computed(() => store.state['popup'].popup);
 
+let date = computed(() => {
+  const year = store.state['mapForTwo'].year;
+  const month = store.state['mapForTwo'].month;
+  const day = store.state['mapForTwo'].day;
+
+  return new Date(year, month - 1, day);
+});
+
 let showDot = computed(() => store.state['popup'].showDot);
-let wholeData = ref([]);
 watch(showDot, async (newValue) => {
+
   if(newValue != null) {
     const temp = store.state['mapForTwo'].points.get(newValue);
 
     let [lon, lat] = toLonLat(temp.getCoordinate());
-    const position = lonLatToDMS(lon, lat);
-
-    lonPassive.value = position.lonPassive;
-    lonD.value = position.lonD;
-    lonM.value = position.lonM;
-    lonS.value = position.lonS;
-    latPassive.value = position.latPassive;
-    latD.value = position.latD;
-    latM.value = position.latM;
-    latS.value = position.latS;
-
-    // TODO 目前是直接抹平处理
-    lon = floor(lon);
-    lat = floor(lat);
-    const response = await fetch('/data/sst/' + lat + '/' + lon);
-
-    if(!response.ok) {
-      console.log('network error!!!');
-    }
-
-    let tmp = await response.text();
-    wholeData.value = tmp.split(',').map((d) => parseFloat(d));
+    setLonLat(lon, lat);
   }
 
 }, {immediate: true})
 
-let year = computed(() => store.state['mapForTwo'].year);
-let yearData = computed(() => {
-  let res = [];
-  let startDate = new Date(year.value, 0, 1);
+function setLonLat(lon, lat) {
+  const position = lonLatToDMS(lon, lat);
 
-  for(let i = 0; i < wholeData.value.length; i++) {
-    let tmpDate = new Date(startDate);
-    tmpDate.setDate(startDate.getDate() + i);
-    res.push({
-      date: tmpDate,
-      value: wholeData.value[i]
-    })
-  }
-
-  return res;
-})
+  lonPassive.value = position.lonPassive;
+  lonD.value = position.lonD;
+  lonM.value = position.lonM;
+  lonS.value = position.lonS;
+  latPassive.value = position.latPassive;
+  latD.value = position.latD;
+  latM.value = position.latM;
+  latS.value = position.latS;
+}
 
 function closeClick() {
   store.commit('popup/dismiss');
@@ -135,15 +118,15 @@ onMounted(() => {
         </div>
 
         <div style="grid-column: 2 / 6; grid-row: 4 / 5; border: 1px solid #e1e1e1; border-radius: 5px;">
-          <YearChart id="year" :data="yearData"></YearChart>
+          <YearChart id="year" :date="date"></YearChart>
         </div>
 
         <div class="subtitle" style="grid-column: 2 / 4; grid-row: 5 / 6;">
           历年海温
         </div>
-<!--        <div style="grid-column: 2 / 6; grid-row: 10 / 11; border: 1px solid #e1e1e1; border-radius: 5px;">-->
-<!--          <SeasonChart title="" :data="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]"></SeasonChart>-->
-<!--        </div>-->
+        <div style="grid-column: 2 / 6; grid-row: 6 / 7; border: 1px solid #e1e1e1; border-radius: 5px;">
+          <EveryYearChart id="everyYear" :date="date"></EveryYearChart>
+        </div>
 
       </div>
 

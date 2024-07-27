@@ -1,7 +1,7 @@
 import store from "../../store/index.js";
 import TileLayer from "ol/layer/Tile";
 import {XYZ} from "ol/source";
-import {dayOfYear, isLeapYear} from "../tools.js";
+import {dayOfYear, isLeapYear, sleep} from "../tools.js";
 
 class PlayController {
     map = null;
@@ -26,7 +26,9 @@ class PlayController {
             }
         }
 
-        this.shiftPeriodically(index);
+        sleep(10000).then(() => {
+            this.shiftPeriodically(index);
+        })
     }
 
     shiftPeriodically(index) {
@@ -35,7 +37,7 @@ class PlayController {
         const start = () => {
             intervalId = setInterval(() => {
                 this.map.getLayers().removeAt(0);
-                this.map.getLayers().insertAt(5, this.tileList[index + 5]);
+                this.map.getLayers().insertAt(5, this.tileList[index + 20]);
                 index++;
             }, 300);
         }
@@ -60,6 +62,7 @@ class PlayController {
             const d = date.getDate();
             const url = `http://172.20.163.79:5000/tiles/sst_tiles/${year}-${(m < 10 ? '0' + m : m)}-${(d < 10 ? '0' + d : d)}/{z}/{x}_{y}.png`;
             this.tileList[i] = new TileLayer({
+                preload: 1,
                 source: new XYZ({
                     url: url
                 })

@@ -1,17 +1,19 @@
 <script setup>
 
-import {nextTick, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch, watchEffect} from "vue";
 import * as d3 from "d3";
 import store from "../../../store/index.js";
+import {floor} from "mathjs";
+import {dateString, fetchWithTimeout} from "../../../js/tools.js";
+import {toLonLat} from "ol/proj";
+import LoadingAnimate from "../animate/LoadingAnimate.vue";
 
 const props = defineProps({
   id: {
     type: String,
     required: true
   },
-  data: {
-    type: Array,
-  },
+  date: Date,
 })
 
 let seasonContainer = ref();
@@ -22,9 +24,65 @@ let display = {
   marginLeft: 40,
 }
 
-watch(() => props.data, () => {
-  svg.selectAll('*').remove();
-  initChart();
+let showDot = computed(() => store.state['popup'].showDot);
+let loaded = ref(false);
+
+let rawData = ref();
+let data = computed(() => {
+  if(rawData.value != null) {
+    let res = [];
+    let startDate = new Date(props.date.getFullYear(), 0, 1);
+
+    for(let i = 0; i < rawData.value.length; i++) {
+      let tmpDate = new Date(startDate);
+      tmpDate.setDate(startDate.getDate() + i);
+      res.push({
+        date: tmpDate,
+        value: rawData.value[i]
+      })
+    }
+    return res;
+  }
+
+  return null;
+
+})
+
+watchEffect(() => {
+  loaded.value = false;
+  if(showDot.value != null) {
+    const temp = store.state['mapForTwo'].points.get(showDot.value);
+    let [lon, lat] = toLonLat(temp.getCoordinate());
+
+    // fetch数据
+    // TODO 目前是直接抹平处理
+    const url = `/data/sst_recent/${floor(lat)}/${floor(lon)}/${dateString(props.date)}`;
+    fetchWithTimeout({url: url, timeout: 10000})
+        .then(response => {
+          if(!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          loaded.value = true;
+          rawData.value = data.row;
+          svg.selectAll('*').remove();
+          initChart();
+        })
+        .catch(error => {
+          if(error.message === 'timeout') {
+            console.log('network request timout!');
+          }
+          else if(error.message === 'Network response was not ok') {
+            console.log('Network response was not ok!');
+
+          }
+          else {
+            console.error('An error occurred at OverlayChart.vue:', error);
+          }
+        });
+  }
 })
 
 let xScale;
@@ -43,8 +101,8 @@ function initChart() {
   xScale.domain([new Date(year, 0, 1), new Date(year, 11, 31)])
 
   let extent = [0, 40];
-  if(props.data) {
-    extent = d3.extent(props.data, d => d.value);
+  if(data.value) {
+    extent = d3.extent(data.value, d => d.value);
     extent[0] -= 1;
     extent[1] += 1;
 
@@ -129,7 +187,7 @@ function initChart() {
       .attr('fill', 'none')
       .attr('stroke', 'url(#myGradient)')
       .attr('stroke-width', 1.5)
-      .attr('d', line(props.data));
+      .attr('d', line(data.value));
 
   const tips = svg.append('g')
       .attr('id', `${props.id}T`)
@@ -198,7 +256,7 @@ function initChart() {
         const offset = event.offsetX - d0 < d1 - event.offsetX ? d0 : d1;
 
 
-        const currentData = props.data.find(d => d.date.getTime() == xScale.invert(offset).getTime());
+        const currentData = data.value.find(d => d.date.getTime() == xScale.invert(offset).getTime());
         if(currentData) {
           svg.select(`#${props.id}GL`)
               .attr('x1', offset)
@@ -309,7 +367,7 @@ function drawAxis(offsetX, z) {
           .attr('stroke-opacity', 0.4));
 
 
-  let subData = props.data.filter((d) => {
+  let subData = data.value.filter((d) => {
     return d.date.getTime() >= newDomain[0].getTime() && d.date.getTime() <= newDomain[1].getTime();
   })
   const yNewDomain = d3.extent(subData, d => d.value);
@@ -335,7 +393,23 @@ function drawAxis(offsetX, z) {
   svg.select(`#${props.id}L`)
       .transition()
       .duration(500)
-      .attr('d', line(props.data));
+      .attr('d', line(data.value));
+}
+
+function initLegend() {
+  const gradient = d3.scaleLinear()
+      .domain([0, 1]) // 定义渐变的范围
+      .range(["red", "blue"]); // 定义渐变的颜色
+
+
+  svg.append('g')
+      .attr('width', 200)
+      .attr('height', 30)
+      .attr('x', w - 220)
+      .attr('y', 10)
+}
+
+function initMeanLine() {
 
 }
 
@@ -352,7 +426,6 @@ onMounted(() => {
     svg.attr('width', w);
     svg.attr('height', h);
     seasonContainer.value.appendChild(svg.node());
-    initChart();
   })
 })
 
@@ -361,6 +434,9 @@ onMounted(() => {
 <template>
 
   <div ref="seasonContainer" class="season-chart-container">
+    <div v-if="!loaded" style="height: 100%; width: 100%; display: grid; place-items: center">
+      <LoadingAnimate></LoadingAnimate>
+    </div>
   </div>
 
 </template>

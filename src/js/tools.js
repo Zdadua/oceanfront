@@ -60,6 +60,13 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function dateString(date) {
+    return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).replaceAll('/', '-');
+}
 
 export {
     coordinateToDMS,
@@ -67,5 +74,6 @@ export {
     fetchWithTimeout,
     isLeapYear,
     dayOfYear,
-    sleep
+    sleep,
+    dateString
 }

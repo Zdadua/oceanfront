@@ -55,8 +55,6 @@ watchEffect(() => {
 
   const url = `/data/sst/${lat}/${lon}/${dateString}`;
 
-  console.log(url);
-
   fetchWithTimeout({url: url, timeout: 10000})
       .then(response => {
         if(!response.ok) {
