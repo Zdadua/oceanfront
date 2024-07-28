@@ -19,10 +19,15 @@ class PlayController {
     }
 
     play() {
+        let view = this.map.getView();
+        let extent = view.calculateExtent(this.map.getSize());
+        let resolution = view.getResolution();
+
         let index = dayOfYear(this.date);
-        for(let i = index + 5; i > index; i--) {
+        for(let i = index + 10; i > index; i--) {
             if(i < this.len) {
                 this.map.getLayers().insertAt(1, this.tileList[i]);
+                this.preLoad(this.tileList[i].getSource());
             }
         }
 
@@ -32,17 +37,36 @@ class PlayController {
     }
 
     shiftPeriodically(index) {
+        let view = this.map.getView();
+        let extent = view.calculateExtent(this.map.getSize());
+        let resolution = view.getResolution();
         index++;
         let intervalId;
         const start = () => {
             intervalId = setInterval(() => {
                 this.map.getLayers().removeAt(0);
-                this.map.getLayers().insertAt(5, this.tileList[index + 20]);
+                this.map.getLayers().item(0).setVisible(true);
+                this.map.getLayers().insertAt(10, this.tileList[index + 10]);
+                this.preLoad(this.tileList[index + 10].getSource());
                 index++;
-            }, 300);
+            }, 1000);
         }
 
         start();
+    }
+
+    preLoad(source) {
+        let view = this.map.getView();
+        let extent = view.calculateExtent(this.map.getSize());
+        let resolution = view.getResolution();
+
+        let tileGrid = source.getTileGridForProjection(view.getProjection());
+        tileGrid.forEachTileCoord(extent, resolution, (tileCoord) => {
+            const tile = source.getTile(tileCoord);
+            if (tile.getState() === 'IDLE') {
+                tile.load();
+            }
+        })
     }
 
     createNextTile() {
@@ -62,9 +86,10 @@ class PlayController {
             const d = date.getDate();
             const url = `http://172.20.163.79:5000/tiles/sst_tiles/${year}-${(m < 10 ? '0' + m : m)}-${(d < 10 ? '0' + d : d)}/{z}/{x}_{y}.png`;
             this.tileList[i] = new TileLayer({
+                visible: false,
                 preload: 1,
                 source: new XYZ({
-                    url: url
+                    url: url,
                 })
             })
 

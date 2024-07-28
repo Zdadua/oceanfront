@@ -7,6 +7,7 @@ import {useStore} from "vuex";
 import {toLonLat} from "ol/proj.js";
 import { fetchWithTimeout } from "../../../js/tools.js";
 import LoadingAnimate from "../animate/LoadingAnimate.vue";
+import {extent} from "d3";
 
 const store = useStore();
 const props = defineProps({
@@ -39,8 +40,30 @@ let date = computed(() => {
 });
 // 是否获取到数据
 let loaded = ref(false);
-let data = ref();
-let timeoutId = ref();
+let rawData = ref();
+let data = computed(() => {
+  if(rawData.value != null) {
+    console.log(rawData.value);
+    let res = [];
+    const startDate = new Date(date.value.getFullYear(), 0, 1);
+    const index = Math.floor((date.value - startDate) / (24 * 3600 * 1000));
+    console.log(index);
+
+    for(let i = -7; i <= 7; i++) {
+      let tmpDate = new Date(date.value);
+      tmpDate.setDate(tmpDate.getDate() + i);
+      res.push({
+        date: tmpDate,
+        value: rawData.value[index + i]
+      })
+    }
+
+    console.log(res);
+    return res;
+  }
+
+  return null;
+})
 
 watchEffect(() => {
   let [lon, lat] = toLonLat(props.coordinate);
@@ -53,7 +76,7 @@ watchEffect(() => {
     day: '2-digit'
   }).replaceAll('/', '-');
 
-  const url = `/data/sst/${lat}/${lon}/${dateString}`;
+  const url = `/data/sst_recent/${lat}/${lon}/${dateString}`;
 
   fetchWithTimeout({url: url, timeout: 10000})
       .then(response => {
@@ -66,7 +89,9 @@ watchEffect(() => {
       .then(data => {
         loaded.value = true;
         // TODO 处理data
-        console.log(data.row);
+        rawData.value = data.row;
+        svg.selectAll('*').remove();
+        initChart();
       })
       .catch(error => {
         if(error.message === 'timeout') {
@@ -83,78 +108,16 @@ watchEffect(() => {
 })
 
 let overlayContainer = ref();
-
-let showDay = computed(() => {
-  const year = store.state['mapForTwo'].year;
-  const month = store.state['mapForTwo'].month;
-  const day = store.state['mapForTwo'].day;
-
-  return new Date(year, month - 1, day);
-})
-
 let xScale;
 let yScale;
 let svg;
 let w = 290;
 let h = 230;
 
-// watch(() => props.data, (newValue) => {
-//   if(newValue != null) {
-//     svg.selectAll('*').remove();
-//     initChart();
-//   }
-// })
-
 
 function initChart() {
-  initScale();
-
-  xScale.domain(props.domain);
-
-  let extent = [0, 40];
-  if(props.data) {
-    extent = d3.extent(props.data, d => d.value);
-    extent[0] -= 1;
-    extent[1] += 1;
-  }
-  yScale.domain(extent);
-
-  let timeFormat = d3.timeFormat("%m-%d");
-  const xAxis = d3.axisBottom(xScale).ticks(6).tickFormat((d, i) => {
-
-    return timeFormat(d);
-  });
-  // 其他刻度保持原样
-  const yAxis = d3.axisLeft(yScale).ticks(6);
-
-  const line = d3.line()
-      .x(d => xScale(d.date))
-      .y(d => yScale(d.value));
-
-  svg.append('g')
-      .attr('transform', `translate(0, ${h - props.options.marginBottom})`)
-      .call(xAxis)
-      .call(g => g.select('.domain')
-          .attr('stroke-opacity', 0.4)
-          .attr('troke-width', 2))
-      .call(g => g.selectAll('.tick line')
-          .attr('stroke-opacity', 0.4))
-
-  svg.append('g')
-      .attr('transform', `translate(${props.options.marginLeft}, 0)`)
-      .call(yAxis)
-      .call(g => g.select('.domain').remove())
-      .call(g => g.selectAll('.tick line').clone()
-          .attr('x2', w - props.options.marginLeft - props.options.marginRight)
-          .attr('stroke-opacity', 0.1))
-      .call(g => g.selectAll('.tick line')
-          .attr('stroke-opacity', 0.1))
-
-  svg.append('path')
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 1.5)
-      .attr('d', line(props.data));
+  initAxis();
+  initLine();
 
   svg.append('text')
       .attr('x', '15px')
@@ -177,7 +140,7 @@ function initChart() {
       .attr('fill', 'rgb(255,0,98)')
       .style('display', 'none');
 
-  const x = xScale(props.data[7].date);
+  const x = xScale(data.value[7].date);
   const todayLine = svg.append('line')
       .attr('stroke', 'black')
       .attr('stroke-width', 2)
@@ -191,7 +154,7 @@ function initChart() {
       .attr('r', 3)
       .attr('fill', 'rgb(65,204,0)')
       .attr('cx', x)
-      .attr('cy', yScale(props.data[7].value))
+      .attr('cy', yScale(data.value[7].value))
 
 
 
@@ -249,8 +212,7 @@ function initChart() {
         const d1 = xScale(tmpDate);
         const offset = event.offsetX - d0 < d1 - event.offsetX ? d0 : d1;
 
-
-        const currentData = props.data.find(d => d.date.getTime() == xScale.invert(offset).getTime());
+        const currentData = data.value.find(d => d.date.getTime() == xScale.invert(offset).getTime());
         if (currentData) {
           guideLine.attr('x1', offset)
               .attr('x2', offset)
@@ -301,10 +263,55 @@ function initChart() {
 function initScale() {
   xScale = d3.scaleTime().range([props.options.marginLeft, w - props.options.marginRight]);
   yScale = d3.scaleLinear().range([h - props.options.marginBottom, props.options.marginTop]);
+
+  const xDomain = [data.value[0].date, data.value[14].date];
+  xScale.domain(xDomain);
+
+  const yDomain = extent(data.value, d => d.value);
+  yScale.domain(yDomain);
+
 }
 
 function initAxis() {
+  initScale();
 
+  let timeFormat = d3.timeFormat("%m-%d");
+  const xAxis = d3.axisBottom(xScale).ticks(6).tickFormat((d, i) => {
+    return timeFormat(d);
+  });
+  // 其他刻度保持原样
+  const yAxis = d3.axisLeft(yScale).ticks(6);
+
+  svg.append('g')
+      .attr('transform', `translate(0, ${h - props.options.marginBottom})`)
+      .call(xAxis)
+      .call(g => g.select('.domain')
+          .attr('stroke-opacity', 0.4)
+          .attr('stroke-width', 2))
+      .call(g => g.selectAll('.tick line')
+          .attr('stroke-opacity', 0.4))
+
+  svg.append('g')
+      .attr('transform', `translate(${props.options.marginLeft}, 0)`)
+      .call(yAxis)
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('.tick line').clone()
+          .attr('x2', w - props.options.marginLeft - props.options.marginRight)
+          .attr('stroke-opacity', 0.1))
+      .call(g => g.selectAll('.tick line')
+          .attr('stroke-opacity', 0.1))
+}
+
+function initLine() {
+  const line = d3.line()
+      .x(d => xScale(d.date))
+      .y(d => yScale(d.value));
+
+  svg.append('path')
+      .attr('fill', 'none')
+      .attr('stroke', 'steelblue')
+      .attr('stroke-width', 1.5)
+      .attr('d', line(data.value));
 }
 
 function createNode() {
