@@ -62,7 +62,6 @@ class SvgOrthographic {
         this.svg.selectAll('path').remove();
 
         if(!this.rotated) {
-            //TODO: 制作旋转过渡
         }
 
         if(!this.centered) {

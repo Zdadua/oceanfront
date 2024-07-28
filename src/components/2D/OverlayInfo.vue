@@ -40,41 +40,6 @@ let xDomain = computed(() => {
 
 let data = ref([]);
 
-// // TODO 请求没有加入时间元素
-// watch(() => store.state['mapForTwo'].day, async (newValue) => {
-//   const year = store.state['mapForTwo'].year;
-//   const month = store.state['mapForTwo'].month;
-//   const startOfYear = new Date(year, 0, 1);
-//   const startDate = xDomain.value[0];
-//
-//   let [lon, lat] = toLonLat(props.coordinate);
-//   lon = floor(lon);
-//   lat = floor(lat);
-//
-//   const response = await fetch('/data/sst/' + lat + '/' + lon);
-//
-//   if(!response.ok) {
-//     console.log('network error!!!');
-//     return;
-//   }
-//
-//   let tmp = await response.text();
-//   let tmpData = tmp.split(',').map((d) => parseFloat(d));
-//   let startIndex = Math.floor((startDate - startOfYear) / (1000 * 60 * 60 * 24));
-//
-//   let resData = tmpData.slice(startIndex, startIndex + 15);
-//   resData = resData.map((d, i) => {
-//     let tmpDate = new Date(startDate);
-//     tmpDate.setDate(startDate.getDate() + i);
-//     return {
-//       date: tmpDate,
-//       value: d
-//     }
-//   });
-//
-//   data.value = resData;
-// },{ immediate: true })
-
 function hideOverlay() {
   hided.value = !hided.value;
 }

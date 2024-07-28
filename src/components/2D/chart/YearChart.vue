@@ -43,9 +43,7 @@ let data = computed(() => {
     }
     return res;
   }
-
   return null;
-
 })
 
 watchEffect(() => {
@@ -87,7 +85,6 @@ watchEffect(() => {
 
 let xScale;
 let yScale;
-let colorScale;
 let line;
 let svg;
 let w;
@@ -95,59 +92,8 @@ let h;
 let zoom = 4;
 const gap = [7, 22, 45, 90];
 function initChart() {
-  // let height = h - display.marginTop - display.marginBottom;
-
-  const year = store.state['mapForTwo'].year;
-  xScale.domain([new Date(year, 0, 1), new Date(year, 11, 31)])
-
-  let extent = [0, 40];
-  if(data.value) {
-    extent = d3.extent(data.value, d => d.value);
-    extent[0] -= 1;
-    extent[1] += 1;
-
-  }
-  yScale.domain(extent);
-  colorScale.domain(extent);
-
-  const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%m-%d"));
-  const yAxis = d3.axisLeft(yScale).ticks(8);
-
-  line = d3.line()
-      .x(d => xScale(d.date))
-      .y(d => yScale(d.value));
-
-  // x轴绘制
-  svg.append('g')
-      .attr('id', `${props.id}X`)
-      .attr('transform', `translate(0, ${h - display.marginBottom})`)
-      .call(xAxis)
-      .call(g => g.select('.domain')
-          .attr('stroke-opacity', 0.4)
-          .attr('stroke-width', 2))
-      .call(g => g.selectAll('.tick line')
-          .attr('stroke-opacity', 0.4))
-
-  // y轴绘制
-  svg.append('g')
-      .attr('id', `${props.id}Y`)
-      .attr('transform', `translate(${display.marginLeft}, 0)`)
-      .call(yAxis)
-      .call(g => g.select('.domain').remove())
-      .call(g => g.selectAll('.tick line').clone()
-          .attr('class', `${props.id}YL`)
-          .attr('x2', w - display.marginLeft - display.marginRight)
-          .attr('stroke-opacity', 0.1))
-      .call(g => g.selectAll('.tick line')
-          .attr('stroke-opacity', 0.1))
-
-  // y轴单位
-  svg.append('text')
-      .attr('x', '20px')
-      .attr('y', '30px')
-      .style('font-size', '.7em')
-      .text('C°');
-
+  initAxis();
+  initLine();
 
   // 指示线
   svg.append('line')
@@ -162,32 +108,6 @@ function initChart() {
       .attr('r', 3)
       .attr('fill', 'rgb(255,0,98)')
       .style('display', 'none');
-
-  const defs = svg.append('defs')
-      .append('linearGradient')
-      .attr('id', 'myGradient')
-      .attr('x1', '0%')
-      .attr('y1', '0%')
-      .attr('x2', '0%')
-      .attr('y2', '100%');
-
-  defs.selectAll('stop')
-      .data([
-        {offset: '0%', color: colorScale(extent[0])},
-        {offset: '100%', color: colorScale(extent[1])}
-      ])
-      .enter()
-      .append('stop')
-      .attr('offset', d => d.offset)
-      .attr('stop-color', d => d.color)
-
-  // 折线绘制(数据部分)
-  svg.append('path')
-      .attr('id', `${props.id}L`)
-      .attr('fill', 'none')
-      .attr('stroke', 'url(#myGradient)')
-      .attr('stroke-width', 1.5)
-      .attr('d', line(data.value));
 
   const tips = svg.append('g')
       .attr('id', `${props.id}T`)
@@ -316,6 +236,8 @@ function initChart() {
           drawAxis(event.offsetX, zoom);
         }
       })
+
+  initLegend();
 }
 
 function drawAxis(offsetX, z) {
@@ -396,35 +318,154 @@ function drawAxis(offsetX, z) {
       .attr('d', line(data.value));
 }
 
-function initLegend() {
-  const gradient = d3.scaleLinear()
-      .domain([0, 1]) // 定义渐变的范围
-      .range(["red", "blue"]); // 定义渐变的颜色
+function initAxis() {
+  initScale();
 
+  const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%m-%d"));
+  const yAxis = d3.axisLeft(yScale).ticks(8);
 
+  line = d3.line()
+      .x(d => xScale(d.date))
+      .y(d => yScale(d.value));
+
+  // x轴绘制
   svg.append('g')
-      .attr('width', 200)
-      .attr('height', 30)
-      .attr('x', w - 220)
-      .attr('y', 10)
+      .attr('id', `${props.id}X`)
+      .attr('transform', `translate(0, ${h - display.marginBottom})`)
+      .call(xAxis)
+      .call(g => g.select('.domain')
+          .attr('stroke-opacity', 0.4)
+          .attr('stroke-width', 2))
+      .call(g => g.selectAll('.tick line')
+          .attr('stroke-opacity', 0.4))
+
+  // y轴绘制
+  svg.append('g')
+      .attr('id', `${props.id}Y`)
+      .attr('transform', `translate(${display.marginLeft}, 0)`)
+      .call(yAxis)
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('.tick line').clone()
+          .attr('class', `${props.id}YL`)
+          .attr('x2', w - display.marginLeft - display.marginRight)
+          .attr('stroke-opacity', 0.1))
+      .call(g => g.selectAll('.tick line')
+          .attr('stroke-opacity', 0.1))
+
+  // y轴单位
+  svg.append('text')
+      .attr('x', '20px')
+      .attr('y', '30px')
+      .style('font-size', '.7em')
+      .text('C°');
 }
 
-function initMeanLine() {
+function initScale() {
+  xScale = d3.scaleTime().range([display.marginLeft, w - display.marginRight]);
+  yScale = d3.scaleLinear().range([h - display.marginBottom, display.marginTop]);
 
+  const year = store.state['mapForTwo'].year;
+  xScale.domain([new Date(year, 0, 1), new Date(year, 11, 31)])
+
+  let extent = [0, 40];
+  if(data.value) {
+    extent = d3.extent(data.value, d => d.value);
+    extent[0] -= 1;
+    extent[1] += 1;
+
+  }
+  yScale.domain(extent);
+}
+
+function initLine() {
+  const defs = svg.append('defs')
+      .append('linearGradient')
+      .attr('id', 'myGradient')
+      .attr('x1', '0%')
+      .attr('y1', '0%')
+      .attr('x2', '0%')
+      .attr('y2', '100%');
+
+  defs.selectAll('stop')
+      .data([
+        {offset: '0%', color: 'red'},
+        {offset: '100%', color: 'blue'}
+      ])
+      .enter()
+      .append('stop')
+      .attr('offset', d => d.offset)
+      .attr('stop-color', d => d.color)
+
+  // 折线绘制(数据部分)
+  svg.append('path')
+      .attr('id', `${props.id}L`)
+      .attr('fill', 'none')
+      .attr('stroke', 'url(#myGradient)')
+      .attr('stroke-width', 1.5)
+      .attr('d', line(data.value));
+}
+
+// TODO 历史平均的legend添加
+function initLegend() {
+  const legendWrapper = svg.append('g')
+      .attr('width', 200)
+      .attr('height', 20)
+      .attr('transform', `translate(${(w - 200)}, 10)`);
+
+  legendWrapper.append('rect')
+      .attr('width', 20)
+      .attr('height', 15)
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('fill', 'url(#myGradient)');
+
+  legendWrapper.append('text')
+      .attr('x', 25)
+      .attr('y', 11)
+      .attr('fill', 'rgb(133,133,133)')
+      .style('font-size', '.7em')
+      .text('今年')
+
+  legendWrapper.append('rect')
+      .attr('width', 20)
+      .attr('height', 15)
+      .attr('x', 100)
+      .attr('y', 0)
+      .attr('fill', 'rgb(250,134,1)');
+
+  legendWrapper.append('text')
+      .attr('x', 125)
+      .attr('y', 11)
+      .attr('fill', 'rgb(133,133,133)')
+      .style('font-size', '.7em')
+      .text('年均')
+
+}
+
+//TODO 平均线添加
+function initMeanLine() {
+  // 折线绘制(数据部分)
+  svg.append('path')
+      .attr('id', `$ML{props.id}`)
+      .attr('fill', 'none')
+      .attr('stroke', 'rgb(250,134,1)')
+      .attr('stroke-width', 1.5)
+      .attr('d', line(mlData.value));
+}
+
+function createNode() {
+  svg = d3.create('svg');
+  svg.attr('id', props.id);
+  svg.attr('width', w);
+  svg.attr('height', h);
 }
 
 onMounted(() => {
   nextTick(() => {
     w = seasonContainer.value.offsetWidth;
     h = seasonContainer.value.offsetHeight;
-    xScale = d3.scaleTime().range([display.marginLeft, w - display.marginRight]);
-    yScale = d3.scaleLinear().range([h - display.marginBottom, display.marginTop]);
-    colorScale = d3.scaleLinear().range(['red', 'blue']);
 
-    svg = d3.create('svg');
-    svg.attr('id', props.id);
-    svg.attr('width', w);
-    svg.attr('height', h);
+    createNode();
     seasonContainer.value.appendChild(svg.node());
   })
 })

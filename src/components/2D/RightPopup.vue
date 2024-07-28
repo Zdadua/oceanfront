@@ -29,6 +29,8 @@ let date = computed(() => {
   return new Date(year, month - 1, day);
 });
 
+let meanData = ref();
+
 let showDot = computed(() => store.state['popup'].showDot);
 watch(showDot, async (newValue) => {
 
@@ -37,6 +39,30 @@ watch(showDot, async (newValue) => {
 
     let [lon, lat] = toLonLat(temp.getCoordinate());
     setLonLat(lon, lat);
+
+    const url = `/data/sst_mean/${floor(lat)}/${floor(lon)}`;
+    fetchWithTimeout({url: url, timeout: 10000})
+        .then(response => {
+          if(!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data);
+        })
+        .catch(error => {
+          if(error.message === 'timeout') {
+            console.log('network request timout!');
+          }
+          else if(error.message === 'Network response was not ok') {
+            console.log('Network response was not ok!');
+
+          }
+          else {
+            console.error('An error occurred at OverlayChart.vue:', error);
+          }
+        });
   }
 
 }, {immediate: true})

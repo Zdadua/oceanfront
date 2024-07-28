@@ -43,11 +43,9 @@ let loaded = ref(false);
 let rawData = ref();
 let data = computed(() => {
   if(rawData.value != null) {
-    console.log(rawData.value);
     let res = [];
     const startDate = new Date(date.value.getFullYear(), 0, 1);
     const index = Math.floor((date.value - startDate) / (24 * 3600 * 1000));
-    console.log(index);
 
     for(let i = -7; i <= 7; i++) {
       let tmpDate = new Date(date.value);
@@ -57,8 +55,6 @@ let data = computed(() => {
         value: rawData.value[index + i]
       })
     }
-
-    console.log(res);
     return res;
   }
 
@@ -88,18 +84,24 @@ watchEffect(() => {
       })
       .then(data => {
         loaded.value = true;
-        // TODO 处理data
+        // TODO 后端接口需要调整，现在使用的是一年的数据处理出来15天的数据
         rawData.value = data.row;
-        svg.selectAll('*').remove();
-        initChart();
+        if(rawData.value[0] == null) {
+          noData();
+        }
+        else {
+          svg.selectAll('*').remove();
+          initChart();
+        }
       })
       .catch(error => {
         if(error.message === 'timeout') {
           console.log('network request timout!');
         }
         else if(error.message === 'Network response was not ok') {
-         console.log('Network response was not ok!');
-
+          loaded.value = true;
+          noData();
+          console.log('Network response was not ok!');
         }
         else {
           console.error('An error occurred at OverlayChart.vue:', error);
@@ -312,6 +314,16 @@ function initLine() {
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 1.5)
       .attr('d', line(data.value));
+}
+
+function noData() {
+  svg.append('text')
+      .attr('x', w / 2 - 48)
+      .attr('y', h / 2 + 20)
+      .attr('fill', 'rgb(0, 0, 0)')
+      .style('font-size', '1.5em')
+      .style('font-weight', '900')
+      .text('暂无数据')
 }
 
 function createNode() {

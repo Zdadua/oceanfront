@@ -31,7 +31,7 @@ class PlayController {
             }
         }
 
-        sleep(10000).then(() => {
+        sleep(5000).then(() => {
             this.shiftPeriodically(index);
         })
     }
@@ -44,12 +44,17 @@ class PlayController {
         let intervalId;
         const start = () => {
             intervalId = setInterval(() => {
-                this.map.getLayers().removeAt(0);
-                this.map.getLayers().item(0).setVisible(true);
-                this.map.getLayers().insertAt(10, this.tileList[index + 10]);
+
+                this.map.getLayers().item(1).setVisible(true);
+                this.map.getLayers().insertAt(11, this.tileList[index + 10]);
                 this.preLoad(this.tileList[index + 10].getSource());
+
+                setTimeout(() => {
+                    this.map.getLayers().removeAt(0);
+                }, 200);
+
                 index++;
-            }, 1000);
+            }, 600);
         }
 
         start();

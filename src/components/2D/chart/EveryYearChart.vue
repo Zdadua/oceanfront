@@ -20,8 +20,6 @@ const props = defineProps({
   date: Date,
 })
 
-// TODO 拟合线
-
 const store = useStore();
 const everyContainer = ref();
 const display = {
@@ -74,7 +72,6 @@ watchEffect(() => {
           return response.json();
         })
         .then(data => {
-          // TODO 处理data
           loaded.value = true;
           rawData.value = data.column;
           svg.selectAll('*').remove();
@@ -108,6 +105,8 @@ watch(() => props.data, () => {
 function initChart() {
   initAxis();
   initLine();
+  initTips();
+  setListener();
 }
 
 function noData() {
@@ -245,13 +244,13 @@ function setListener() {
   });
 
   listenerPlane.on('mouseout', () => {
-    svg.select(`#${props.id}GL`)
+    svg.select(`#GL${props.id}`)
         .style('display', 'none');
 
-    svg.select(`#${props.id}T`)
+    svg.select(`#T${props.id}`)
         .style('display', 'none');
 
-    svg.select(`#${props.id}P`)
+    svg.select(`#P${props.id}`)
         .style('display', 'none');
   });
 
@@ -261,7 +260,7 @@ function setListener() {
     const d1 = xScale(ceil(currentX));
     const offset = event.offsetX - d0 < d1 - event.offsetX ? d0 : d1;
 
-    const currentData = data.value.find(d => d.date.getTime() == xScale.invert(offset).getTime());
+    const currentData = data.value.find(d => d.year === xScale.invert(offset));
     if(currentData) {
       svg.select(`#GL${props.id}`)
           .attr('x1', offset)
@@ -269,12 +268,8 @@ function setListener() {
           .attr('y1', display.marginTop)
           .attr('y2', h - display.marginBottom);
 
-      let dateString = currentData.date.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-      });
-
       tips.select(`#D${props.id}`)
-          .text(dateString);
+          .text(currentData.year);
 
       tips.select(`#TEMP${props.id}`)
           .text('海表温度: ' + currentData.value);
