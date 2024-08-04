@@ -21,9 +21,8 @@
 }
 
 #info-container{
-
-    background-image: radial-gradient(100% 100% at 50% 0%, #000000 45%, #1e1e1e 100%);
-    margin-bottom: 50px;
+    background-image: linear-gradient(to bottom, black 20%, rgba(22, 126, 202, 0.86) 100%);
+    padding: 50px 0;
 
     #grid-container {
         margin: 0 auto;
@@ -62,6 +61,8 @@
 #three-earth-container {
     height: 850px;
     background-color: black;
+
+
 }
 
 #pic-container {

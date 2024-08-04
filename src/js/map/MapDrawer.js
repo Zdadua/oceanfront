@@ -9,6 +9,7 @@ import "../../styles/map/twoDimensionMap.css";
 import {Point} from "ol/geom";
 import {Icon, Style} from "ol/style";
 import {DotOverlay} from "./DotOverlay.js";
+import {ScaleLine} from "ol/control.js";
 
 
 

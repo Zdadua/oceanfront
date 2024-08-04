@@ -207,14 +207,17 @@ function initChart() {
         guideCircle.style('display', 'none');
       })
       .on('mousemove', (event) => {
+        // TODO 有些点无法显示 原因未知
         const currentX = xScale.invert(event.offsetX);
-        const tmpDate = new Date(currentX.getFullYear(), currentX.getMonth(), currentX.getDate());
-        const d0 = xScale(tmpDate);
-        tmpDate.setDate(tmpDate.getDate() + 1);
-        const d1 = xScale(tmpDate);
-        const offset = event.offsetX - d0 < d1 - event.offsetX ? d0 : d1;
 
-        const currentData = data.value.find(d => d.date.getTime() == xScale.invert(offset).getTime());
+        const firstDate = new Date(currentX.getFullYear(), currentX.getMonth(), currentX.getDate());
+        const d0 = xScale(firstDate);
+        const secondDate = new Date(firstDate);
+        secondDate.setDate(firstDate.getDate() + 1);
+        const d1 = xScale(secondDate);
+        const [offset, chosenDate] = event.offsetX - d0 <= d1 - event.offsetX ? [d0, firstDate] : [d1, secondDate];
+
+        const currentData = data.value.find(d => d.date.getTime() === chosenDate.getTime());
         if (currentData) {
           guideLine.attr('x1', offset)
               .attr('x2', offset)
@@ -324,6 +327,13 @@ function noData() {
       .style('font-size', '1.5em')
       .style('font-weight', '900')
       .text('暂无数据')
+
+  svg.append('image')
+      .attr('x', w / 2 - 30)
+      .attr('y', h / 2 - 70)
+      .attr('width', 60)
+      .attr('height', 60)
+      .attr('xlink:href', './src/assets/svg/warning.svg')
 }
 
 function createNode() {

@@ -1,5 +1,7 @@
 <script setup>
 
+// TODO 在切换节点时，表格有抖动的情况
+
 import YearChart from "./chart/YearChart.vue";
 import {useStore} from "vuex";
 import {computed, onMounted, ref, watch} from "vue";

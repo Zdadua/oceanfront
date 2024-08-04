@@ -49,6 +49,7 @@ function modeClick() {
 
 .toggle-btn-container {
   position: relative;
+  margin-bottom: 10px;
 }
 
 .icon-wrapper {

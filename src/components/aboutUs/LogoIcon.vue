@@ -22,11 +22,11 @@ onMounted(() => {
   anime({
     targets: '#grid-container .small-cube',
     scale: [
-      {value: .5, easing: 'easeOutSine', duration: 500},
-      {value: 1, easing: 'easeInOutQuad', duration: 1200},
-      {value: 1, duration: 3000}
+      {value: .6, easing: 'easeOutSine', duration: 300},
+      {value: 1, easing: 'easeInOutQuad', duration: 300},
+      {value: 1, duration: 5000}
     ],
-    delay: anime.stagger(20, {grid: [21, 56], from: 'center'}),
+    delay: anime.stagger(20, {grid: [56, 21], from: 'center'}),
     loop: true,
   })
 })

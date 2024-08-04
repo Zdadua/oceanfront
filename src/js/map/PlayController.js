@@ -31,7 +31,7 @@ class PlayController {
             }
         }
 
-        sleep(5000).then(() => {
+        sleep(10000).then(() => {
             this.shiftPeriodically(index);
         })
     }
@@ -44,17 +44,16 @@ class PlayController {
         let intervalId;
         const start = () => {
             intervalId = setInterval(() => {
-
                 this.map.getLayers().item(1).setVisible(true);
                 this.map.getLayers().insertAt(11, this.tileList[index + 10]);
                 this.preLoad(this.tileList[index + 10].getSource());
 
                 setTimeout(() => {
                     this.map.getLayers().removeAt(0);
-                }, 200);
+                }, 400);
 
                 index++;
-            }, 600);
+            }, 800);
         }
 
         start();
@@ -66,7 +65,7 @@ class PlayController {
         let resolution = view.getResolution();
 
         let tileGrid = source.getTileGridForProjection(view.getProjection());
-        tileGrid.forEachTileCoord(extent, resolution, (tileCoord) => {
+        tileGrid.forEachTileCoord(extent, 2, (tileCoord) => {
             const tile = source.getTile(tileCoord);
             if (tile.getState() === 'IDLE') {
                 tile.load();

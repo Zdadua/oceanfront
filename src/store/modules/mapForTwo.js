@@ -18,7 +18,9 @@ const state = () => ({
     * 3: 按钮不可控，右侧
     * */
     showMode: 0,
+    heatMode: 0,
     draggable: 0,
+    unit: 0,
 
     // dotOverlay对象数组
     points: new Map(),
@@ -53,16 +55,39 @@ const mutations = {
         let source = state.map.getLayers().getArray().at(2).getSource();
 
         let dotOverlay = state.points.get(state.lastPoint);
-        for(let i = state.lastPoint - 1; i >= 0; i--) {
-            if(state.points.has(i)) {
-                state.map.removeOverlay(state.points.get(i).getOverlay());
-                state.points.delete(i);
+
+        if(dotOverlay != null) {
+            for(let i = state.lastPoint - 1; i >= 0; i--) {
+                if(state.points.has(i)) {
+                    state.map.removeOverlay(state.points.get(i).getOverlay());
+                    state.points.delete(i);
+                }
             }
+
+            source.clear(true);
+            source.addFeature(dotOverlay.getDotFeature());
+            source.addFeature(dotOverlay.getLineFeature());
+        }
+    },
+
+    heatMode(state) {
+        state.heatMode = !state.heatMode;
+        let layer = state.map.getLayers().getArray().at(0);
+        let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+        let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
+
+        if(state.heatMode === 0) {
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+            }))
+        }
+        else {
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/tiles/heatwave_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+            }))
         }
 
-        source.clear(true);
-        source.addFeature(dotOverlay.getDotFeature());
-        source.addFeature(dotOverlay.getLineFeature());
+
     },
 
     draggable(state) {
@@ -148,6 +173,12 @@ const mutations = {
             }
         }
     },
+
+    changeUnit(state) {
+        state.unit = !state.unit;
+    }
+
+
 }
 
 export default {

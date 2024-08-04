@@ -14,9 +14,6 @@ const props = defineProps({
     type: String,
     required: true
   },
-  data: {
-    type: Array,
-  },
   date: Date,
 })
 
@@ -58,6 +55,9 @@ let data = computed(() => {
 watchEffect(() => {
   loaded.value = false;
   if(showDot.value != null) {
+    if(svg != null) {
+      svg.selectAll('*').remove();
+    }
     const temp = store.state['mapForTwo'].points.get(showDot.value);
     let [lon, lat] = toLonLat(temp.getCoordinate());
 
@@ -74,7 +74,6 @@ watchEffect(() => {
         .then(data => {
           loaded.value = true;
           rawData.value = data.column;
-          svg.selectAll('*').remove();
           initChart();
         })
         .catch(error => {
@@ -82,8 +81,9 @@ watchEffect(() => {
             console.log('network request timout!');
           }
           else if(error.message === 'Network response was not ok') {
+            loaded.value = true;
+            noData();
             console.log('Network response was not ok!');
-
           }
           else {
             console.error('An error occurred at OverlayChart.vue:', error);
@@ -92,25 +92,11 @@ watchEffect(() => {
   }
 })
 
-watch(() => props.data, () => {
-  if(props.data != null) {
-    svg.selectAll('*').remove();
-    initChart();
-  }
-  else {
-    noData();
-  }
-});
-
 function initChart() {
   initAxis();
   initLine();
   initTips();
   setListener();
-}
-
-function noData() {
-
 }
 
 function initAxis() {
@@ -306,6 +292,23 @@ function setListener() {
 
 }
 
+function noData() {
+  svg.append('text')
+      .attr('x', w / 2 - 48)
+      .attr('y', h / 2 + 20)
+      .attr('fill', 'rgb(0, 0, 0)')
+      .style('font-size', '1.5em')
+      .style('font-weight', '900')
+      .text('暂无数据')
+
+  svg.append('image')
+      .attr('x', w / 2 - 30)
+      .attr('y', h / 2 - 70)
+      .attr('width', 60)
+      .attr('height', 60)
+      .attr('xlink:href', './src/assets/svg/warning.svg')
+}
+
 
 function createNode() {
   svg = d3.create('svg');
@@ -321,8 +324,6 @@ onMounted(() => {
   createNode();
   everyContainer.value.appendChild(svg.node());
 })
-
-
 
 </script>
 

@@ -46,9 +46,21 @@ let data = computed(() => {
   return null;
 })
 
+let xScale;
+let yScale;
+let line;
+let svg;
+let w;
+let h;
+let zoom = 4;
+const gap = [7, 22, 45, 90];
+
 watchEffect(() => {
   loaded.value = false;
   if(showDot.value != null) {
+    if(svg != null) {
+      svg.selectAll('*').remove();
+    }
     const temp = store.state['mapForTwo'].points.get(showDot.value);
     let [lon, lat] = toLonLat(temp.getCoordinate());
 
@@ -65,7 +77,6 @@ watchEffect(() => {
         .then(data => {
           loaded.value = true;
           rawData.value = data.row;
-          svg.selectAll('*').remove();
           initChart();
         })
         .catch(error => {
@@ -73,8 +84,9 @@ watchEffect(() => {
             console.log('network request timout!');
           }
           else if(error.message === 'Network response was not ok') {
+            loaded.value = true;
+            noData();
             console.log('Network response was not ok!');
-
           }
           else {
             console.error('An error occurred at OverlayChart.vue:', error);
@@ -83,14 +95,7 @@ watchEffect(() => {
   }
 })
 
-let xScale;
-let yScale;
-let line;
-let svg;
-let w;
-let h;
-let zoom = 4;
-const gap = [7, 22, 45, 90];
+
 function initChart() {
   initAxis();
   initLine();
@@ -169,15 +174,26 @@ function initChart() {
       })
       .on('mousemove', (event) => {
         const currentX = xScale.invert(event.offsetX);
-        const tmpDate = new Date(currentX.getFullYear(), currentX.getMonth(), currentX.getDate());
-        const d0 = xScale(tmpDate);
-        tmpDate.setDate(tmpDate.getDate() + 1);
-        const d1 = xScale(tmpDate);
-        const offset = event.offsetX - d0 < d1 - event.offsetX ? d0 : d1;
+
+        const firstDate = new Date(currentX.getFullYear(), currentX.getMonth(), currentX.getDate());
+        const d0 = xScale(firstDate);
+        const secondDate = new Date(firstDate);
+        secondDate.setDate(firstDate.getDate() + 1);
+        const d1 = xScale(secondDate);
+        const [offset, chosenDate] = event.offsetX - d0 <= d1 - event.offsetX ? [d0, firstDate] : [d1, secondDate];
 
 
-        const currentData = data.value.find(d => d.date.getTime() == xScale.invert(offset).getTime());
-        if(currentData) {
+        const currentData = data.value.find(d => d.date.getTime() === chosenDate.getTime());
+        if(currentData != null && currentData.value != null) {
+          svg.select(`#${props.id}GL`)
+              .style('display', null);
+
+          svg.select(`#${props.id}T`)
+              .style('display', null);
+
+          svg.select(`#${props.id}P`)
+              .style('display', null);
+
           svg.select(`#${props.id}GL`)
               .attr('x1', offset)
               .attr('x2', offset)
@@ -223,6 +239,16 @@ function initChart() {
               .delay(50)
               .duration(100)
               .attr('transform', `translate(${x}, ${y})`);
+        }
+        else {
+          svg.select(`#${props.id}GL`)
+              .style('display', 'none');
+
+          svg.select(`#${props.id}T`)
+              .style('display', 'none');
+
+          svg.select(`#${props.id}P`)
+              .style('display', 'none');
         }
       })
       .on('wheel', (event) => {
@@ -439,7 +465,6 @@ function initLegend() {
       .attr('fill', 'rgb(133,133,133)')
       .style('font-size', '.7em')
       .text('年均')
-
 }
 
 //TODO 平均线添加
@@ -451,6 +476,23 @@ function initMeanLine() {
       .attr('stroke', 'rgb(250,134,1)')
       .attr('stroke-width', 1.5)
       .attr('d', line(mlData.value));
+}
+
+function noData() {
+  svg.append('text')
+      .attr('x', w / 2 - 48)
+      .attr('y', h / 2 + 20)
+      .attr('fill', 'rgb(0, 0, 0)')
+      .style('font-size', '1.5em')
+      .style('font-weight', '900')
+      .text('暂无数据')
+
+  svg.append('image')
+      .attr('x', w / 2 - 30)
+      .attr('y', h / 2 - 70)
+      .attr('width', 60)
+      .attr('height', 60)
+      .attr('xlink:href', './src/assets/svg/warning.svg')
 }
 
 function createNode() {

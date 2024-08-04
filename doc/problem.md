@@ -100,3 +100,11 @@ export default defineConfig({
 
 ## 2024-07-23
 1. 对于选择区域可以制作卷帘
+
+## 2024-07-30
+1. d3的scale的invert可能存在精度问题，不要这样操作:
+```js
+const offset = myScale(value);
+const originValue = myScale.invert(offset);
+// value 不一定等于 originValue
+```
