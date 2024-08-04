@@ -46,6 +46,25 @@ let data = computed(() => {
   return null;
 })
 
+let rawMeanData = ref();
+let meanData = computed(() => {
+  if(rawMeanData.value != null) {
+    let res = [];
+    let startDate = new Date(props.date.getFullYear(), 0, 1);
+
+    for(let i = 0; i < rawData.value.length; i++) {
+      let tmpDate = new Date(startDate);
+      tmpDate.setDate(startDate.getDate() + i);
+      res.push({
+        date: tmpDate,
+        value: rawMeanData.value[i]
+      })
+    }
+    return res;
+  }
+  return null;
+})
+
 let xScale;
 let yScale;
 let line;
@@ -67,7 +86,9 @@ watchEffect(() => {
     // fetch数据
     // TODO 目前是直接抹平处理
     const url = `/data/sst_recent/${floor(lat)}/${floor(lon)}/${dateString(props.date)}`;
-    fetchWithTimeout({url: url, timeout: 10000})
+    const meanUrl = `/data/sst_mean/${floor(lat)}/${floor(lon)}`;
+
+    const fetchData = fetchWithTimeout({url: url, timeout: 10000})
         .then(response => {
           if(!response.ok) {
             throw new Error('Network response was not ok');
@@ -75,23 +96,51 @@ watchEffect(() => {
           return response.json();
         })
         .then(data => {
-          loaded.value = true;
           rawData.value = data.row;
-          initChart();
         })
         .catch(error => {
           if(error.message === 'timeout') {
             console.log('network request timout!');
           }
           else if(error.message === 'Network response was not ok') {
-            loaded.value = true;
-            noData();
             console.log('Network response was not ok!');
           }
           else {
             console.error('An error occurred at OverlayChart.vue:', error);
           }
         });
+
+    const fetchMeanData = fetchWithTimeout({url: meanUrl, timeout: 10000})
+        .then(response => {
+          if(!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          rawMeanData.value = data.column;
+        })
+        .catch(error => {
+          if(error.message === 'timeout') {
+            console.log('network request timout!');
+          }
+          else if(error.message === 'Network response was not ok') {
+            console.log('Network response was not ok!');
+          }
+          else {
+            console.error('An error occurred at OverlayChart.vue:', error);
+          }
+        });
+
+    Promise.all([fetchData, fetchMeanData])
+      .then(() => {
+        loaded.value = true;
+        initChart();
+      })
+      .catch(error => {
+        loaded.value = true;
+        noData();
+      })
   }
 })
 
@@ -137,8 +186,15 @@ function initChart() {
   tips.append('text')
       .attr('id', `${props.id}TEMP`)
       .attr('x', 20)
-      .attr('y', 55)
-      .text('hhh')
+      .attr('y', 50)
+      .style("font-size", "15px")
+      .style("font-family", "UNSII, sans-serif")
+      .style("fill", "black");
+
+  tips.append('text')
+      .attr('id', `${props.id}MEAN`)
+      .attr('x', 20)
+      .attr('y', 70)
       .style("font-size", "15px")
       .style("font-family", "UNSII, sans-serif")
       .style("fill", "black");
@@ -184,6 +240,8 @@ function initChart() {
 
 
         const currentData = data.value.find(d => d.date.getTime() === chosenDate.getTime());
+        const meanCurrentData = meanData.value.find(d => d.date.getTime() === chosenDate.getTime());
+
         if(currentData != null && currentData.value != null) {
           svg.select(`#${props.id}GL`)
               .style('display', null);
@@ -211,6 +269,9 @@ function initChart() {
 
           tips.select(`#${props.id}TEMP`)
               .text('海表温度: ' + currentData.value);
+
+          tips.select(`#${props.id}MEAN`)
+              .text('平均温度: ' + meanCurrentData.value);
 
           svg.select('circle')
               .attr('cx', offset)
@@ -342,6 +403,12 @@ function drawAxis(offsetX, z) {
       .transition()
       .duration(500)
       .attr('d', line(data.value));
+
+  svg.select(`#${props.id}M`)
+      .transition()
+      .duration(500)
+      .attr('d', line(meanData.value));
+
 }
 
 function initAxis() {
@@ -391,14 +458,18 @@ function initScale() {
   yScale = d3.scaleLinear().range([h - display.marginBottom, display.marginTop]);
 
   const year = store.state['mapForTwo'].year;
-  xScale.domain([new Date(year, 0, 1), new Date(year, 11, 31)])
+  xScale.domain([new Date(year, 0, 1), new Date(year, 11, 31)]);
 
   let extent = [0, 40];
-  if(data.value) {
-    extent = d3.extent(data.value, d => d.value);
+
+  if(rawData.value && rawMeanData.value) {
+    let extentD = d3.extent(rawData.value);
+    let extentM = d3.extent(rawMeanData.value);
+
+    extent[0] = extentD[0] < extentM[0] ? extentD[0] : extentM[0];
+    extent[1] = extentD[1] > extentM[1] ? extentD[1] : extentM[1];
     extent[0] -= 1;
     extent[1] += 1;
-
   }
   yScale.domain(extent);
 }
@@ -429,6 +500,13 @@ function initLine() {
       .attr('stroke', 'url(#myGradient)')
       .attr('stroke-width', 1.5)
       .attr('d', line(data.value));
+
+  svg.append('path')
+      .attr('id', `${props.id}M`)
+      .attr('fill', 'none')
+      .attr('stroke', 'rgb(250,134,1)')
+      .attr('stroke-width', 1.5)
+      .attr('d', line(meanData.value));
 }
 
 // TODO 历史平均的legend添加
@@ -465,17 +543,6 @@ function initLegend() {
       .attr('fill', 'rgb(133,133,133)')
       .style('font-size', '.7em')
       .text('年均')
-}
-
-//TODO 平均线添加
-function initMeanLine() {
-  // 折线绘制(数据部分)
-  svg.append('path')
-      .attr('id', `$ML{props.id}`)
-      .attr('fill', 'none')
-      .attr('stroke', 'rgb(250,134,1)')
-      .attr('stroke-width', 1.5)
-      .attr('d', line(mlData.value));
 }
 
 function noData() {

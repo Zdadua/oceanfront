@@ -1,116 +1,173 @@
 <script setup>
 
-import {computed, onMounted} from "vue";
-import {PlayController} from "../../../js/map/PlayController.js";
+import {computed, onMounted, ref} from "vue";
+import * as d3 from "d3";
 import {useStore} from "vuex";
-import {isLeapYear} from "../../../js/tools.js";
 
 const store = useStore();
-let controller;
+let container = ref();
 
-let offset = computed(() => {
-  let year = store.state['mapForTwo'].year;
-  if(isLeapYear(year)) {
-    return 680 / 366;
-  }
-  return 680 / 365;
-})
+let year = computed(() => store.state['mapForTwo'].year);
+let month = ref();
+let day = ref();
 
-function playClick() {
-  if(controller == null) {
-    controller = new PlayController(store.state['mapForTwo'].map);
-  }
-  controller.play();
+let margin = {
+  marginLeft: 20,
+  marginRight: 20,
+  marginBottom: 40
+};
+let svg;
+let cursor;
+let pane;
+let w;
+let h;
+let xScale;
+let tips;
+
+function init() {
+  initAxis();
+  initPane();
+  initCursor();
+  initTips();
+  initListener();
 }
+
+function initPane() {
+  pane = svg.append('rect')
+      .attr('id', 'pane')
+      .attr('width', w)
+      .attr('height', h)
+      .attr('fill', 'transparent')
+}
+
+function initListener() {
+
+  pane.on('click', (event) => {
+    const tmpDate = xScale.invert(event.offsetX);
+    month.value = tmpDate.getMonth() + 1;
+    day.value = tmpDate.getDate();
+    const date = new Date(Date.UTC(tmpDate.getFullYear(), tmpDate.getMonth(), tmpDate.getDate()));
+
+    cursor.attr('x', xScale(date) - 10);
+    tips.attr('transform', `translate(${xScale(date) - 20}, 15)`);
+
+    tips.select('#date-tips').text(`${month.value < 10 ? ('0' + month.value) : month.value}/${day.value < 10 ? ('0' + day.value) : day.value}`);
+  });
+
+  cursor.on('mouseover', (event) => {
+    svg.select('#tips')
+        .style('display', null)
+    })
+    .on('mouseout', (event) => {
+      svg.select('#tips')
+          .style('display', 'none')
+    })
+}
+
+function initCursor() {
+  cursor = svg.append('image')
+      .attr('width', 20)
+      .attr('height', 20)
+      .attr('xlink:href', './src/assets/svg/cursor.svg')
+
+  const date = new Date(Date.UTC(year.value, month.value - 1, day.value));
+  let x = xScale(date) - 10;
+  let y = h - margin.marginBottom - 20;
+
+  cursor.attr('x', x)
+      .attr('y', y);
+}
+
+function initTips() {
+  tips = svg.append('g')
+      .attr('id', 'tips')
+      .style('display', 'none');
+
+  tips.append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', 45)
+      .attr('height', 20)
+      .attr('fill', 'rgb(62,62,62)')
+      .attr('stroke', 'rgb(39,39,39)')
+      .attr('stroke-width', 1)
+
+  tips.append('text')
+      .attr('x', 3)
+      .attr('y', 14)
+      .attr('id', 'date-tips')
+      .style("font-size", "14px")
+      .style("font-family", "sans-serif")
+      .style("fill", 'rgb(251,251,251)')
+      .text(`${month.value < 10 ? ('0' + month.value) : month.value}/${day.value < 10 ? ('0' + day.value) : day.value}`);
+
+
+
+  const x = cursor.attr('x') - 10;
+  const y = 15;
+
+  tips.attr('transform', `translate(${x}, ${y})`);
+}
+
+function initAxis() {
+  initScale();
+
+  const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%B')).ticks(d3.timeMonth.every(1));
+
+  svg.append('g')
+      .attr('id', 'x-axis')
+      .attr('transform', `translate(0, ${h - margin.marginBottom})`)
+      .call(xAxis)
+      .call(g => g.select('.domain')
+          .attr('stroke-opacity', 1)
+          .attr('stroke-width', 2))
+}
+
+function initScale() {
+  xScale = d3.scaleUtc();
+  xScale.range([margin.marginLeft, w - margin.marginRight]);
+  xScale.domain([new Date(year.value, 0, 1), new Date(year.value, 11, 31)]);
+}
+
+function createNode() {
+  svg = d3.create('svg')
+      .attr('id', 'line-svg')
+      .attr('width', w)
+      .attr('height', h);
+}
+
+onMounted(() => {
+  w = container.value.offsetWidth;
+  h = container.value.offsetHeight;
+
+  month.value = store.state['mapForTwo'].month;
+  day.value = store.state['mapForTwo'].day;
+
+  createNode();
+  container.value.appendChild(svg.node());
+
+  init();
+})
 
 </script>
 
 <template>
+  <div ref="container" id="line-container">
 
-  <div id="time-line-container">
-    <div id="play-btn-wrapper" class="btn-wrapper" @click="playClick">
-      <img src="../../../assets/svg/play.svg" alt="play" width="10" height="10">
-    </div>
-
-    <div id="line-wrapper">
-      <div id="main-line">
-
-      </div>
-      <div id="cursor">
-        <div id="triangle">
-        </div>
-      </div>
-    </div>
-
-    <div id="change-unit-wrapper" class="btn-wrapper" @click="">
-      <img src="../../../assets/svg/changeUnit.svg" alt="changeUnit" width="30" height="30">
-    </div>
   </div>
 
 </template>
 
 <style scoped>
 
-  #time-line-container {
-    height: 50px;
-    width: 800px;
-    background-color: white;
-    border-radius: 25px;
-    box-shadow: 2px 2px 5px rgba(55, 55, 55, 0.2);
-    box-sizing: border-box;
+#line-container {
+  height: 100px;
+}
 
-    position: relative;
-
-    display: grid;
-    grid-template-columns: 50px 1fr 50px;
+.pane-hover {
+  &:hover {
+    cursor: pointer;
   }
-
-  .btn-wrapper {
-    width: 30px;
-    height: 30px;
-    border-radius: 15px;
-    background-color: #0072ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    place-self: center;
-  }
-
-  #line-wrapper {
-    width: calc(100% - 20px);
-    margin: 0 10px;
-    height: 100%;
-
-    position: relative;
-  }
-
-  #cursor {
-    width: 2px;
-    height: 30px;
-    position: absolute;
-    background-color: #0072ff;
-
-    #triangle {
-      width: 0;
-      height: 0;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-bottom: 10px solid blue;
-
-      position: absolute;
-      bottom: -2px;
-      left: -4px;
-    }
-  }
-
-  #main-line {
-    border-radius: 5px;
-    height: 3px;
-    width: 100%;
-    background-color: black;
-    top: 20px;
-    position: absolute;
-  }
+}
 
 </style>

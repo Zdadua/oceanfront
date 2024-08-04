@@ -72,7 +72,7 @@ watchEffect(() => {
     day: '2-digit'
   }).replaceAll('/', '-');
 
-  const url = `/data/sst_recent/${lat}/${lon}/${dateString}`;
+  const url = `/data/sst_15/${lat}/${lon}/${dateString}`;
 
   fetchWithTimeout({url: url, timeout: 10000})
       .then(response => {
@@ -86,6 +86,7 @@ watchEffect(() => {
         loaded.value = true;
         // TODO 后端接口需要调整，现在使用的是一年的数据处理出来15天的数据
         rawData.value = data.row;
+        console.log(data.row)
         if(rawData.value[0] == null) {
           noData();
         }
@@ -272,7 +273,8 @@ function initScale() {
   const xDomain = [data.value[0].date, data.value[14].date];
   xScale.domain(xDomain);
 
-  const yDomain = extent(data.value, d => d.value);
+  const yDomain = extent(data.value, d => parseFloat(d.value));
+  console.log(yDomain);
   yScale.domain(yDomain);
 
 }

@@ -162,7 +162,9 @@ onMounted(() => {
         <span style="font-size: 3em; color: white; font-family: Arial, serif; font-weight: 800; width: 100px; line-height: 250px;" :class="{'percent-animation': precisionShow}">%</span>
       </div>
       <div v-show="precisionShow" id="precise-info-container" style="grid-column: 4 / 5;">
-        <div style="grid-column: 1 / 3" class="info-box" :class="{'info-box-animation': precisionShow}"></div>
+        <div style="grid-column: 1 / 3" class="info-box" :class="{'info-box-animation': precisionShow}">
+          <span class="info-text">ConvLSTM</span>
+        </div>
         <div v-show="precisionShow" style="grid-column: 3 / 4; height: 120px; display: grid">
           <svg style="place-self: center;" id="plus-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="50" height="50"
                viewBox="0 0 8.2 8.21" xml:space="preserve">
@@ -173,7 +175,9 @@ onMounted(() => {
 	C3.87,6.66,3.68,6.47,3.68,6.24z"/>
 </svg>
         </div>
-        <div style="grid-column: 4 / 6" class="info-box" :class="{'info-box-animation': precisionShow}"></div>
+        <div style="grid-column: 4 / 6" class="info-box" :class="{'info-box-animation': precisionShow}">
+          <span class="info-text">ConvGRU</span>
+        </div>
         <div style="grid-column: 1 / 6">
 
         </div>
@@ -259,6 +263,16 @@ onMounted(() => {
     height: 120px;
     border-radius: 20px;
     border: 2px solid #00b2ff;
+    box-shadow: 1px 1px 10px rgba(0, 210, 255, 0.82);
+    transition: background-color .3s ease-in-out, transform .3s ease-in-out;
+    display: grid;
+
+    &:hover {
+      cursor: pointer;
+      background-color: white;
+      transform: translate(-3px, -3px);
+    }
+
   }
 
   .info-box-animation {
@@ -337,6 +351,15 @@ onMounted(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.info-text {
+  color: white;
+  font-size: 3em;
+  font-family: sans-serif;
+  font-weight: 900;
+
+  place-self: center;
 }
 
 </style>

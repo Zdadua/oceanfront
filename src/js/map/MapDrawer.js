@@ -105,7 +105,6 @@ class MapDrawer {
                     store.commit('mapForTwo/pushPoint', dotOverlay);
                 })
             }
-
         })
     }
 

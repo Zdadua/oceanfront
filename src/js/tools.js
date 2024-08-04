@@ -68,6 +68,17 @@ function dateString(date) {
     }).replaceAll('/', '-');
 }
 
+function daysToDate(year, days) {
+    let date = new Date(year, 0, 1);
+    let tmpDate = new Date(date);
+    tmpDate.setDate(tmpDate.getDate() + days);
+
+    return {
+        month: tmpDate.getMonth() + 1,
+        day: tmpDate.getDate(),
+    }
+}
+
 export {
     coordinateToDMS,
     lonLatToDMS,
@@ -75,5 +86,6 @@ export {
     isLeapYear,
     dayOfYear,
     sleep,
-    dateString
+    dateString,
+    daysToDate
 }

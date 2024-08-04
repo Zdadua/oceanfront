@@ -141,10 +141,10 @@ function initScale() {
   xScale = d3.scaleLinear().range([display.marginLeft, w - display.marginRight]);
   yScale = d3.scaleLinear().range([h - display.marginBottom, display.marginTop]);
 
-  const xDomain = d3.extent(data.value, d => d.year);
+  const xDomain = d3.extent(data.value, d => parseInt(d.year));
   xScale.domain(xDomain);
 
-  const yDomain = d3.extent(data.value, d => d.value);
+  const yDomain = d3.extent(data.value, d => parseFloat(d.value));
   yDomain[0] -= 1;
   yDomain[1] += 1;
   yScale.domain(yDomain);

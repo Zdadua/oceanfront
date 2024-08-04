@@ -71,7 +71,7 @@ const mutations = {
     },
 
     heatMode(state) {
-        state.heatMode = !state.heatMode;
+        state.heatMode = state.heatMode === 0 ? 1 : 0;
         let layer = state.map.getLayers().getArray().at(0);
         let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
         let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
@@ -128,6 +128,15 @@ const mutations = {
         // console.log(dotOverlay.)
     },
 
+    addOneDay(state) {
+        const tmpDate = new Date(state.year, state.month - 1, state.day);
+        tmpDate.setDate(tmpDate.getDate() + 1);
+
+        state.year = tmpDate.getFullYear();
+        state.month = tmpDate.getMonth() + 1;
+        state.day = tmpDate.getDate();
+    },
+
     year(state, y) {
         state.year = y;
     },
@@ -151,9 +160,17 @@ const mutations = {
             let layer = state.map.getLayers().getArray().at(0);
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
-            layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
-            }))
+
+            if(state.heatMode === 0) {
+                layer.setSource(new XYZ({
+                    url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                }))
+            }
+            else {
+                layer.setSource(new XYZ({
+                    url: `http://172.20.163.79:5000/tiles/heatwave_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                }))
+            }
         }
 
         state.year = state.tmpYear;

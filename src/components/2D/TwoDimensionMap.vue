@@ -1,16 +1,16 @@
 <script setup>
 
-import {computed, createApp, createVNode, defineAsyncComponent, nextTick, onMounted, ref} from "vue";
+import {computed, nextTick, onMounted, ref} from "vue";
 import { MapDrawer } from "../../js/map/MapDrawer.js";
 import SearchBar from "./SearchBar.vue";
-import TimeLine from "./timeLine/TimeLine.vue";
-import ToggleButton from "./ToggleButton.vue";
+import TimeLineButton from "./timeLine/TimeLineButton.vue";
 import CalendarCom from "./CalendarCom.vue";
 import ColorScale from "./ColorScale.vue";
 import CommonControls from "./CommonControls.vue";
 import RightPopup from "./RightPopup.vue";
 import ButtonField from "./buttonField/ButtonField.vue";
 import {useStore} from "vuex";
+import TimeLine from "./timeLine/TimeLine.vue";
 
 let store = useStore();
 let mapContainer = ref();
@@ -65,10 +65,6 @@ onMounted(() => {
       <ButtonField></ButtonField>
     </div>
 
-    <div id="calendar-container" class="ui-control">
-      <CalendarCom></CalendarCom>
-    </div>
-
     <div id="color-scale-container" class="ui-control" :style="{'right': (30 + offset) + 'px'}">
       <ColorScale></ColorScale>
     </div>
@@ -81,8 +77,14 @@ onMounted(() => {
       <RightPopup></RightPopup>
     </div>
 
+    <div id="bottom-container" class="ui-control">
+      <CalendarCom style="grid-column: 2 / 3; place-self: center;"></CalendarCom>
+      <TimeLineButton style="grid-column: 4 / 5; place-self: center;"></TimeLineButton>
+      <TimeLine style="grid-column: 6 / 7; align-self: end"></TimeLine>
+    </div>
+
     <div id="time-line-wrapper" class="ui-control" :style="{'left': '350px', 'bottom': '25px'}">
-      <TimeLine></TimeLine>
+
     </div>
 
 <!--    <div id="controls-container" class="ui-control">-->
@@ -204,6 +206,14 @@ onMounted(() => {
 #btn-field-wrapper {
   left: 0;
   bottom: 400px;
+}
+
+#bottom-container {
+  display: grid;
+  bottom: 0;
+  height: 100px;
+  width: 100vw;
+  grid-template-columns: 30px 250px 30px 90px 30px 1fr 140px;
 }
 
 </style>
