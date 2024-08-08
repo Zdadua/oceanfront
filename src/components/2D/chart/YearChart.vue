@@ -96,7 +96,7 @@ watchEffect(() => {
           return response.json();
         })
         .then(data => {
-          rawData.value = data.row;
+          rawData.value = data.row.map(value => parseFloat(value));
         })
         .catch(error => {
           if(error.message === 'timeout') {
@@ -582,7 +582,6 @@ onMounted(() => {
 </script>
 
 <template>
-
   <div ref="seasonContainer" class="season-chart-container">
     <div v-if="!loaded" style="height: 100%; width: 100%; display: grid; place-items: center">
       <LoadingAnimate></LoadingAnimate>
@@ -597,5 +596,4 @@ onMounted(() => {
   width: 100%;
   height: 100%;
 }
-
 </style>

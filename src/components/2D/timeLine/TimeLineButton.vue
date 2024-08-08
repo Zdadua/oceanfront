@@ -2,6 +2,8 @@
 
 import {PlayController} from "../../../js/map/PlayController.js";
 import {useStore} from "vuex";
+import {fromLonLat} from "ol/proj.js";
+import {easeOut} from "ol/easing.js";
 
 const store = useStore();
 let controller;
@@ -10,7 +12,21 @@ function playClick() {
   if(controller == null) {
     controller = new PlayController(store.state['mapForTwo'].map);
   }
-  controller.play();
+  controller.playTest();
+}
+
+function changeUnit() {
+  store.commit('mapForTwo/changeUnit');
+
+  let view = store.state['mapForTwo'].map.getView();
+  view.animate({
+    center: fromLonLat([-117, 43]),
+    zoom: 4,
+    rotation: 0,
+    duration: 600,
+    easing: easeOut
+  });
+
 }
 
 </script>
@@ -21,7 +37,7 @@ function playClick() {
     <div id="play-btn-wrapper" class="btn-wrapper" @click="playClick">
       <img src="../../../assets/svg/play.svg" alt="play" width="10" height="10">
     </div>
-    <div id="change-unit-wrapper" class="btn-wrapper" @click="">
+    <div id="change-unit-wrapper" class="btn-wrapper" style="margin-right: 15px;" @click="changeUnit">
       <img src="../../../assets/svg/changeUnit.svg" alt="changeUnit" width="30" height="30">
     </div>
   </div>

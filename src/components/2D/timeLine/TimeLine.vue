@@ -1,6 +1,6 @@
 <script setup>
 
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch, watchEffect} from "vue";
 import * as d3 from "d3";
 import {useStore} from "vuex";
 
@@ -8,14 +8,11 @@ const store = useStore();
 let container = ref();
 
 let year = computed(() => store.state['mapForTwo'].year);
+let unit = computed(() => store.state['mapForTwo'].unit);
 let month = ref();
 let day = ref();
+let time = ref();
 
-let margin = {
-  marginLeft: 20,
-  marginRight: 20,
-  marginBottom: 40
-};
 let svg;
 let cursor;
 let pane;
@@ -23,6 +20,13 @@ let w;
 let h;
 let xScale;
 let tips;
+
+let margin = {
+  marginLeft: 20,
+  marginRight: 20,
+  marginBottom: 40
+};
+
 
 function init() {
   initAxis();
@@ -41,17 +45,28 @@ function initPane() {
 }
 
 function initListener() {
-
   pane.on('click', (event) => {
-    const tmpDate = xScale.invert(event.offsetX);
-    month.value = tmpDate.getMonth() + 1;
-    day.value = tmpDate.getDate();
-    const date = new Date(Date.UTC(tmpDate.getFullYear(), tmpDate.getMonth(), tmpDate.getDate()));
+    let tmpDate = xScale.invert(event.offsetX);
 
-    cursor.attr('x', xScale(date) - 10);
-    tips.attr('transform', `translate(${xScale(date) - 20}, 15)`);
+    if(unit.value === 0) {
+      const date = new Date(Date.UTC(tmpDate.getFullYear(), tmpDate.getMonth(), tmpDate.getDate()));
 
-    tips.select('#date-tips').text(`${month.value < 10 ? ('0' + month.value) : month.value}/${day.value < 10 ? ('0' + day.value) : day.value}`);
+      store.commit('mapForTwo/year', date.getFullYear());
+      store.commit('mapForTwo/tmpMonth', date.getMonth() + 1);
+      store.commit('mapForTwo/day', date.getDate());
+    }
+    else {
+      let tmp = tmpDate % 6;
+
+      if(tmp < 3) {
+        tmpDate = tmpDate - tmp;
+      }
+      else {
+        tmpDate = tmpDate + (6 - tmp);
+      }
+      store.commit('mapForTwo/time', tmpDate);
+    }
+
   });
 
   cursor.on('mouseover', (event) => {
@@ -61,7 +76,41 @@ function initListener() {
     .on('mouseout', (event) => {
       svg.select('#tips')
           .style('display', 'none')
-    })
+    });
+
+  cursor.call(d3.drag()
+      .on('start', dragStart)
+      .on('drag', drag)
+      .on('end', dragEnd));
+}
+
+let differ = 0;
+function dragStart(event) {
+  event.subject.fx = event.subject.x = parseFloat(cursor.attr('x'));
+  differ = event.x - event.subject.fx;
+}
+
+function drag(event) {
+  const tmpDate = xScale.invert(event.x);
+  const date = new Date(Date.UTC(tmpDate.getFullYear(), tmpDate.getMonth(), tmpDate.getDate()));
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+
+  const x = Math.min(Math.max(event.x - differ, 0), w);
+  const y = 15;
+
+  cursor.attr('x', event.subject.x = x);
+  tips.attr('transform', `translate(${(x - 10)}, ${y})`);
+  tips.select('#date-tips').text(`${m < 10 ? ('0' + m) : m}/${d < 10 ? ('0' + d) : d}`);
+}
+
+function dragEnd(event) {
+  const tmpDate = xScale.invert(event.x);
+  const date = new Date(Date.UTC(tmpDate.getFullYear(), tmpDate.getMonth(), tmpDate.getDate()));
+
+  store.commit('mapForTwo/year', date.getFullYear());
+  store.commit('mapForTwo/tmpMonth', date.getMonth() + 1);
+  store.commit('mapForTwo/day', date.getDate());
 }
 
 function initCursor() {
@@ -70,12 +119,17 @@ function initCursor() {
       .attr('height', 20)
       .attr('xlink:href', './src/assets/svg/cursor.svg')
 
-  const date = new Date(Date.UTC(year.value, month.value - 1, day.value));
-  let x = xScale(date) - 10;
-  let y = h - margin.marginBottom - 20;
-
-  cursor.attr('x', x)
-      .attr('y', y);
+  if(unit.value === 0) {
+    const tmpDate = new Date(Date.UTC(year.value, month.value - 1, day.value));
+    const x = xScale(tmpDate) - 10;
+    cursor.attr('x', x);
+    cursor.attr('y', margin.marginBottom);
+  }
+  else {
+    const x = xScale(time.value) - 10;
+    cursor.attr('x', x);
+    cursor.attr('y', margin.marginBottom);
+  }
 }
 
 function initTips() {
@@ -99,20 +153,32 @@ function initTips() {
       .style("font-size", "14px")
       .style("font-family", "sans-serif")
       .style("fill", 'rgb(251,251,251)')
-      .text(`${month.value < 10 ? ('0' + month.value) : month.value}/${day.value < 10 ? ('0' + day.value) : day.value}`);
 
-
-
-  const x = cursor.attr('x') - 10;
-  const y = 15;
-
-  tips.attr('transform', `translate(${x}, ${y})`);
+  if(unit.value === 0) {
+    const tmpDate = new Date(Date.UTC(year.value, month.value - 1, day.value));
+    const x = xScale(tmpDate) - 10;
+    const y = 15;
+    tips.attr('transform', `translate(${(x - 10)}, ${y})`);
+    tips.select('#date-tips').text(`${month.value < 10 ? ('0' + month.value) : month.value}/${day.value < 10 ? ('0' + day.value) : day.value}`);
+  }
+  else {
+    const x = xScale(time.value) - 10;
+    const y = 15;
+    tips.attr('transform', `translate(${(x - 10)}, ${y})`);
+    tips.select('#date-tips').text(`${(time.value < 10 ? ('0' + time.value) : time.value)}:00`);
+  }
 }
 
 function initAxis() {
   initScale();
 
-  const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%B')).ticks(d3.timeMonth.every(1));
+  let xAxis;
+  if(unit.value === 0) {
+    xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%B')).ticks(d3.timeMonth.every(1));
+  }
+  else {
+    xAxis = d3.axisBottom(xScale).tickValues([0, 6, 12, 18, 24]);
+  }
 
   svg.append('g')
       .attr('id', 'x-axis')
@@ -124,9 +190,38 @@ function initAxis() {
 }
 
 function initScale() {
-  xScale = d3.scaleUtc();
+  if(unit.value === 0) {
+    xScale = d3.scaleUtc();
+    xScale.domain([new Date(year.value, 0, 1), new Date(year.value, 11, 31)]);
+  }
+  else {
+    xScale = d3.scaleLinear();
+    xScale.domain([0, 23]);
+  }
+
   xScale.range([margin.marginLeft, w - margin.marginRight]);
-  xScale.domain([new Date(year.value, 0, 1), new Date(year.value, 11, 31)]);
+}
+
+function redirect() {
+  svg.select('#x-axis').remove();
+  initAxis();
+
+  if(unit.value === 0) {
+    const tmpDate = new Date(Date.UTC(year.value, month.value - 1, day.value));
+    const x = xScale(tmpDate) - 10;
+    const y = 15;
+    cursor.attr('x', x);
+    tips.attr('transform', `translate(${(x - 10)}, ${y})`);
+    tips.select('#date-tips').text(`${month.value < 10 ? ('0' + month.value) : month.value}/${day.value < 10 ? ('0' + day.value) : day.value}`);
+  }
+  else {
+    const x = xScale(time.value) - 10;
+    const y = 15;
+    cursor.attr('x', x);
+    tips.attr('transform', `translate(${(x - 10)}, ${y})`);
+    tips.select('#date-tips').text(`${(time.value < 10 ? ('0' + time.value) : time.value)}:00`);
+  }
+
 }
 
 function createNode() {
@@ -140,13 +235,25 @@ onMounted(() => {
   w = container.value.offsetWidth;
   h = container.value.offsetHeight;
 
-  month.value = store.state['mapForTwo'].month;
-  day.value = store.state['mapForTwo'].day;
-
   createNode();
   container.value.appendChild(svg.node());
 
   init();
+
+  watch(() => [store.state['mapForTwo'].day, store.state['mapForTwo'].month, store.state['mapForTwo'].time], (newValues) => {
+    time.value = newValues[2];
+    month.value = newValues[1];
+    day.value = newValues[0];
+    redirect();
+  })
+
+})
+
+watch(() => unit.value, (newValue) => {
+  if(svg != null && unit.value != null) {
+    svg.selectAll('*').remove();
+    init();
+  }
 })
 
 </script>
@@ -161,13 +268,7 @@ onMounted(() => {
 <style scoped>
 
 #line-container {
-  height: 100px;
-}
-
-.pane-hover {
-  &:hover {
-    cursor: pointer;
-  }
+  height: 100%;
 }
 
 </style>

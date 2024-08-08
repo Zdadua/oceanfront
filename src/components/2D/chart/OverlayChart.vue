@@ -19,7 +19,7 @@ const props = defineProps({
       marginTop: 30,
       marginRight: 15,
       marginBottom: 30,
-      marginLeft: 30,
+      marginLeft: 35,
     }
   },
   title: {
@@ -36,7 +36,7 @@ let date = computed(() => {
   const month = store.state['mapForTwo'].month;
   const day = store.state['mapForTwo'].day;
 
-  return new Date(year, month - 1, day);
+  return new Date(Date.UTC(year, month - 1, day));
 });
 // 是否获取到数据
 let loaded = ref(false);
@@ -44,15 +44,13 @@ let rawData = ref();
 let data = computed(() => {
   if(rawData.value != null) {
     let res = [];
-    const startDate = new Date(date.value.getFullYear(), 0, 1);
-    const index = Math.floor((date.value - startDate) / (24 * 3600 * 1000));
 
     for(let i = -7; i <= 7; i++) {
       let tmpDate = new Date(date.value);
       tmpDate.setDate(tmpDate.getDate() + i);
       res.push({
         date: tmpDate,
-        value: rawData.value[index + i]
+        value: rawData.value[i + 7]
       })
     }
     return res;
@@ -84,9 +82,8 @@ watchEffect(() => {
       })
       .then(data => {
         loaded.value = true;
-        // TODO 后端接口需要调整，现在使用的是一年的数据处理出来15天的数据
+
         rawData.value = data.row;
-        console.log(data.row)
         if(rawData.value[0] == null) {
           noData();
         }
@@ -190,6 +187,16 @@ function initChart() {
       .style("font-family", "UNSII, sans-serif")
       .style("fill", "black");
 
+  tips.append('text')
+      .attr('id', `Pre${props.id}`)
+      .attr('x', 20)
+      .attr('y', 35)
+      .style("font-size", "8px")
+      .style("font-family", "sans-serif")
+      .style("fill", 'rgb(41,181,39)')
+      .style('display', 'none')
+      .text('**以下为预测内容**');
+
   svg.append('rect')
       .attr('class', 'overPlane')
       .attr('width', w - props.options.marginLeft - props.options.marginRight)
@@ -208,10 +215,9 @@ function initChart() {
         guideCircle.style('display', 'none');
       })
       .on('mousemove', (event) => {
-        // TODO 有些点无法显示 原因未知
         const currentX = xScale.invert(event.offsetX);
 
-        const firstDate = new Date(currentX.getFullYear(), currentX.getMonth(), currentX.getDate());
+        const firstDate = new Date(Date.UTC(currentX.getFullYear(), currentX.getMonth(), currentX.getDate()));
         const d0 = xScale(firstDate);
         const secondDate = new Date(firstDate);
         secondDate.setDate(firstDate.getDate() + 1);
@@ -236,6 +242,15 @@ function initChart() {
 
           tips.select(`#OTEMP${props.id}`)
               .text('海表温度: ' + currentData.value);
+
+          if(currentData.date > store.state['mapForTwo'].lastDate) {
+            tips.select(`#Pre${props.id}`)
+                .style('display', null);
+          }
+          else {
+            tips.select(`#Pre${props.id}`)
+                .style('display', 'none');
+          }
 
           svg.select('circle')
               .attr('cx', offset)
@@ -267,14 +282,20 @@ function initChart() {
 }
 
 function initScale() {
-  xScale = d3.scaleTime().range([props.options.marginLeft, w - props.options.marginRight]);
+  xScale = d3.scaleUtc().range([props.options.marginLeft, w - props.options.marginRight]);
   yScale = d3.scaleLinear().range([h - props.options.marginBottom, props.options.marginTop]);
 
-  const xDomain = [data.value[0].date, data.value[14].date];
+  const first = data.value[0].date;
+  const f = new Date(Date.UTC(first.getFullYear(), first.getMonth(), first.getDate()));
+  const second = data.value[14].date;
+  const s = new Date(Date.UTC(second.getFullYear(), second.getMonth(), second.getDate()));
+
+  const xDomain = [f, s];
   xScale.domain(xDomain);
 
   const yDomain = extent(data.value, d => parseFloat(d.value));
-  console.log(yDomain);
+  yDomain[0] -= .5;
+  yDomain[1] += .5;
   yScale.domain(yDomain);
 
 }
@@ -282,10 +303,10 @@ function initScale() {
 function initAxis() {
   initScale();
 
-  let timeFormat = d3.timeFormat("%m-%d");
-  const xAxis = d3.axisBottom(xScale).ticks(6).tickFormat((d, i) => {
+  let timeFormat = d3.utcFormat("%m-%d");
+  const xAxis = d3.axisBottom(xScale).tickFormat((d, i) => {
     return timeFormat(d);
-  });
+  }).ticks(d3.utcDay.every(2));
   // 其他刻度保持原样
   const yAxis = d3.axisLeft(yScale).ticks(6);
 
@@ -314,11 +335,41 @@ function initLine() {
       .x(d => xScale(d.date))
       .y(d => yScale(d.value));
 
-  svg.append('path')
-      .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-width', 1.5)
-      .attr('d', line(data.value));
+  let tmp = new Date(date.value);
+  tmp.setDate(tmp.getDate() - 7);
+  const f = new Date(tmp);
+  tmp.setDate(tmp.getDate() + 14);
+  const s = new Date(tmp);
+
+  const last = store.state['mapForTwo'].lastDate;
+  if(f < last && s > last) {
+    const history = data.value.filter(d => d.date <= last);
+    const predict = data.value.filter(d => d.date >= last);
+
+    svg.append('path')
+        .datum(history)
+        .attr('fill', 'none')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 1.5)
+        .attr('d', line);
+
+    svg.append('path')
+        .datum(predict)
+        .attr('fill', 'none')
+        .attr('stroke', 'rgb(64,255,0)')
+        .attr('stroke-width', 1.5)
+        .attr('d', line);
+
+  }
+  else {
+    svg.append('path')
+        .attr('fill', 'none')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 1.5)
+        .attr('d', line(data.value));
+  }
+
+
 }
 
 function noData() {

@@ -3,6 +3,7 @@
 import {computed, nextTick, onMounted, ref} from "vue";
 import VirtualScroll from "./VirtualScroll.vue";
 import {useStore} from "vuex";
+import {fetchWithTimeout} from "../../js/tools.js";
 
 let store = useStore();
 
@@ -75,13 +76,32 @@ let grid = computed(() => {
 })
 
 onMounted(() => {
-  let tmp = new Date();
-  tmp.setDate(tmp.getDate() - 1);
-  store.commit('mapForTwo/year', tmp.getFullYear());
-  store.commit('mapForTwo/tmpYear', tmp.getFullYear());
-  store.commit('mapForTwo/month', tmp.getMonth() + 1);
-  store.commit('mapForTwo/tmpMonth', tmp.getMonth() + 1);
-  store.commit('mapForTwo/day', tmp.getDate());
+  // let tmp = new Date();
+  // tmp.setDate(tmp.getDate() - 1);
+  // store.commit('mapForTwo/year', tmp.getFullYear());
+  // store.commit('mapForTwo/tmpYear', tmp.getFullYear());
+  // store.commit('mapForTwo/month', tmp.getMonth() + 1);
+  // store.commit('mapForTwo/tmpMonth', tmp.getMonth() + 1);
+  // store.commit('mapForTwo/day', tmp.getDate());
+
+  fetchWithTimeout({url: '/data/init/1', timeout: 10000})
+      .then((response) => {
+        if(!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        return response.text();
+      })
+      .then((data) => {
+        let tmp = new Date(data);
+        store.commit('mapForTwo/year', tmp.getFullYear());
+        store.commit('mapForTwo/tmpYear', tmp.getFullYear());
+        store.commit('mapForTwo/month', tmp.getMonth() + 1);
+        store.commit('mapForTwo/tmpMonth', tmp.getMonth() + 1);
+        store.commit('mapForTwo/day', tmp.getDate());
+        store.commit('mapForTwo/lastDate', tmp);
+      })
+
 
   chosenIndex.value = firstDay.value + d.value - 1;
   chosenY.value = showY.value;

@@ -11,11 +11,13 @@ import RightPopup from "./RightPopup.vue";
 import ButtonField from "./buttonField/ButtonField.vue";
 import {useStore} from "vuex";
 import TimeLine from "./timeLine/TimeLine.vue";
+import DeepLine from "./timeLine/DeepLine.vue";
 
 let store = useStore();
 let mapContainer = ref();
 
 let offset = computed(() => store.state['popup'].popup ? 700 : 0);
+let depthShow = computed(() => store.state['mapForTwo'].focusOnSea === 0);
 
 onMounted(() => {
 
@@ -83,8 +85,8 @@ onMounted(() => {
       <TimeLine style="grid-column: 6 / 7; align-self: end"></TimeLine>
     </div>
 
-    <div id="time-line-wrapper" class="ui-control" :style="{'left': '350px', 'bottom': '25px'}">
-
+    <div v-if="!depthShow" id="time-line-wrapper" class="ui-control" :style="{'right': '80px', 'bottom': '30px', 'height': '250px', 'width': '65px'}">
+      <DeepLine></DeepLine>
     </div>
 
 <!--    <div id="controls-container" class="ui-control">-->
@@ -210,7 +212,7 @@ onMounted(() => {
 
 #bottom-container {
   display: grid;
-  bottom: 0;
+  bottom: 4px;
   height: 100px;
   width: 100vw;
   grid-template-columns: 30px 250px 30px 90px 30px 1fr 140px;

@@ -11,6 +11,11 @@ let observer = ref();
 let precisionPart = ref();
 let precisionShow = ref(false);
 
+let marinePart = ref();
+let marineShow = ref(false);
+
+let text = '考虑到海表温度数据预测的复杂性和高时空变异性，我们提出了一种多级网络模型，该模型结合长短期时序预测(Seasonal and short-term Temporal Module, SSTM)、物理增强(Physics Enhanced Module, PEM)和残差估计(Residual Estimation Module, REM)三个创新模块，以期在复杂的海洋环境中实现更高精度的SST预测。';
+
 watch(() => precisionShow.value, (newValue) => {
   if(newValue === true) {
     const interval = setInterval(() => {
@@ -75,6 +80,22 @@ function animateUp() {
 
   })
 
+}
+
+let hover01 = ref(false);
+function t1over() {
+  hover01.value = true;
+}
+function t1out() {
+  hover01.value = false;
+}
+
+let hover02 = ref(false);
+function t2over() {
+  hover02.value = true;
+}
+function t2out() {
+  hover02.value = false;
 }
 
 
@@ -162,8 +183,9 @@ onMounted(() => {
         <span style="font-size: 3em; color: white; font-family: Arial, serif; font-weight: 800; width: 100px; line-height: 250px;" :class="{'percent-animation': precisionShow}">%</span>
       </div>
       <div v-show="precisionShow" id="precise-info-container" style="grid-column: 4 / 5;">
-        <div style="grid-column: 1 / 3" class="info-box" :class="{'info-box-animation': precisionShow}">
-          <span class="info-text">ConvLSTM</span>
+        <div style="grid-column: 1 / 3" class="info-box" :class="{'info-box-animation': precisionShow}" @mouseover="t2over" @mouseout="t2out">
+          <span class="info-text" style="transition: color .3s ease-in-out, transform .3s ease-in-out;" :style="{'color': hover02 ? 'black': 'white', 'transform': `translate(0, ${(hover02 ? -8 : 15)}px)`}">ConvLSTM</span>
+          <span class="info-text" style="transition: opacity .3s ease-in-out, transform .3s ease-in-out; font-size: 1.5em;" :style="{'opacity': hover02 ? 1 : 0, 'transform': `translate(0, ${(hover02 ? -10 : 0)}px)`}">卷积长短期记忆网络</span>
         </div>
         <div v-show="precisionShow" style="grid-column: 3 / 4; height: 120px; display: grid">
           <svg style="place-self: center;" id="plus-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="50" height="50"
@@ -175,18 +197,19 @@ onMounted(() => {
 	C3.87,6.66,3.68,6.47,3.68,6.24z"/>
 </svg>
         </div>
-        <div style="grid-column: 4 / 6" class="info-box" :class="{'info-box-animation': precisionShow}">
-          <span class="info-text">ConvGRU</span>
+        <div style="grid-column: 4 / 6" class="info-box" :class="{'info-box-animation': precisionShow}" @mouseover="t1over" @mouseout="t1out">
+          <span class="info-text" style="transition: color .3s ease-in-out, transform .3s ease-in-out;" :style="{'color': hover01 ? 'black': 'white', 'transform': `translate(0, ${(hover01 ? -8 : 15)}px)`}">ConvGRU</span>
+          <span class="info-text" style="transition: opacity .3s ease-in-out, transform .3s ease-in-out; font-size: 1.5em;" :style="{'opacity': hover01 ? 1 : 0, 'transform': `translate(0, ${(hover01 ? -10 : 0)}px)`}">卷积门控循环单元</span>
         </div>
-        <div style="grid-column: 1 / 6">
-
+        <div :class="{'info-box-animation': precisionShow}" style="grid-column: 1 / 6; margin-top: 50px; font-size: 1em; color: white; font-family: sans-serif; font-weight: 900;">
+          {{ text }}
         </div>
       </div>
     </div>
 
-<!--    <div id="pic-container" class="sec-container">-->
-<!--&lt;!&ndash;      <PicLib />&ndash;&gt;-->
-<!--    </div>-->
+    <div>
+
+    </div>
 
   </div>
 </template>
@@ -258,6 +281,7 @@ onMounted(() => {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: 150px 1fr;
 
   .info-box {
     height: 120px;
@@ -354,7 +378,6 @@ onMounted(() => {
 }
 
 .info-text {
-  color: white;
   font-size: 3em;
   font-family: sans-serif;
   font-weight: 900;

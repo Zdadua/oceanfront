@@ -9,6 +9,7 @@ class PlayController {
     tileList = [];
     len = 0;
     nextDate = null;
+    tileToLoad = [];
 
     constructor(map) {
         this.map = map;
@@ -37,6 +38,7 @@ class PlayController {
                     this.preLoad(tileLayer.getSource());
                     this.nextDate.setDate(this.nextDate.getDate() + 1);
 
+
                     setTimeout(() => {
                         this.map.getLayers().removeAt(0);
                         this.tileList.shift();
@@ -50,73 +52,62 @@ class PlayController {
         })
     }
 
-    // play() {
-    //     // this.prepareTiles(20).then((num) => {
-    //     //     for(let i = 4; i >= 0; i--) {
-    //     //         this.map.getLayers().insertAt(1, this.tileList[i]);
-    //     //     }
-    //     //     this.len = num;
-    //     //     return sleep(1000);
-    //     // }).then(() => {
-    //     //     let intervalId;
-    //     //     const start = () => {
-    //     //         intervalId = setInterval(() => {
-    //     //             this.map.getLayers().item(1).setVisible(true);
-    //     //             this.map.getLayers().insertAt(6, this.tileList[5]);
-    //     //
-    //     //             const tileLayer = this.createTile(this.nextDate);
-    //     //             this.nextDate.setDate(this.nextDate.getDate() + 1);
-    //     //             this.preLoad(tileLayer.getSource());
-    //     //
-    //     //             setTimeout(() => {
-    //     //                 this.map.getLayers().removeAt(0);
-    //     //                 this.tileList.shift();
-    //     //                 this.tileList.push(tileLayer);
-    //     //
-    //     //                 store.commit('mapForTwo/addOneDay');
-    //     //             }, 400);
-    //     //         }, 800);
-    //     //     }
-    //     //     start();
-    //     // })
-    //
-    //     this.prepareTiles(20).then(async () => {
-    //         await sleep(5000)
-    //     }).then(() => {
-    //         let intervalId;
-    //         const start = () => {
-    //             intervalId = setInterval(() => {
-    //                 const tileLayer = this.createTile(this.nextDate);
-    //
-    //                 tileLayer.getSource().once('tileloadend', () => {
-    //                     console.log('over');
-    //                 })
-    //
-    //                 this.map.getLayers().insertAt(21, tileLayer);
-    //                 this.nextDate.setDate(this.nextDate.getDate() + 1);
-    //
-    //                 setTimeout(() => {
-    //                     this.map.getLayers().removeAt(0);
-    //                     store.commit('mapForTwo/addOneDay');
-    //                 }, 400);
-    //             }, 1200);
-    //         }
-    //         start();
-    //     })
-    //
-    //     // let index = dayOfYear(this.date);
-    //     // for(let i = index + 20; i > index; i--) {
-    //     //     if(i < this.len) {
-    //     //         this.map.getLayers().insertAt(1, this.tileList[i]);
-    //     //         this.preLoad(this.tileList[i].getSource());
-    //     //     }
-    //     // }
-    //     //
-    //     // sleep(10000).then(() => {
-    //     //     this.shiftPeriodically(index);
-    //     // })
-    // }
-    //
+    playTest() {
+        this.prepareTiles(20);
+        this.changeTile().then(() => {
+            console.log('over...');
+        })
+    }
+
+    preloadLayer(tileLayer) {
+        return new Promise((resolve) => {
+            tileLayer.set('num', 0);
+            tileLayer.getSource().on('tileloadstart', () => {
+                tileLayer.set('num', tileLayer.get('num') + 1);
+            });
+
+            tileLayer.getSource().on('tileloadend', () => {
+                tileLayer.set('num', tileLayer.get('num') - 1);
+
+                if(tileLayer.get('num') === 0) {
+                    resolve(tileLayer);
+                }
+            });
+        })
+    }
+
+    async changeTile() {
+        let initQueue = [this.tileList[0], this.tileList[1], this.tileList[2], this.tileList[3]];
+        let loadingPromises = new Map();
+
+        for(let i = 0; i < Math.min(4, initQueue.length); i++) {
+            const element = initQueue[i];
+            loadingPromises.set(element, this.preloadLayer(element));
+            this.map.getLayers().insertAt(i + 1, element);
+        }
+
+        while(initQueue.length > 0) {
+            const firstElement = initQueue[0];
+            await loadingPromises.get(firstElement);
+            await sleep(1000);
+            loadingPromises.delete(firstElement);
+            initQueue.shift(); // 移除已经加载的第一个元素
+
+            this.map.getLayers().insertAt(5, this.tileList[4]);
+            initQueue.push(this.tileList[4]);
+            loadingPromises.set(this.tileList[4], this.preloadLayer(this.tileList[4]));
+
+            this.map.getLayers().removeAt(0);
+            const tileLayer = this.createTile(this.nextDate);
+            this.preLoad(tileLayer.getSource());
+
+            store.commit('mapForTwo/addOneDay');
+            this.nextDate.setDate(this.nextDate.getDate() + 1);
+            this.tileList.shift();
+            this.tileList.push(tileLayer);
+        }
+    }
+
     prepareTiles(num) {
         const year = store.state['mapForTwo'].year;
         const month = store.state['mapForTwo'].month;
@@ -147,29 +138,9 @@ class PlayController {
             }
         })
     }
-    //
-    // createTiles() {
-    //     const year = this.date.getFullYear();
-    //
-    //     const date = new Date(year, 0, 1);
-    //     for(let i = 0; i < this.len; i++) {
-    //         const y = date.getFullYear();
-    //         const m = date.getMonth() + 1;
-    //         const d = date.getDate();
-    //         const url = `http://172.20.163.79:5000/tiles/sst_tiles/${year}-${(m < 10 ? '0' + m : m)}-${(d < 10 ? '0' + d : d)}/{z}/{x}_{y}.png`;
-    //         this.tileList[i] = new TileLayer({
-    //             visible: false,
-    //             preload: 1,
-    //             source: new XYZ({
-    //                 url: url,
-    //             })
-    //         })
-    //
-    //         date.setDate(date.getDate() + 1);
-    //     }
-    //
-    // }
-    //
+
+
+
     createTile(date) {
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
@@ -181,6 +152,7 @@ class PlayController {
             source: new XYZ({
                 url: url,
             }),
+            transition: 0,
         });
 
         return tile;

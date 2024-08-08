@@ -1,4 +1,4 @@
-import {Feature, Map, Overlay, View} from "ol";
+import {Feature, Graticule, Map, Overlay, View} from "ol";
 import {fromLonLat, toLonLat} from "ol/proj";
 import TileLayer from "ol/layer/Tile";
 import {toStringHDMS} from "ol/coordinate";
@@ -7,9 +7,10 @@ import { Vector as VectorLayer } from "ol/layer";
 import store from "../../store/index.js";
 import "../../styles/map/twoDimensionMap.css";
 import {Point} from "ol/geom";
-import {Icon, Style} from "ol/style";
+import {Icon, Stroke, Style} from "ol/style";
 import {DotOverlay} from "./DotOverlay.js";
 import {ScaleLine} from "ol/control.js";
+import {easeOut} from "ol/easing.js";
 
 
 
@@ -22,6 +23,11 @@ class MapDrawer {
         source: this.vectorSource
     });
 
+    seaSource = new Vector();
+    seaLayer = new VectorLayer({
+        source: this.seaSource
+    });
+
     constructor(element) {
         if(element instanceof HTMLElement) {
             this.element = element;
@@ -30,6 +36,23 @@ class MapDrawer {
 
     init() {
         this.initMap();
+        this.initSouthSea();
+    }
+
+    initSouthSea() {
+        const pinStyle = new Style({
+            image: new Icon({
+                anchor: [0.5, 1],
+              src: './src/assets/svg/pin.svg'
+            })
+        });
+
+        const pinFeature = new Feature({
+            geometry: new Point(fromLonLat([115.5, 18.5]))
+        });
+
+        pinFeature.setStyle(pinStyle);
+        this.seaSource.addFeature(pinFeature);
     }
 
     initMap() {
@@ -67,18 +90,26 @@ class MapDrawer {
                     source: new XYZ({
                         // 配置瓦片图层的URL模板和参数
                         url: 'http://172.20.163.79:5000/tiles/world_tiles/{z}/{x}_{y}.png',
-                        // url: '../../../public/static/world_tiles/{z}/{x}_{y}.png',
                     })
                 }),
-                this.vectorLayer
+                this.vectorLayer,
+
+                new Graticule({
+                    strokeStyle: new Stroke({
+                        color: 'rgba(12,12,12,0.19)',
+                        width: 0.6,
+                    }),
+                    targetSize: 100,
+                }),
+                this.seaLayer,
             ],
             overlays: [],
             view: new View({
                 center: fromLonLat([160, 25]),
                 minZoom: 2,
-                maxZoom: 5,
+                maxZoom: 8,
                 zoom: 2,
-
+                constrainResolution: true,
             }),
             controls: [],
         };
@@ -88,22 +119,44 @@ class MapDrawer {
 
         this.map.on('click', (event) => {
 
-            if(store.state['mapForTwo'].onUI) {
-                store.commit('mapForTwo/setOnUI', 0);
+            let isFeature = false;
+            this.map.forEachFeatureAtPixel(event.pixel, function(feature) {
+                if(feature) {
+                    isFeature = true;
+                }
+            })
+
+            if(!isFeature) {
+                if(store.state['mapForTwo'].onUI) {
+                    store.commit('mapForTwo/setOnUI', 0);
+                }
+                else {
+                    let coordinate = event.coordinate;
+                    let [lon, lat] = toLonLat(coordinate);
+                    store.commit('mapForTwo/updateInfo', [lon, lat]);
+
+                    if(store.state['mapForTwo'].showMode) {
+                        store.state['mapForTwo'].dotIdx++;
+                    }
+                    let dotOverlay = new DotOverlay(store.state['mapForTwo'].dotIdx, coordinate);
+
+                    dotOverlay.initDotOverlay().then(() => {
+                        store.commit('popup/updateShowDot', store.state['mapForTwo'].dotIdx);
+                        store.commit('mapForTwo/pushPoint', dotOverlay);
+                    })
+                }
             }
             else {
-                let coordinate = event.coordinate;
-                let [lon, lat] = toLonLat(coordinate);
-                store.commit('mapForTwo/updateInfo', [lon, lat]);
-
-                if(store.state['mapForTwo'].showMode) {
-                    store.state['mapForTwo'].dotIdx++;
-                }
-                let dotOverlay = new DotOverlay(store.state['mapForTwo'].dotIdx, coordinate);
-
-                dotOverlay.initDotOverlay().then(() => {
-                    store.commit('mapForTwo/pushPoint', dotOverlay);
-                })
+                const view = this.map.getView();
+                view.animate({
+                    center: fromLonLat([115.5, 18.5]),
+                    zoom: 6,
+                    rotation: 0,
+                    duration: 600,
+                    easing: easeOut
+                });
+                this.seaLayer.setVisible(false);
+                store.commit('mapForTwo/focusOnSea');
             }
         })
     }

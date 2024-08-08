@@ -21,20 +21,25 @@ const state = () => ({
     heatMode: 0,
     draggable: 0,
     unit: 0,
+    time: 0,
+    focusOnSea: 0,
 
     // dotOverlay对象数组
     points: new Map(),
     lastPoint: 0,
     dotIdx: 0,
+    depth: 1,
 
     map: null,
 
-    year: 0,
-    tmpYear: 0,
-    month: 0,
-    tmpMonth: 0,
-    day: 1,
+    year: null,
+    tmpYear: null,
+    month: null,
+    tmpMonth: null,
+    day: null,
     maxPredictNum: 7,
+
+    lastDate: null,
 })
 
 const mutations = {
@@ -86,8 +91,24 @@ const mutations = {
                 url: `http://172.20.163.79:5000/tiles/heatwave_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
             }))
         }
+    },
 
+    focusOnSea(state) {
+        state.focusOnSea = state.focusOnSea === 0 ? 1 : 0;
+        let layer = state.map.getLayers().getArray().at(0);
+        let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+        let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
 
+        if(state.focusOnSea === 0) {
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+            }))
+        }
+        else {
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${(state.depth - 1)}/{z}/{x}_{y}.png`
+            }))
+        }
     },
 
     draggable(state) {
@@ -161,9 +182,17 @@ const mutations = {
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
 
-            if(state.heatMode === 0) {
+            console.log(state.focusOnSea);
+            if(state.heatMode === 0 && state.focusOnSea === 0) {
                 layer.setSource(new XYZ({
                     url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                }))
+            }
+            else if(state.focusOnSea === 1) {
+                console.log(`http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${state.depth}/{z}/{x}_{y}.png`);
+                console.log(111);
+                layer.setSource(new XYZ({
+                    url: `http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${state.depth}/{z}/{x}_{y}.png`
                 }))
             }
             else {
@@ -175,6 +204,17 @@ const mutations = {
 
         state.year = state.tmpYear;
         state.month = state.tmpMonth;
+    },
+
+    depth(state, depth) {
+        state.depth = depth;
+        let layer = state.map.getLayers().getArray().at(0);
+        let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+        let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
+
+        layer.setSource(new XYZ({
+            url: `http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${(state.depth - 1)}/{z}/{x}_{y}.png`
+        }))
     },
 
     remove(state, idx) {
@@ -192,10 +232,40 @@ const mutations = {
     },
 
     changeUnit(state) {
-        state.unit = !state.unit;
+        state.unit = state.unit === 0 ? 1 : 0;
+
+        let layer = state.map.getLayers().getArray().at(0);
+        let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+        let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
+
+        if(state.unit === 1) {
+            state.time = 0;
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/sst_hours/${state.year}-${month}-${day}/0/{z}/{x}_{y}.png`
+            }));
+        }
+        else {
+            layer.setSource(new XYZ({
+                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+            }));
+        }
+    },
+
+    time(state, d) {
+        state.time = d;
+        let layer = state.map.getLayers().getArray().at(0);
+        let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+        let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
+
+        console.log(state.time);
+        layer.setSource(new XYZ({
+            url: `http://172.20.163.79:5000/sst_hours/${state.year}-${month}-${day}/${d}/{z}/{x}_{y}.png`
+        }));
+    },
+
+    lastDate(state, date) {
+        state.lastDate = new Date(date);
     }
-
-
 }
 
 export default {

@@ -323,6 +323,4 @@ function latChangeClick() {
 input::placeholder {
   font-size: .8em;
 }
-
-
 </style>
