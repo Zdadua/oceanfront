@@ -84,6 +84,7 @@ watchEffect(() => {
         loaded.value = true;
 
         rawData.value = data.row;
+        console.log(data.row);
         if(rawData.value[0] == null) {
           noData();
         }

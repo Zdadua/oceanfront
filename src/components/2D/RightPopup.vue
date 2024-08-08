@@ -181,7 +181,7 @@ onMounted(() => {
         </div>
 
         <div  class="subtitle" style="grid-column: 2 / 4; grid-row: 7 / 8;">
-          渔业数据
+          鱼类资源
         </div>
 
         <div style="grid-column: 2 / 6; grid-row: 8/ 9; border: 1px solid #e1e1e1; border-radius: 5px;">

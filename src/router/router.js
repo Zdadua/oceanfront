@@ -10,6 +10,9 @@ const routes = [
     },
     {
         path: '/twoMap',
+        meta: {
+            keepAlive: false,
+        },
         component: TwoDimensionMap
     }
 ]

@@ -182,7 +182,6 @@ const mutations = {
             let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
             let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
 
-            console.log(state.focusOnSea);
             if(state.heatMode === 0 && state.focusOnSea === 0) {
                 layer.setSource(new XYZ({
                     url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`

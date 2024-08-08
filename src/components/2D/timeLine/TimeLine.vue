@@ -1,6 +1,6 @@
 <script setup>
 
-import {computed, onMounted, ref, watch, watchEffect} from "vue";
+import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect} from "vue";
 import * as d3 from "d3";
 import {useStore} from "vuex";
 
@@ -231,6 +231,7 @@ function createNode() {
       .attr('height', h);
 }
 
+let unwatch;
 onMounted(() => {
   w = container.value.offsetWidth;
   h = container.value.offsetHeight;
@@ -238,15 +239,24 @@ onMounted(() => {
   createNode();
   container.value.appendChild(svg.node());
 
-  init();
+  setTimeout(() => {
+    time.value = store.state['mapForTwo'].time;
+    month.value = store.state['mapForTwo'].month;
+    day.value = store.state['mapForTwo'].day;
+    init();
+  }, 100);
 
-  watch(() => [store.state['mapForTwo'].day, store.state['mapForTwo'].month, store.state['mapForTwo'].time], (newValues) => {
+  unwatch = watch(() => [store.state['mapForTwo'].day, store.state['mapForTwo'].month, store.state['mapForTwo'].time], (newValues) => {
     time.value = newValues[2];
     month.value = newValues[1];
     day.value = newValues[0];
     redirect();
   })
 
+})
+
+onBeforeUnmount(() => {
+  unwatch();
 })
 
 watch(() => unit.value, (newValue) => {

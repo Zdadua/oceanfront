@@ -149,7 +149,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div ref="precisionPart" class="show-container sec-container full-bleed" style="height: 400px">
+    <div ref="precisionPart" id="precision-part" class="show-container sec-container full-bleed" style="height: 400px;">
       <div v-show="precisionShow" style="grid-column: 2 / 3;">
         <svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="400px" height="400px"
              viewBox="0 0 10.03 13.38" xml:space="preserve">
@@ -383,6 +383,13 @@ onMounted(() => {
   font-weight: 900;
 
   place-self: center;
+}
+
+#precision-part {
+  background-image: radial-gradient(closest-side, rgb(10, 122, 154), rgba(0, 255, 234, 0));
+  background-position: 21% 50%;
+  background-size: 400px 400px;
+  background-repeat: no-repeat;
 }
 
 </style>
