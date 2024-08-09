@@ -117,7 +117,7 @@ function initCursor() {
   cursor = svg.append('image')
       .attr('width', 20)
       .attr('height', 20)
-      .attr('xlink:href', './src/assets/svg/cursor.svg')
+      .attr('xlink:href', '/static/svg/cursor.svg')
 
   if(unit.value === 0) {
     const tmpDate = new Date(Date.UTC(year.value, month.value - 1, day.value));

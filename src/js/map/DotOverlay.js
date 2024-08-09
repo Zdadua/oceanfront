@@ -11,7 +11,7 @@ class DotOverlay {
     dotFeature = null;
     dotStyle = new Style({
         image: new Icon({
-            src: './src/assets/svg/newCircle.svg'
+            src: '/static/svg/newCircle.svg'
         })
     });
 

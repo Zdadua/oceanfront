@@ -94,6 +94,9 @@ const mutations = {
     },
 
     focusOnSea(state) {
+        state.heatMode = 0;
+        state.unit = 0;
+
         state.focusOnSea = state.focusOnSea === 0 ? 1 : 0;
         let layer = state.map.getLayers().getArray().at(0);
         let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
@@ -108,6 +111,26 @@ const mutations = {
             layer.setSource(new XYZ({
                 url: `http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${(state.depth - 1)}/{z}/{x}_{y}.png`
             }))
+        }
+    },
+
+    reset(state) {
+        state.heatMode = 0;
+        state.focusOnSea = 0;
+
+        let layer = state.map.getLayers().getArray().at(0);
+        let month = state.month < 10 ? `0${state.month}` : `${state.month}`;
+        let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
+
+        layer.setSource(new XYZ({
+            url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+        }));
+
+        let seaLayer = state.map.getLayers().getArray().at(4);
+        seaLayer.setVisible(true);
+
+        if(state.unit === 1) {
+            state.unit = 0;
         }
     },
 
@@ -239,6 +262,7 @@ const mutations = {
 
         if(state.unit === 1) {
             state.time = 0;
+            state.heatMode = 0;
             layer.setSource(new XYZ({
                 url: `http://172.20.163.79:5000/sst_hours/${state.year}-${month}-${day}/0/{z}/{x}_{y}.png`
             }));

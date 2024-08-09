@@ -124,7 +124,7 @@ function latChangeClick() {
   <div id="search-bar" :class="[!clicked ? 'bar-before-click' : 'bar-clicked']" @click="clickSearch">
     <span v-if="!clicked" id="search-text">搜索</span>
     <div id="search-img" @click="enterClick">
-      <img alt="search" src="../../../public/static/svg/search.svg" width="20" height="20">
+      <img alt="search" src="../../assets/svg/search.svg" width="20" height="20">
     </div>
 
     <div v-if="clicked" id="change-container" @click="changeClick">

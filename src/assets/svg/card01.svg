@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="620mm"
+   height="320mm"
+   viewBox="0 0 620 320"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="位图.png"
+   inkscape:export-xdpi="25.4"
+   inkscape:export-ydpi="25.4"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <circle
+       style="fill:#4c2065;fill-opacity:1;stroke-width:0.264583"
+       id="path9"
+       cx="141.55702"
+       cy="12.399149"
+       r="80.594467" />
+    <circle
+       style="fill:#2e9280;fill-opacity:1;stroke-width:0.423934"
+       id="path10"
+       cx="53.465611"
+       cy="230.78743"
+       r="145.69009" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.268131"
+       id="path7"
+       cx="39.554108"
+       cy="39.037476"
+       r="100" />
+    <circle
+       style="fill:#000000;fill-opacity:1;stroke-width:0.263476"
+       id="path8"
+       cx="39.554001"
+       cy="39.036999"
+       r="80" />
+    <circle
+       style="fill:#2e3492;fill-opacity:1;stroke-width:0.264583"
+       id="path11"
+       cx="154.62723"
+       cy="336.85849"
+       r="68.897774" />
+  </g>
+</svg>

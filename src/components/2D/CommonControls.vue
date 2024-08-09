@@ -15,6 +15,9 @@ function returnClick() {
     duration: 800,
     easing: easeOut
   })
+
+  store.commit('mapForTwo/reset');
+
 }
 
 function zoomIn() {

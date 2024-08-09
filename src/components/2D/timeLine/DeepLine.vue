@@ -152,7 +152,7 @@ function initCursor() {
   cursor = svg.append('image')
       .attr('width', 20)
       .attr('height', 20)
-      .attr('xlink:href', './src/assets/svg/rightCursor.svg')
+      .attr('xlink:href', '/static/svg/rightCursor.svg')
 
   let x = 5;
   cursor.attr('x', x);

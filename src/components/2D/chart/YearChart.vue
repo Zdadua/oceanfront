@@ -559,7 +559,7 @@ function noData() {
       .attr('y', h / 2 - 70)
       .attr('width', 60)
       .attr('height', 60)
-      .attr('xlink:href', './src/assets/svg/warning.svg')
+      .attr('xlink:href', '/static/svg/warning.svg')
 }
 
 function createNode() {

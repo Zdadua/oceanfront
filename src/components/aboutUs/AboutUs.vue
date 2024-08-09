@@ -133,7 +133,7 @@ onMounted(() => {
 
     <div id="info-container" class="sec-container full-bleed">
       <div id="grid-container">
-        <TextCube class="first" background-image="./public/static/svg/card01.svg">
+        <TextCube class="first" background-image="/static/svg/card01.svg">
           <div class="title" style="top: 20px; right: 90px;">
             设计理念
           </div>

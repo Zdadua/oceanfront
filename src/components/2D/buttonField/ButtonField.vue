@@ -29,8 +29,8 @@ onMounted(() => {
     </div>
 
     <div id="toggle-btn-container">
-      <ToggleButton name="showMode" url="src/assets/svg/pinpoint.svg" text="多点模式"></ToggleButton>
-      <ToggleButton name="heatMode" url="src/assets/svg/heatMode.svg" text="海洋热浪"></ToggleButton>
+      <ToggleButton name="showMode" url="/static/svg/pinpoint.svg" text="多点模式"></ToggleButton>
+      <ToggleButton name="heatMode" url="/static/svg/heatMode.svg" text="海洋热浪"></ToggleButton>
     </div>
 
   </div>

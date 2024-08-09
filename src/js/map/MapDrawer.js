@@ -43,7 +43,7 @@ class MapDrawer {
         const pinStyle = new Style({
             image: new Icon({
                 anchor: [0.5, 1],
-              src: './src/assets/svg/pin.svg'
+              src: '/static/svg/pin.svg'
             })
         });
 

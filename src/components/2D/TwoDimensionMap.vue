@@ -17,7 +17,7 @@ let store = useStore();
 let mapContainer = ref();
 
 let offset = computed(() => store.state['popup'].popup ? 700 : 0);
-let depthShow = computed(() => store.state['mapForTwo'].focusOnSea === 0);
+let depthShow = computed(() => store.state['mapForTwo'].focusOnSea === 1);
 
 onMounted(() => {
 
@@ -85,7 +85,7 @@ onMounted(() => {
       <TimeLine style="grid-column: 6 / 7; align-self: end"></TimeLine>
     </div>
 
-    <div v-if="!depthShow" id="time-line-wrapper" class="ui-control" :style="{'right': '80px', 'bottom': '30px', 'height': '250px', 'width': '65px'}">
+    <div v-if="depthShow" id="time-line-wrapper" class="ui-control" :style="{'right': '80px', 'bottom': '30px', 'height': '250px', 'width': '65px'}">
       <DeepLine></DeepLine>
     </div>
 
