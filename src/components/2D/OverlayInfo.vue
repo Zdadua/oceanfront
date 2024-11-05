@@ -1,11 +1,10 @@
 <script setup>
 import {useStore} from "vuex";
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {toLonLat} from "ol/proj";
 import OverlayChart from "./chart/OverlayChart.vue";
 import {easeOut} from "ol/easing.js";
-import {abs, floor} from "mathjs";
-import { lonLatToDMS } from "../../js/tools.js";
+import {lonLatToDMS} from "../../js/tools.js";
 
 let store = useStore();
 

@@ -49,10 +49,10 @@ let beforeDays = computed(() => {
 let dropped = ref(false);
 
 let y = computed(() => store.state['mapForTwo'].tmpYear);
-let showY = computed(() => store.state['mapForTwo'].year);
+let showY = computed(() => store.state['mapForTwo'].year ? store.state['mapForTwo'].year : '--');
 let m = computed(() => store.state['mapForTwo'].tmpMonth);
-let showM = computed(() => store.state['mapForTwo'].month);
-let d = computed(() => store.state['mapForTwo'].day);
+let showM = computed(() => store.state['mapForTwo'].month ? store.state['mapForTwo'].month : '--');
+let d = computed(() => store.state['mapForTwo'].day ? store.state['mapForTwo'].day : '--');
 let yearPlace = computed(() => year.indexOf(showY.value.toString()));
 let monthPlace = computed(() => month.indexOf(showM.value.toString()));
 
@@ -159,7 +159,7 @@ onMounted(() => {
     text-align: center;
     height: 50px;
     line-height: 50px;
-    
+
     &:hover {
       cursor: pointer;
     }

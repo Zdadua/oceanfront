@@ -49,7 +49,7 @@
     height: 100%;
     box-sizing: border-box;
     border-radius: 20px;
-
+    padding: 20px 20px;
   }
 
   .cube-not-active {

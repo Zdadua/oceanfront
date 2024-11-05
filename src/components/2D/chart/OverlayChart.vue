@@ -1,13 +1,12 @@
 <script setup>
-
 import {computed, nextTick, onMounted, ref, watch, watchEffect} from "vue";
 import * as d3 from 'd3';
-import {ceil, floor} from "mathjs";
+import {extent, select} from 'd3';
+import {floor} from "mathjs";
 import {useStore} from "vuex";
 import {toLonLat} from "ol/proj.js";
-import { fetchWithTimeout } from "../../../js/tools.js";
+import {fetchWithTimeout} from "../../../js/tools.js";
 import LoadingAnimate from "../animate/LoadingAnimate.vue";
-import {extent} from "d3";
 
 const store = useStore();
 const props = defineProps({
@@ -31,6 +30,7 @@ const props = defineProps({
   },
 })
 
+let type = computed(() => store.state['overlayChart'].type);
 let date = computed(() => {
   const year = store.state['mapForTwo'].year;
   const month = store.state['mapForTwo'].month;
@@ -42,69 +42,106 @@ let date = computed(() => {
 let loaded = ref(false);
 let rawData = ref();
 let data = computed(() => {
-  if(rawData.value != null) {
-    let res = [];
+  if(type.value === 0) {
+    if(rawData.value != null) {
+      let res = [];
 
-    for(let i = -7; i <= 7; i++) {
-      let tmpDate = new Date(date.value);
-      tmpDate.setDate(tmpDate.getDate() + i);
-      res.push({
-        date: tmpDate,
-        value: rawData.value[i + 7]
-      })
+      for(let i = -7; i <= 7; i++) {
+        let tmpDate = new Date(date.value);
+        tmpDate.setDate(tmpDate.getDate() + i);
+        res.push({
+          date: tmpDate,
+          value: rawData.value[i + 7]
+        })
+      }
+      return res;
     }
-    return res;
+  } else {
+    if(rawData.value != null) {
+      let res = [];
+
+      for(let i = -7; i <= 7; i++) {
+        let tmpDate = new Date(date.value);
+        tmpDate.setDate(tmpDate.getDate() + i);
+        res.push({
+          date: tmpDate,
+          value: rawData.value
+        })
+      }
+      return res;
+    }
   }
 
   return null;
 })
 
-watchEffect(() => {
-  let [lon, lat] = toLonLat(props.coordinate);
-  lon = floor(lon);
-  lat = floor(lat);
-
+const fetchData = async (lon, lat) => {
+  // 时间显示格式化
   let dateString = date.value.toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
   }).replaceAll('/', '-');
 
-  const url = `/data/sst_15/${lat}/${lon}/${dateString}`;
+  const url = type.value === 0 ? `/data/sst_15/${lat}/${lon}/${dateString}` : `/data/sst_3d_lat_lon/${dateString}/${lat}/${lon}`;
 
-  fetchWithTimeout({url: url, timeout: 10000})
-      .then(response => {
-        if(!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+  try {
+    const response = await fetchWithTimeout({url: url, timeout: 10000});
 
-        return response.json();
-      })
-      .then(data => {
-        loaded.value = true;
 
-        rawData.value = data.row;
-        if(rawData.value[0] == null) {
-          noData();
-        }
-        else {
-          svg.selectAll('*').remove();
-          initChart();
-        }
-      })
-      .catch(error => {
-        if(error.message === 'timeout') {
-          console.log('network request timout!');
-        }
-        else if(error.message === 'Network response was not ok') {
-          loaded.value = true;
-          noData();
-          console.log('Network response was not ok!');
-        }
-        else {
-          console.error('An error occurred at OverlayChart.vue:', error);
-        }
-      });
+    if(!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+
+    loaded.value = true;
+    rawData.value = type.value === 0 ? data.row : data.column;
+    if(rawData.value[0] == null) {
+      noData();
+    }
+    else {
+      svg.selectAll('*').remove();
+
+      if(type.value === 0) {
+        initChart();
+      } else {
+        initDeepChart();
+      }
+
+    }
+
+  } catch(error) {
+    if(error.message === 'timeout') {
+      console.log('network request timout!');
+    }
+    else if(error.message === 'Network response was not ok') {
+      loaded.value = true;
+      noData();
+      console.log('Network response was not ok!');
+    }
+    else {
+      console.error('An error occurred at OverlayChart.vue:', error);
+    }
+  }
+}
+
+watchEffect(async () => {
+  let [lon, lat] = toLonLat(props.coordinate);
+  lon = floor(lon);
+  lat = floor(lat);
+
+  await fetchData(lon, lat);
+})
+
+watch(() => type.value, async (newValue, oldValue) => {
+  loaded.value = false;
+
+  let [lon, lat] = toLonLat(props.coordinate);
+  lon = floor(lon);
+  lat = floor(lat);
+
+  await fetchData(lon, lat);
 })
 
 let overlayContainer = ref();
@@ -114,7 +151,9 @@ let svg;
 let w = 290;
 let h = 230;
 
-
+/**
+ * 初始化二维表
+ */
 function initChart() {
   initAxis();
   initLine();
@@ -282,22 +321,40 @@ function initChart() {
 }
 
 function initScale() {
-  xScale = d3.scaleUtc().range([props.options.marginLeft, w - props.options.marginRight]);
-  yScale = d3.scaleLinear().range([h - props.options.marginBottom, props.options.marginTop]);
+  switch(type.value) {
+    case 0:
+      xScale = d3.scaleUtc().range([props.options.marginLeft, w - props.options.marginRight]);
+      yScale = d3.scaleLinear().range([h - props.options.marginBottom, props.options.marginTop]);
 
-  const first = data.value[0].date;
-  const f = new Date(Date.UTC(first.getFullYear(), first.getMonth(), first.getDate()));
-  const second = data.value[14].date;
-  const s = new Date(Date.UTC(second.getFullYear(), second.getMonth(), second.getDate()));
+      const first = data.value[0].date;
+      const f = new Date(Date.UTC(first.getFullYear(), first.getMonth(), first.getDate()));
+      const second = data.value[14].date;
+      const s = new Date(Date.UTC(second.getFullYear(), second.getMonth(), second.getDate()));
+      xScale.domain([f, s]);
 
-  const xDomain = [f, s];
-  xScale.domain(xDomain);
+      let yDomain = extent(data.value, d => parseFloat(d.value));
+      yDomain[0] -= .5;
+      yDomain[1] += .5;
+      yScale.domain(yDomain);
+      break;
+    case 1:
+      xScale = d3.scaleBand().range([props.options.marginLeft, w - props.options.marginRight]);
+      xScale.domain(data.value.map((item, index) => {
+        const month = item.date.getMonth() + 1;
+        const day = item.date.getDate();
+        const str = `${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
 
-  const yDomain = extent(data.value, d => parseFloat(d.value));
-  yDomain[0] -= .5;
-  yDomain[1] += .5;
-  yScale.domain(yDomain);
+        return str;
+      }));
 
+      yScale = d3.scaleBand().range([h - props.options.marginBottom, props.options.marginTop]);
+      const array = Array.from({length: 40}, (_, i) => String(40 - i));
+      yScale.domain(array);
+
+      break;
+    case 2:
+      break;
+  }
 }
 
 function initAxis() {
@@ -368,7 +425,58 @@ function initLine() {
         .attr('stroke-width', 1.5)
         .attr('d', line(data.value));
   }
+}
 
+function initDeepChart() {
+  initScale();
+  const xAxis = d3.axisTop(xScale)
+
+  const yAxis = d3.axisLeft(yScale).ticks(6);
+
+  svg.append('g')
+      .attr('transform', `translate(0, ${props.options.marginTop})`)
+      .call(xAxis)
+      .call(g => g.select('.domain')
+          .attr('stroke-opacity', 0.4)
+          .attr('stroke-width', 2))
+      .call(g => g.selectAll('.tick line')
+          .attr('stroke-opacity', 0.4))
+
+  svg.append('g')
+      .attr('transform', `translate(${props.options.marginLeft}, 0)`)
+      .call(yAxis)
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('.tick line').clone()
+          .attr('x2', w - props.options.marginLeft - props.options.marginRight)
+          .attr('stroke-opacity', 0.1))
+      .call(g => g.selectAll('.tick line')
+          .attr('stroke-opacity', 0.1))
+
+  initDeepData();
+}
+
+function initDeepData() {
+  const colorScale = d3.scaleLinear()
+      .domain([40, 35, 30, 25, 20, 15, 10, 5, 0, -5, -10, -15])
+      .range(["#6B1527FF", "#932929FF", "#B73466FF", "#DB6C54FF",
+        "#E09F41FF", "#E1CE39FF", "#B7DA40FF", "#5BC94CFF",
+        "#4DB094FF", "#4279BFFF", "#554FAAFF", "#1d2169"])
+
+  data.value.forEach((item, index) => {
+    const month = item.date.getMonth() + 1;
+    const day = item.date.getDate();
+    const str = `${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
+
+    item.value.forEach((d, i) => {
+      const index = i + 1;
+      svg.append('rect')
+          .attr('x', xScale(str))
+          .attr('y', yScale(index.toString()) - yScale.bandwidth() / 2)
+          .attr('width', xScale.bandwidth())
+          .attr('height', yScale.bandwidth())
+          .attr('fill', colorScale(d))
+    })
+  })
 
 }
 

@@ -4,7 +4,7 @@ import TextCube from "./TextCube.vue";
 import LogoIcon from "./LogoIcon.vue";
 import GuideBar from "./GuideBar.vue";
 import anime from "animejs/lib/anime.es.js";
-import {nextTick, onMounted, ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 
 let observer = ref();
 
@@ -134,18 +134,57 @@ onMounted(() => {
     <div id="info-container" class="sec-container full-bleed">
       <div id="grid-container">
         <TextCube class="first" background-image="/static/svg/card01.svg">
-          <div class="title" style="top: 20px; right: 90px;">
-            设计理念
-          </div>
-          <div class="text">
-
+          <div style="display: flex; height: 100%; flex-direction: column; align-items: flex-end; padding: 10px 20px;">
+            <div style="font-size: 2.1em; letter-spacing: 3px; font-weight: 600; margin-bottom: 50px; color: rgb(0,192,251);">
+              设计理念
+            </div>
+            <div class="title" style="margin-bottom: 15px; letter-spacing: 2px;">
+              智能预测、物理可释、数据可视 -
+            </div>
+            <div class="title" style="margin-bottom: 15px; letter-spacing: 2px;">
+              在简洁的基础上追求美观舒适 -
+            </div>
+            <div class="title" style="margin-bottom: 15px; letter-spacing: 2px;">
+              在美观的基础上追求功能平衡 -
+            </div>
           </div>
         </TextCube>
         <TextCube class="second" background-image="none">
-          
+          <div style="display: flex; height: 100%; flex-direction: column; padding: 10px 20px;">
+            <div style="display: flex; width: 100%; flex-direction: column; align-items: center;">
+              <div style="font-size: 2.1em; letter-spacing: 3px; font-weight: 600; margin-bottom: 50px; color: rgba(120, 248, 0, 0.82);">
+                独特功能
+              </div>
+              <div style="margin-bottom: 20px; letter-spacing: 2px; color: white; font-size: 1.2em;">
+                - 海洋热浪预警 -
+              </div>
+              <div style="margin-bottom: 20px; letter-spacing: 2px; color: white; font-size: 1.2em;">
+                - 北美地区小时反演 -
+              </div>
+              <div style="margin-bottom: 20px; letter-spacing: 2px; color: white; font-size: 1.2em;">
+                - 南海三维海温预测 -
+              </div>
+            </div>
+          </div>
         </TextCube>
-        <TextCube class="third" background-image="none" />
-        <TextCube class="fourth" background-image="none" />
+        <TextCube class="third" background-image="none">
+          <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+            <span style="font-size: 3em; color: rgb(0,192,251); font-weight: 600; letter-spacing: 8px;">海天语色</span>
+          </div>
+        </TextCube>
+        <TextCube class="fourth" background-image="none">
+          <div style="width: 100%; height: 100%; display: flex; align-items: center; flex-direction: column; justify-content: center;">
+            <div style="font-size: 1.6em; color: white; margin-bottom: 30px; letter-spacing: 3px;">
+              基于
+              <span style="color: rgb(248, 132, 0); font-weight: 600; margin: 0 5px; font-size: 1.2em;">物理增强</span>
+              和
+              <span style="color: rgb(248, 132, 0); font-weight: 600; margin: 0 5px; font-size: 1.2em;">多级残差估计</span>
+            </div>
+            <div style="font-size: 1.6em; color: white; letter-spacing: 3px;">
+              海表温度预测系统
+            </div>
+          </div>
+        </TextCube>
       </div>
     </div>
 
@@ -219,8 +258,7 @@ onMounted(() => {
 @import "../../styles/aboutUs/aboutUs.css";
 
 .title {
-  position: absolute;
-  font-size: 2.2em;
+  font-size: 1.4em;
   color: white;
 }
 

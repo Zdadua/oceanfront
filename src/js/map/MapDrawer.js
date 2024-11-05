@@ -157,6 +157,7 @@ class MapDrawer {
                 });
                 this.seaLayer.setVisible(false);
                 store.commit('mapForTwo/focusOnSea');
+                store.commit('overlayChart/setType', 1);
             }
         })
     }
