@@ -83,12 +83,12 @@ const mutations = {
 
         if(state.heatMode === 0) {
             layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                url: `http://localhost:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
             }))
         }
         else {
             layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/tiles/heatwave_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                url: `http://localhost:5000/tiles/heatwave_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
             }))
         }
     },
@@ -104,12 +104,12 @@ const mutations = {
 
         if(state.focusOnSea === 0) {
             layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                url: `http://localhost:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
             }))
         }
         else {
             layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${(state.depth - 1)}/{z}/{x}_{y}.png`
+                url: `http://localhost:5000/sst_3d/${state.year}-${month}-${day}/${(state.depth - 1)}/{z}/{x}_{y}.png`
             }))
         }
     },
@@ -123,7 +123,7 @@ const mutations = {
         let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
 
         layer.setSource(new XYZ({
-            url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+            url: `http://localhost:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
         }));
 
         let seaLayer = state.map.getLayers().getArray().at(4);
@@ -207,19 +207,19 @@ const mutations = {
 
             if(state.heatMode === 0 && state.focusOnSea === 0) {
                 layer.setSource(new XYZ({
-                    url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                    url: `http://localhost:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
                 }))
             }
             else if(state.focusOnSea === 1) {
-                console.log(`http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${state.depth}/{z}/{x}_{y}.png`);
+                console.log(`http://localhost:5000/sst_3d/${state.year}-${month}-${day}/${state.depth}/{z}/{x}_{y}.png`);
                 console.log(111);
                 layer.setSource(new XYZ({
-                    url: `http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${state.depth}/{z}/{x}_{y}.png`
+                    url: `http://localhost:5000/sst_3d/${state.year}-${month}-${day}/${state.depth}/{z}/{x}_{y}.png`
                 }))
             }
             else {
                 layer.setSource(new XYZ({
-                    url: `http://172.20.163.79:5000/tiles/heatwave_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                    url: `http://localhost:5000/tiles/heatwave_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
                 }))
             }
         }
@@ -235,7 +235,7 @@ const mutations = {
         let day = state.day < 10 ? `0${state.day}` : `${state.day}`;
 
         layer.setSource(new XYZ({
-            url: `http://172.20.163.79:5000/sst_3d/${state.year}-${month}-${day}/${(state.depth - 1)}/{z}/{x}_{y}.png`
+            url: `http://localhost:5000/sst_3d/${state.year}-${month}-${day}/${(state.depth - 1)}/{z}/{x}_{y}.png`
         }))
     },
 
@@ -264,12 +264,12 @@ const mutations = {
             state.time = 0;
             state.heatMode = 0;
             layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/sst_hours/${state.year}-${month}-${day}/0/{z}/{x}_{y}.png`
+                url: `http://localhost:5000/sst_hours/${state.year}-${month}-${day}/0/{z}/{x}_{y}.png`
             }));
         }
         else {
             layer.setSource(new XYZ({
-                url: `http://172.20.163.79:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
+                url: `http://localhost:5000/tiles/sst_tiles/${state.year}-${month}-${day}/{z}/{x}_{y}.png`
             }));
         }
     },
@@ -282,7 +282,7 @@ const mutations = {
 
         console.log(state.time);
         layer.setSource(new XYZ({
-            url: `http://172.20.163.79:5000/sst_hours/${state.year}-${month}-${day}/${d}/{z}/{x}_{y}.png`
+            url: `http://localhost:5000/sst_hours/${state.year}-${month}-${day}/${d}/{z}/{x}_{y}.png`
         }));
     },
 

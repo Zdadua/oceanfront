@@ -1,12 +1,13 @@
 <script setup>
 import {computed, nextTick, onMounted, ref, watch, watchEffect} from "vue";
 import * as d3 from 'd3';
-import {extent, select} from 'd3';
+import {extent} from 'd3';
 import {floor} from "mathjs";
 import {useStore} from "vuex";
 import {toLonLat} from "ol/proj.js";
 import {fetchWithTimeout} from "../../../js/tools.js";
 import LoadingAnimate from "../animate/LoadingAnimate.vue";
+import {depthMap} from "../../../js/tools.js"
 
 const store = useStore();
 const props = defineProps({
@@ -60,12 +61,12 @@ let data = computed(() => {
     if(rawData.value != null) {
       let res = [];
 
-      for(let i = -7; i <= 7; i++) {
+      for(let i = 0; i < 7; i++) {
         let tmpDate = new Date(date.value);
         tmpDate.setDate(tmpDate.getDate() + i);
         res.push({
           date: tmpDate,
-          value: rawData.value
+          value: rawData.value[i]
         })
       }
       return res;
@@ -348,7 +349,7 @@ function initScale() {
       }));
 
       yScale = d3.scaleBand().range([h - props.options.marginBottom, props.options.marginTop]);
-      const array = Array.from({length: 40}, (_, i) => String(40 - i));
+      const array = depthMap.map((item) => Math.floor(item).toString());
       yScale.domain(array);
 
       break;
@@ -430,8 +431,10 @@ function initLine() {
 function initDeepChart() {
   initScale();
   const xAxis = d3.axisTop(xScale)
+      .tickValues(xScale.domain().filter((d, i) => i % 2 === 0));
 
-  const yAxis = d3.axisLeft(yScale).ticks(6);
+  const yAxis = d3.axisLeft(yScale)
+      .tickValues(depthMap.map((item) => Math.floor(item).toString()).filter((item, i) => i % 5 === 0));
 
   svg.append('g')
       .attr('transform', `translate(0, ${props.options.marginTop})`)
@@ -471,7 +474,7 @@ function initDeepData() {
       const index = i + 1;
       svg.append('rect')
           .attr('x', xScale(str))
-          .attr('y', yScale(index.toString()) - yScale.bandwidth() / 2)
+          .attr('y', yScale(Math.floor(depthMap[39 - i]).toString()) - yScale.bandwidth() / 2)
           .attr('width', xScale.bandwidth())
           .attr('height', yScale.bandwidth())
           .attr('fill', colorScale(d))

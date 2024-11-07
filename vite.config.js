@@ -17,7 +17,7 @@ export default defineConfig({
 
     proxy: {
       '/data': {
-        target: 'http://172.20.163.83:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/data/, ''),
       }
